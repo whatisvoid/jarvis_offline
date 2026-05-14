@@ -3,7 +3,6 @@
     import { invoke } from "@tauri-apps/api/core"
     import { Space } from "@svelteuidev/core"
 
-    import HDivider from "@/components/elements/HDivider.svelte"
     import { currentLanguage, translations, translate } from "@/stores"
 
     $: t = (key: string) => translate($translations, key)
@@ -67,13 +66,6 @@
 <Space h="md" />
 
 <div class="commands-header">
-    <span class="commands-count">
-        {#if loading}
-            {t('stats-loading')}
-        {:else}
-            {filtered.length} / {commands.length} {t('commands-count').replace('{ $count } ', '')}
-        {/if}
-    </span>
     <input
         class="search-input"
         type="text"
@@ -81,8 +73,6 @@
         bind:value={searchQuery}
     />
 </div>
-
-<HDivider />
 
 {#if loading}
     <div class="empty-state">{t('stats-loading')}</div>
