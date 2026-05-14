@@ -106,6 +106,10 @@
     position: relative;
 }
 
+.search-section {
+    padding-top: 1.5rem;
+}
+
 .stats-footer {
     flex-shrink: 0;
 }
