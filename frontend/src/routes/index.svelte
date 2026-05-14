@@ -4,7 +4,6 @@
 
     import SearchBar from "@/components/elements/SearchBar.svelte"
     import ArcReactor from "@/components/elements/ArcReactor.svelte"
-    import HDivider from "@/components/elements/HDivider.svelte"
     import Stats from "@/components/elements/Stats.svelte"
     import {
         isJarvisRunning,
@@ -59,7 +58,6 @@
 <div class="app-container assist-page">
 
     <div class="search search-section">
-        <HDivider />
         <SearchBar />
     </div>
 
@@ -85,7 +83,6 @@
     </div>
 
     <footer class="stats-footer">
-        <HDivider noMargin />
         <Stats />
     </footer>
 
@@ -105,6 +102,8 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    overflow: hidden;
+    position: relative;
 }
 
 .stats-footer {

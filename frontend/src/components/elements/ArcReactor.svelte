@@ -168,15 +168,14 @@
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
-        width: 1000px;
-        height: 1000px;
+        width: 480px;
+        height: 480px;
         border-radius: 50%;
         background: radial-gradient(
             circle,
-            rgba(var(--arc-color), 0.20) 0%,
-            rgba(var(--arc-color), 0.15) 30%,
-            rgba(var(--arc-color), 0.10) 40%,
-            rgba(var(--arc-color), 0.04) 50%,
+            rgba(var(--arc-color), 0.10) 0%,
+            rgba(var(--arc-color), 0.07) 35%,
+            rgba(var(--arc-color), 0.03) 55%,
             transparent 70%
         );
         z-index: -1;
