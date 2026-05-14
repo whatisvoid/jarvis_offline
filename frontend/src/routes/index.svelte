@@ -18,7 +18,7 @@
 
     let processRunning = false
     let launching = false
-    let wasRunning = false  // track previous state
+    let wasRunning = false
 
     isJarvisRunning.subscribe((value) => {
         processRunning = value
@@ -26,7 +26,6 @@
             enableIpc()
             wasRunning = true
         } else if (wasRunning) {
-            // only disable if it was running before
             disableIpc()
             wasRunning = false
         }
@@ -55,14 +54,13 @@
     }
 </script>
 
-<div class="app-container assist-page">
-
-    <div class="search search-section">
+<div class="assist-page">
+    <div class="search-section">
         <SearchBar />
     </div>
 
     <div class="reactor-section">
-        <div class="reactor-wrapper" class:dimmed={!processRunning}>
+        <div class="reactor-wrapper">
             <ArcReactor />
         </div>
 
@@ -85,15 +83,20 @@
     <footer class="stats-footer">
         <Stats />
     </footer>
-
 </div>
 
 <style lang="scss">
 .assist-page {
     display: flex;
     flex-direction: column;
-    height: calc(100vh - 80px);
+    height: calc(100vh - var(--header-h));
     overflow: hidden;
+}
+
+.search-section {
+    padding-top: 20px;
+    padding-bottom: 4px;
+    flex-shrink: 0;
 }
 
 .reactor-section {
@@ -104,10 +107,7 @@
     justify-content: center;
     overflow: hidden;
     position: relative;
-}
-
-.search-section {
-    padding-top: 1.5rem;
+    padding-bottom: 96px;
 }
 
 .stats-footer {

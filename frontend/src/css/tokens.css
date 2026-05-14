@@ -1,0 +1,51 @@
+/* JARVIS UI — Design Tokens */
+:root {
+    /* Backgrounds */
+    --bg-base:    #070B11;
+    --bg-surface: #0B1118;
+    --bg-raised:  #101722;
+    --bg-card:    rgba(255,255,255,0.025);
+    --bg-input:   rgba(255,255,255,0.03);
+    --bg-hover:   rgba(255,255,255,0.04);
+
+    /* Accents */
+    --accent:         #00E5FF;
+    --accent-rgb:     0, 229, 255;
+    --accent-alt:     #00FFC6;
+    --accent-alt-rgb: 0, 255, 198;
+
+    /* Text */
+    --text:       #FFFFFF;
+    --text-sub:   #B8C2CC;
+    --text-muted: #6E7B87;
+
+    /* Borders */
+    --border:         rgba(255,255,255,0.08);
+    --border-subtle:  rgba(255,255,255,0.06);
+    --border-strong:  rgba(255,255,255,0.14);
+    --border-accent:  rgba(0,229,255,0.35);
+    --border-section: rgba(255,255,255,0.04);
+
+    /* Typography */
+    --font:      "Inter", "Segoe UI", -apple-system, sans-serif;
+    --font-mono: "Consolas", "Courier New", monospace;
+
+    /* Radii */
+    --r-sm: 4px;
+    --r-md: 6px;
+    --r-lg: 8px;
+
+    /* Animation */
+    --ease: all 140ms ease;
+
+    /* Header — shell bar (48px) + nav bar (44px) */
+    --header-h:         92px;
+    --shell-h:          48px;
+    --nav-h:            44px;
+    --header-bg:        linear-gradient(180deg, rgba(10,15,24,0.98), rgba(5,8,14,0.96));
+    --header-border:    1px solid rgba(255,255,255,0.04);
+
+    /* Glows */
+    --glow-sm: 0 0 12px rgba(0,229,255,0.06);
+    --glow-md: 0 0 24px rgba(0,229,255,0.08);
+}

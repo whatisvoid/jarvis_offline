@@ -9,23 +9,19 @@
 
     import {
         Notification,
-        Button,
         Text,
         Space,
         Alert,
         Input,
         InputWrapper,
-        NativeSelect,
         Switch
     } from "@svelteuidev/core"
 
+    import Select from "@/components/ui/Select.svelte"
+
     import {
         Check,
-        Mix,
-        Cube,
         Code,
-        Gear,
-        InfoCircled,
         QuestionMarkCircled,
         CrossCircled
     } from "radix-icons-svelte"
@@ -237,8 +233,6 @@
     })
 </script>
 
-<Space h="xl" />
-
 {#if settingsSaved}
     <Notification
         title={t('notification-saved')}
@@ -246,32 +240,28 @@
         color="teal"
         on:close={() => { settingsSaved = false }}
     />
-    <Space h="md" />
+    <Space h="sm" />
 {/if}
 
 <div class="settings-layout">
     <nav class="settings-nav">
         <button class="nav-item" class:active={activeTab === 'general'} on:click={() => activeTab = 'general'}>
-            <svelte:component this={Gear} size={15} />
-            <span>{t('settings-general')}</span>
+            {t('settings-general')}
         </button>
         <button class="nav-item" class:active={activeTab === 'devices'} on:click={() => activeTab = 'devices'}>
-            <svelte:component this={Mix} size={15} />
-            <span>{t('settings-devices')}</span>
+            {t('settings-devices')}
         </button>
         <button class="nav-item" class:active={activeTab === 'neural'} on:click={() => activeTab = 'neural'}>
-            <svelte:component this={Cube} size={15} />
-            <span>{t('settings-neural-networks')}</span>
+            {t('settings-neural-networks')}
         </button>
         <button class="nav-item" class:active={activeTab === 'about'} on:click={() => activeTab = 'about'}>
-            <svelte:component this={InfoCircled} size={15} />
-            <span>{t('settings-about')}</span>
+            {t('settings-about')}
         </button>
     </nav>
 
     <div class="settings-content">
         {#if activeTab === 'general'}
-            <div class="lang-select">
+            <div class="settings-section">
                 <span class="section-label">{t('settings-language')}</span>
                 <div class="lang-options">
                     {#each languages as lang}
@@ -281,21 +271,23 @@
                             class:selected={lang.code === $currentLanguage}
                             on:click={() => selectLanguage(lang.code)}
                         >
-                            <img src="/media/flags/{lang.label}.png" width="22" alt={lang.flag} />
+                            <img src="/media/flags/{lang.label}.png" width="20" alt={lang.flag} />
                             <span>{lang.name}</span>
                         </button>
                     {/each}
                 </div>
             </div>
-            <Space h="md" />
-            <div class="voice-select">
+
+            <div class="section-divider"></div>
+
+            <div class="settings-section">
                 <span class="section-label">{t('settings-voice')}</span>
-                <p class="description">{t('settings-voice-desc')}</p>
-                <div class="voice-options">
+                <p class="section-desc">{t('settings-voice-desc')}</p>
+                <div class="voice-list">
                     {#each availableVoices as voice}
                         <button
                             type="button"
-                            class="voice-option"
+                            class="voice-item"
                             class:selected={voiceVal === voice.id}
                             on:click={() => selectVoice(voice.id)}
                         >
@@ -305,608 +297,814 @@
                                     <span class="voice-author">by {voice.author}</span>
                                 {/if}
                             </div>
-                            <div class="voice-languages">
-                                {#each voice.languages as lang}
-                                    <img src="/media/flags/{lang.toUpperCase()}.png" alt={lang} width="20" title={lang} />
+                            <div class="voice-langs">
+                                {#each voice.languages as l}
+                                    <img src="/media/flags/{l.toUpperCase()}.png" alt={l} width="18" title={l} />
                                 {/each}
                             </div>
                         </button>
                     {/each}
                     {#if availableVoices.length === 0}
-                        <p class="no-voices">{t('settings-no-voices')}</p>
+                        <p class="empty-hint">{t('settings-no-voices')}</p>
                     {/if}
                 </div>
             </div>
 
         {:else if activeTab === 'devices'}
-            <NativeSelect
-                data={availableMicrophones}
-                label={t('settings-microphone')}
-                description={t('settings-microphone-desc')}
-                variant="filled"
-                bind:value={selectedMicrophone}
-            />
+            <div class="settings-section">
+                <Select
+                    data={availableMicrophones}
+                    label={t('settings-microphone')}
+                    description={t('settings-microphone-desc')}
+                    bind:value={selectedMicrophone}
+                />
+            </div>
 
         {:else if activeTab === 'neural'}
-            <NativeSelect
-                data={[
-                    { label: "Rustpotter", value: "Rustpotter" },
-                    { label: "Vosk", value: "Vosk" },
-                    { label: "Picovoice Porcupine", value: "Picovoice" }
-                ]}
-                label={t('settings-wake-word-engine')}
-                description={t('settings-wake-word-desc')}
-                variant="filled"
-                bind:value={selectedWakeWordEngine}
-            />
-
-            {#if selectedWakeWordEngine === "picovoice"}
-                <Space h="sm" />
-                <Alert title={t('settings-attention')} color="#868E96" variant="outline">
-                    <Notification
-                        title={t('settings-picovoice-warning')}
-                        icon={CrossCircled}
-                        color="orange"
-                        withCloseButton={false}
-                    >
-                        {t('settings-picovoice-waiting')}
-                    </Notification>
-                    <Space h="sm" />
-                    <Text size="sm" color="gray">
-                        {t('settings-picovoice-key-desc')}
-                        <a href="https://console.picovoice.ai/" target="_blank">Picovoice Console</a>.
-                    </Text>
-                    <Space h="sm" />
-                    <Input
-                        icon={Code}
-                        placeholder={t('settings-picovoice-key')}
-                        variant="filled"
-                        autocomplete="off"
-                        bind:value={apiKeyPicovoice}
-                    />
-                </Alert>
-            {/if}
-
-            <Space h="xl" />
-            {#key availableVoskModels}
-            <NativeSelect
-                data={[{ label: t('settings-auto-detect'), value: "" }, ...availableVoskModels]}
-                label={t('settings-vosk-model')}
-                description={t('settings-vosk-model-desc')}
-                variant="filled"
-                bind:value={selectedVoskModel}
-            />
-            {/key}
-
-            {#if availableVoskModels.length === 0}
-                <Space h="sm" />
-                <Alert title={t('settings-models-not-found')} color="orange" variant="outline">
-                    <Text size="sm" color="gray">{t('settings-models-hint')}</Text>
-                </Alert>
-            {/if}
-
-            <Space h="xl" />
-            <NativeSelect
-                data={[
-                    { label: "Intent Classifier", value: "IntentClassifier" },
-                    { label: "Embedding Classifier", value: "EmbeddingClassifier" }
-                ]}
-                label={t('settings-intent-engine')}
-                description={t('settings-intent-engine-desc')}
-                variant="filled"
-                bind:value={selectedIntentRecognitionEngine}
-            />
-
-            <Space h="xl" />
-            <NativeSelect
-                data={[
-                    { label: t('settings-disabled'), value: "None" },
-                    { label: "GLiNER (NER)", value: "GLiNER" }
-                ]}
-                label={t('settings-slot-engine')}
-                description={t('settings-slot-engine-desc')}
-                variant="filled"
-                bind:value={selectedSlotExtractionEngine}
-            />
-
-            {#if selectedSlotExtractionEngine === "GLiNER"}
-                <Space h="sm" />
-                {#key availableGlinerModels}
-                <NativeSelect
-                    data={[{ label: t('settings-auto-detect'), value: "" }, ...availableGlinerModels]}
-                    label={t('settings-gliner-model')}
-                    description={t('settings-gliner-model-desc')}
-                    variant="filled"
-                    bind:value={selectedGlinerModel}
+            <div class="settings-section">
+                <Select
+                    data={[
+                        { label: "Rustpotter", value: "Rustpotter" },
+                        { label: "Vosk", value: "Vosk" },
+                        { label: "Picovoice Porcupine", value: "Picovoice" }
+                    ]}
+                    label={t('settings-wake-word-engine')}
+                    description={t('settings-wake-word-desc')}
+                    bind:value={selectedWakeWordEngine}
                 />
-                {/key}
-                {#if availableGlinerModels.length === 0}
+
+                {#if selectedWakeWordEngine === "picovoice"}
                     <Space h="sm" />
-                    <Alert title={t('settings-models-not-found')} color="orange" variant="outline">
-                        <Text size="sm" color="gray">{t('settings-gliner-models-hint')}</Text>
+                    <Alert title={t('settings-attention')} color="#868E96" variant="outline">
+                        <Notification
+                            title={t('settings-picovoice-warning')}
+                            icon={CrossCircled}
+                            color="orange"
+                            withCloseButton={false}
+                        >
+                            {t('settings-picovoice-waiting')}
+                        </Notification>
+                        <Space h="sm" />
+                        <Text size="sm" color="gray">
+                            {t('settings-picovoice-key-desc')}
+                            <a href="https://console.picovoice.ai/" target="_blank">Picovoice Console</a>.
+                        </Text>
+                        <Space h="sm" />
+                        <Input
+                            icon={Code}
+                            placeholder={t('settings-picovoice-key')}
+                            variant="filled"
+                            autocomplete="off"
+                            bind:value={apiKeyPicovoice}
+                        />
                     </Alert>
                 {/if}
-            {/if}
 
-            <Space h="xl" />
-            <NativeSelect
-                data={[
-                    { label: t('settings-disabled'), value: "None" },
-                    { label: "Nnnoiseless", value: "Nnnoiseless" }
-                ]}
-                label={t('settings-noise-suppression')}
-                description={t('settings-noise-suppression-desc')}
-                variant="filled"
-                bind:value={selectedNoiseSuppression}
-            />
-
-            <Space h="md" />
-            <NativeSelect
-                data={[
-                    { label: t('settings-disabled'), value: "None" },
-                    { label: "Energy", value: "Energy" },
-                    { label: "Nnnoiseless", value: "Nnnoiseless" }
-                ]}
-                label={t('settings-vad')}
-                description={t('settings-vad-desc')}
-                variant="filled"
-                bind:value={selectedVad}
-            />
-
-            <Space h="md" />
-            <InputWrapper label={t('settings-gain-normalizer')}>
-                <Text size="sm" color="gray">{t('settings-gain-normalizer-desc')}</Text>
-                <Space h="xs" />
-                <Switch
-                    label={gainNormalizerEnabled ? t('settings-enabled') : t('settings-disabled')}
-                    bind:checked={gainNormalizerEnabled}
+                <div class="field-gap"></div>
+                <Select
+                    data={[{ label: t('settings-auto-detect'), value: "" }, ...availableVoskModels]}
+                    label={t('settings-vosk-model')}
+                    description={t('settings-vosk-model-desc')}
+                    bind:value={selectedVoskModel}
                 />
-            </InputWrapper>
 
-            <Space h="xl" />
-            <div class="ollama-section">
-                <div class="ollama-header">
-                    <span class="ollama-title">Ollama</span>
-                    <span class="ollama-badge">LOCAL LLM</span>
-                </div>
-                <Text size="sm" color="gray">{t('settings-ollama-desc')}</Text>
-                <Space h="sm" />
-                <div class="ollama-field">
-                    <label for="ollama-url-input" class="ollama-label">{t('settings-ollama-url')}</label>
-                    <small class="ollama-desc">{t('settings-ollama-url-desc')}</small>
-                    <div class="ollama-url-row">
-                        <input
-                            id="ollama-url-input"
-                            class="ollama-input"
-                            placeholder="http://localhost:11434"
-                            bind:value={ollamaUrl}
-                        />
-                        <Button
-                            color="gray"
-                            radius="md"
-                            size="sm"
-                            uppercase
-                            on:click={loadOllamaModels}
-                            disabled={ollamaLoading}
-                        >
-                            {ollamaLoading ? '...' : t('settings-ollama-load-models')}
-                        </Button>
-                    </div>
-                </div>
-
-                {#if ollamaError}
-                    <Space h="xs" />
-                    <Text size="sm" color="red">{ollamaError}</Text>
-                {/if}
-
-                {#if availableOllamaModels.length > 0}
+                {#if availableVoskModels.length === 0}
                     <Space h="sm" />
-                    {#key availableOllamaModels}
-                    <NativeSelect
-                        data={availableOllamaModels}
-                        label={t('settings-ollama-model')}
-                        description={t('settings-ollama-model-desc')}
-                        variant="filled"
-                        bind:value={ollamaModel}
-                    />
-                    {/key}
-                {:else if ollamaModelsLoaded}
-                    <Space h="xs" />
-                    <Alert title={t('settings-ollama-no-models')} color="orange" variant="outline" />
+                    <Alert title={t('settings-models-not-found')} color="orange" variant="outline">
+                        <Text size="sm" color="gray">{t('settings-models-hint')}</Text>
+                    </Alert>
                 {/if}
+
+                <div class="field-gap"></div>
+                <Select
+                    data={[
+                        { label: "Intent Classifier", value: "IntentClassifier" },
+                        { label: "Embedding Classifier", value: "EmbeddingClassifier" }
+                    ]}
+                    label={t('settings-intent-engine')}
+                    description={t('settings-intent-engine-desc')}
+                    bind:value={selectedIntentRecognitionEngine}
+                />
+
+                <div class="field-gap"></div>
+                <Select
+                    data={[
+                        { label: t('settings-disabled'), value: "None" },
+                        { label: "GLiNER (NER)", value: "GLiNER" }
+                    ]}
+                    label={t('settings-slot-engine')}
+                    description={t('settings-slot-engine-desc')}
+                    bind:value={selectedSlotExtractionEngine}
+                />
+
+                {#if selectedSlotExtractionEngine === "GLiNER"}
+                    <Space h="sm" />
+                    <Select
+                        data={[{ label: t('settings-auto-detect'), value: "" }, ...availableGlinerModels]}
+                        label={t('settings-gliner-model')}
+                        description={t('settings-gliner-model-desc')}
+                        bind:value={selectedGlinerModel}
+                    />
+                    {#if availableGlinerModels.length === 0}
+                        <Space h="sm" />
+                        <Alert title={t('settings-models-not-found')} color="orange" variant="outline">
+                            <Text size="sm" color="gray">{t('settings-gliner-models-hint')}</Text>
+                        </Alert>
+                    {/if}
+                {/if}
+
+                <div class="field-gap"></div>
+                <Select
+                    data={[
+                        { label: t('settings-disabled'), value: "None" },
+                        { label: "Nnnoiseless", value: "Nnnoiseless" }
+                    ]}
+                    label={t('settings-noise-suppression')}
+                    description={t('settings-noise-suppression-desc')}
+                    bind:value={selectedNoiseSuppression}
+                />
+
+                <Space h="md" />
+                <Select
+                    data={[
+                        { label: t('settings-disabled'), value: "None" },
+                        { label: "Energy", value: "Energy" },
+                        { label: "Nnnoiseless", value: "Nnnoiseless" }
+                    ]}
+                    label={t('settings-vad')}
+                    description={t('settings-vad-desc')}
+                    bind:value={selectedVad}
+                />
+
+                <Space h="md" />
+                <InputWrapper label={t('settings-gain-normalizer')}>
+                    <Text size="sm" color="gray">{t('settings-gain-normalizer-desc')}</Text>
+                    <Space h="xs" />
+                    <Switch
+                        label={gainNormalizerEnabled ? t('settings-enabled') : t('settings-disabled')}
+                        bind:checked={gainNormalizerEnabled}
+                    />
+                </InputWrapper>
+
+                <div class="field-gap"></div>
+                <div class="ollama-section">
+                    <div class="ollama-header">
+                        <span class="ollama-title">Ollama</span>
+                        <span class="ollama-badge">LOCAL LLM</span>
+                    </div>
+                    <Text size="sm" color="gray">{t('settings-ollama-desc')}</Text>
+                    <Space h="sm" />
+                    <div class="ollama-field">
+                        <label for="ollama-url-input" class="ollama-label">{t('settings-ollama-url')}</label>
+                        <small class="ollama-desc">{t('settings-ollama-url-desc')}</small>
+                        <div class="ollama-url-row">
+                            <input
+                                id="ollama-url-input"
+                                class="field-input"
+                                placeholder="http://localhost:11434"
+                                bind:value={ollamaUrl}
+                            />
+                            <button
+                                class="btn-secondary btn-sm"
+                                on:click={loadOllamaModels}
+                                disabled={ollamaLoading}
+                            >
+                                {ollamaLoading ? '...' : t('settings-ollama-load-models')}
+                            </button>
+                        </div>
+                    </div>
+
+                    {#if ollamaError}
+                        <Space h="xs" />
+                        <Text size="sm" color="red">{ollamaError}</Text>
+                    {/if}
+
+                    {#if availableOllamaModels.length > 0}
+                        <Space h="sm" />
+                        <Select
+                            data={availableOllamaModels}
+                            label={t('settings-ollama-model')}
+                            description={t('settings-ollama-model-desc')}
+                            bind:value={ollamaModel}
+                        />
+                    {:else if ollamaModelsLoaded}
+                        <Space h="xs" />
+                        <Alert title={t('settings-ollama-no-models')} color="orange" variant="outline" />
+                    {/if}
+                </div>
             </div>
 
         {:else if activeTab === 'about'}
-            <Notification
-                title={t('settings-beta-title')}
-                icon={QuestionMarkCircled}
-                color="blue"
-                withCloseButton={false}
-            >
-                {t('settings-beta-desc')}<br />
-                {t('settings-beta-feedback')} <a href={feedbackLink} target="_blank">{t('settings-beta-bot')}</a>.
-                <Space h="sm" />
-                <Button
-                    color="gray"
-                    radius="md"
-                    size="xs"
-                    uppercase
-                    on:click={() => showInExplorer(logFilePath)}
+            <div class="settings-section">
+                <Notification
+                    title={t('settings-beta-title')}
+                    icon={QuestionMarkCircled}
+                    color="blue"
+                    withCloseButton={false}
                 >
-                    {t('settings-open-logs')}
-                </Button>
-            </Notification>
-            <Space h="lg" />
-            <div class="about-section">
-                <div class="about-version-block">
-                    <div class="about-version-name">JARVIS</div>
-                    <div class="about-version-row">
-                        <span class="about-version-num">v{appVersion}</span>
-                        <span class="about-version-badge">BETA</span>
+                    {t('settings-beta-desc')}<br />
+                    {t('settings-beta-feedback')} <a href={feedbackLink} target="_blank">{t('settings-beta-bot')}</a>.
+                    <Space h="sm" />
+                    <button class="btn-secondary btn-sm" on:click={() => showInExplorer(logFilePath)}>
+                        {t('settings-open-logs')}
+                    </button>
+                </Notification>
+
+                <Space h="lg" />
+
+                <div class="about-block">
+                    <div class="about-version">
+                        <span class="about-name">JARVIS</span>
+                        <div class="about-version-row">
+                            <span class="about-ver">v{appVersion}</span>
+                            <span class="about-badge">BETA</span>
+                        </div>
                     </div>
-                </div>
-                <p class="about-copyright">© 2026. {t('footer-author')}: <b>{authorName}</b></p>
-                <div class="about-links">
-                    {#if $currentLanguage === "ru" || $currentLanguage === "ua"}
-                    <a href={tgLink} target="_blank" class="about-link">
-                        <img src="/media/icons/telegram.webp" alt="Telegram" width="18" />
-                        <span>{t('footer-telegram')}</span>
-                    </a>
-                    {/if}
-                    <a href={repoLink} target="_blank" class="about-link">
-                        <img src="/media/icons/github-logo.png" alt="GitHub" width="18" />
-                        <span>{t('footer-github')}</span>
-                    </a>
-                </div>
-                <div class="about-support">
-                    {#if $currentLanguage === "ru"}
-                    <p>{t('footer-support')} <a href={boostyLink} target="_blank" class="about-link about-link--inline">
-                        <img src="/media/icons/boosty.webp" alt="Boosty" width="18" />
-                        <span>Boosty</span>
-                    </a>.</p>
-                    {:else if $currentLanguage === "ua" || $currentLanguage === "en"}
-                    <p>{t('footer-support')} <a href={patreonLink} target="_blank" class="about-link about-link--inline">
-                        <img src="/media/icons/patreon.png" alt="Patreon" width="18" />
-                        <span>Patreon</span>
-                    </a>.</p>
-                    {/if}
+
+                    <p class="about-copyright">© 2026. {t('footer-author')}: <b>{authorName}</b></p>
+
+                    <div class="about-links">
+                        {#if $currentLanguage === "ru" || $currentLanguage === "ua"}
+                        <a href={tgLink} target="_blank" class="about-link">
+                            <img src="/media/icons/telegram.webp" alt="Telegram" width="16" />
+                            <span>{t('footer-telegram')}</span>
+                        </a>
+                        {/if}
+                        <a href={repoLink} target="_blank" class="about-link">
+                            <img src="/media/icons/github-logo.png" alt="GitHub" width="16" />
+                            <span>{t('footer-github')}</span>
+                        </a>
+                    </div>
+
+                    <div class="about-support">
+                        {#if $currentLanguage === "ru"}
+                        <p>{t('footer-support')} <a href={boostyLink} target="_blank" class="about-link about-link--inline">
+                            <img src="/media/icons/boosty.webp" alt="Boosty" width="16" />
+                            <span>Boosty</span>
+                        </a>.</p>
+                        {:else if $currentLanguage === "ua" || $currentLanguage === "en"}
+                        <p>{t('footer-support')} <a href={patreonLink} target="_blank" class="about-link about-link--inline">
+                            <img src="/media/icons/patreon.png" alt="Patreon" width="16" />
+                            <span>Patreon</span>
+                        </a>.</p>
+                        {/if}
+                    </div>
                 </div>
             </div>
         {/if}
     </div>
 </div>
 
-<Space h="xl" />
-
-<Button
-    color="lime"
-    radius="md"
-    size="sm"
-    uppercase
-    ripple
-    fullSize
-    on:click={saveSettings}
-    disabled={saveButtonDisabled}
->
-    {t('settings-save')}
-</Button>
-
-<Space h="sm" />
-
-<Button
-    color="gray"
-    radius="md"
-    size="sm"
-    uppercase
-    fullSize
-    on:click={() => $goto("/")}
->
-    {t('settings-back')}
-</Button>
-
+<div class="settings-actions">
+    <button class="btn-save" on:click={saveSettings} disabled={saveButtonDisabled}>
+        {t('settings-save')}
+    </button>
+    <button class="btn-back" on:click={() => $goto("/")}>
+        {t('settings-back')}
+    </button>
+</div>
 
 <style lang="scss">
+/* ===== LAYOUT ===== */
 .settings-layout {
     display: flex;
     flex-direction: column;
-    gap: 0.85rem;
-    min-height: 0;
+    gap: 0;
+    padding-top: 16px;
+    position: relative;
+
+    &::before, &::after {
+        content: '';
+        position: absolute;
+        width: 6px;
+        height: 6px;
+        border-color: rgba(0,229,255,0.3);
+        border-style: solid;
+        pointer-events: none;
+    }
+
+    &::before {
+        top: 16px;
+        left: 0;
+        border-width: 1px 0 0 1px;
+    }
+
+    &::after {
+        top: 16px;
+        right: 0;
+        border-width: 1px 1px 0 0;
+    }
 }
 
+/* ===== TABS ===== */
 .settings-nav {
     display: flex;
     flex-direction: row;
     flex-shrink: 0;
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 8px;
+    height: 44px;
+    border-radius: var(--r-lg);
     overflow: hidden;
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.05);
+    position: relative;
 }
 
 .nav-item {
+    position: relative;
     display: flex;
-    flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 0.3rem;
     flex: 1;
-    padding: 0.6rem 0.4rem;
+    height: 100%;
+    padding: 0 0.5rem;
     background: transparent;
     border: none;
-    border-right: 1px solid rgba(255,255,255,0.07);
-    color: rgba(255,255,255,0.38);
-    font-size: 0.67rem;
-    font-weight: 500;
+    border-right: 1px solid rgba(255,255,255,0.04);
+    color: rgba(255,255,255,0.35);
+    font-size: 0.64rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
     cursor: pointer;
-    text-align: center;
-    transition: background 0.15s ease, color 0.15s ease;
+    transition: var(--ease);
     white-space: nowrap;
 
     &:last-child { border-right: none; }
 
-    :global(svg) {
-        flex-shrink: 0;
-        opacity: 0.5;
-        transition: opacity 0.15s ease;
-    }
-
     &:hover {
-        background: rgba(255,255,255,0.04);
-        color: rgba(255,255,255,0.7);
-        :global(svg) { opacity: 0.8; }
+        background: rgba(255,255,255,0.03);
+        color: rgba(255,255,255,0.65);
     }
 
     &.active {
-        background: rgba(138,200,50,0.1);
-        color: #8AC832;
-        :global(svg) { opacity: 1; }
+        background: linear-gradient(180deg, rgba(0,229,255,0.10), rgba(0,229,255,0.03));
+        border-right-color: rgba(0,229,255,0.12);
+        color: var(--accent);
+        box-shadow: 0 0 20px rgba(0,229,255,0.08);
+
+        &::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--accent), transparent);
+            opacity: 0.7;
+        }
     }
 }
 
+/* ===== CONTENT AREA ===== */
 .settings-content {
     flex: 1;
     overflow-y: auto;
-    max-height: calc(100vh - 270px);
+    max-height: calc(100vh - var(--header-h) - 140px);
+    padding-top: 4px;
 
     &::-webkit-scrollbar { width: 4px; }
     &::-webkit-scrollbar-track { background: transparent; }
     &::-webkit-scrollbar-thumb {
-        background: rgba(255,255,255,0.15);
+        background: rgba(255,255,255,0.1);
         border-radius: 2px;
     }
 }
 
-.section-label {
-    display: block;
-    font-weight: 600;
-    font-size: 0.85rem;
-    color: rgba(255,255,255,0.7);
-    margin-bottom: 0.5rem;
+.settings-section {
+    padding: 16px;
+    border-radius: 10px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.022), rgba(255,255,255,0.010));
+    border: 1px solid rgba(255,255,255,0.04);
+    margin-bottom: 8px;
 }
 
+.section-divider { display: none; }
+
+.field-gap { height: 18px; }
+
+/* ===== LABELS ===== */
+.section-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: var(--text-sub);
+    margin-bottom: 12px;
+
+    &::before {
+        content: '';
+        display: inline-block;
+        width: 2px;
+        height: 14px;
+        background: var(--accent);
+        border-radius: 1px;
+        opacity: 0.75;
+        flex-shrink: 0;
+    }
+}
+
+.section-desc {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    margin: -8px 0 12px 10px;
+    line-height: 1.5;
+    white-space: pre-line;
+}
+
+/* ===== LANGUAGE OPTIONS ===== */
 .lang-options {
     display: flex;
-    gap: 0.4rem;
+    gap: 6px;
 }
 
 .lang-option {
     display: flex;
     align-items: center;
-    gap: 0.4rem;
-    padding: 0.45rem 0.75rem;
-    background: rgba(30, 40, 45, 0.8);
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 8px;
+    gap: 6px;
+    padding: 6px 12px;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: var(--r-md);
     cursor: pointer;
-    color: rgba(255,255,255,0.6);
+    color: rgba(255,255,255,0.5);
     font-size: 0.78rem;
     font-weight: 500;
-    transition: all 0.2s ease;
+    transition: var(--ease);
+    opacity: 0.55;
 
-    img { border-radius: 2px; opacity: 0.75; }
+    img { border-radius: 2px; opacity: 0.6; transition: opacity 140ms ease; }
 
     &:hover {
-        background: rgba(40, 55, 60, 0.9);
-        border-color: rgba(255,255,255,0.2);
-        color: #fff;
+        background: var(--bg-hover);
+        border-color: var(--border-strong);
+        color: var(--text);
+        opacity: 1;
         img { opacity: 1; }
     }
 
     &.selected {
+<<<<<<< HEAD
         background: rgba(0, 200, 220, 0.1);
         border-color: rgba(0, 200, 220, 0.4);
         color: #00c8dc;
+=======
+        background: rgba(0,229,255,0.12);
+        border-color: rgba(0,229,255,0.38);
+        color: var(--accent);
+        box-shadow: 0 0 18px rgba(0,229,255,0.08);
+        opacity: 1;
+>>>>>>> dev
         img { opacity: 1; }
     }
 }
 
-.voice-select {
-    .description {
-        font-size: 0.75rem;
-        color: rgba(255,255,255,0.5);
-        margin: 0 0 0.75rem;
-        white-space: pre-line;
-    }
-}
-
-$voice-item-height: 70px;
-$voice-item-gap: 0.5rem;
-$voice-max-visible: 3;
-
-.voice-options {
+/* ===== VOICE LIST ===== */
+.voice-list {
     display: flex;
     flex-direction: column;
-    gap: $voice-item-gap;
-    max-height: $voice-item-height * $voice-max-visible;
+    gap: 4px;
+    max-height: 196px;
     overflow-y: auto;
 
     &::-webkit-scrollbar { width: 4px; }
-    &::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); border-radius: 3px; }
+    &::-webkit-scrollbar-track { background: transparent; }
     &::-webkit-scrollbar-thumb {
-        background: rgba(255,255,255,0.2);
-        border-radius: 3px;
-        &:hover { background: rgba(255,255,255,0.3); }
+        background: rgba(255,255,255,0.12);
+        border-radius: 2px;
     }
 }
 
-.voice-option {
+.voice-item {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0.75rem 1rem;
-    background: rgba(30, 40, 45, 0.8);
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 8px;
+    height: 56px;
+    padding: 0 14px 0 12px;
+    background: linear-gradient(90deg, rgba(0,229,255,0.03), rgba(255,255,255,0.01));
+    border: none;
+    border-left: 2px solid transparent;
+    border-radius: var(--r-md);
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: var(--ease);
     text-align: left;
     width: 100%;
+    text-decoration: none;
+    outline: none;
+
+    &::after,
+    &:hover::after {
+        display: none;
+        content: none;
+    }
 
     &:hover {
-        background: rgba(40, 55, 60, 0.9);
-        border-color: rgba(255,255,255,0.2);
+        background: rgba(0,229,255,0.035);
+        border-left-color: rgba(0,229,255,0.65);
+        transform: translateX(2px);
     }
 
     &.selected {
+<<<<<<< HEAD
         background: rgba(0, 200, 220, 0.1);
         border-color: rgba(0, 200, 220, 0.4);
+=======
+        background: rgba(0,229,255,0.08);
+        border-left: 2px solid #00e5ff;
+    }
+
+    &:focus-visible {
+        outline: 1px solid rgba(0,229,255,0.35);
+        outline-offset: 2px;
+>>>>>>> dev
     }
 }
 
 .voice-info {
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
-    gap: 0.15rem;
+    gap: 2px;
 }
 
 .voice-name {
-    font-size: 0.85rem;
-    color: #fff;
+    font-size: 0.82rem;
+    color: var(--text);
     font-weight: 500;
 }
 
 .voice-author {
-    font-size: 0.7rem;
-    color: rgba(255,255,255,0.4);
+    font-size: 0.68rem;
+    color: var(--text-muted);
 }
 
-.voice-languages {
+.voice-langs {
     display: flex;
-    gap: 0.35rem;
-    img { opacity: 0.8; border-radius: 2px; }
+    gap: 5px;
+    img { opacity: 0.75; border-radius: 2px; }
 }
 
-.no-voices {
-    font-size: 0.8rem;
-    color: rgba(255,255,255,0.4);
+.empty-hint {
+    font-size: 0.78rem;
+    color: var(--text-muted);
     font-style: italic;
+    padding: 8px 0;
 }
 
+/* ===== OLLAMA SECTION ===== */
 .ollama-section {
-    border: 1px solid rgba(255,255,255,0.06);
-    border-radius: 8px;
-    padding: 0.85rem;
-    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.05);
+    border-left: 2px solid rgba(0,229,255,0.2);
+    border-radius: var(--r-md);
+    padding: 14px 14px 14px 12px;
+    background: rgba(255,255,255,0.015);
+    margin-top: 4px;
 }
 
 .ollama-header {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    margin-bottom: 0.4rem;
+    gap: 8px;
+    margin-bottom: 6px;
 }
 
 .ollama-title {
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     font-weight: 700;
-    color: rgba(255,255,255,0.85);
+    color: var(--text);
 }
 
 .ollama-badge {
-    font-size: 0.6rem;
+    font-size: 0.58rem;
     font-weight: 700;
     letter-spacing: 0.8px;
-    color: #8AC832;
-    border: 1px solid #8AC832;
-    border-radius: 3px;
-    padding: 0.1rem 0.35rem;
-    opacity: 0.8;
+    color: var(--accent);
+    border: 1px solid rgba(0,229,255,0.4);
+    border-radius: var(--r-sm);
+    padding: 1px 5px;
+    opacity: 0.85;
+    text-transform: uppercase;
 }
 
-.ollama-field {
-    margin-bottom: 0.25rem;
-}
+.ollama-field { margin-bottom: 4px; }
 
 .ollama-label {
     display: block;
-    font-size: 0.82rem;
+    font-size: 0.75rem;
     font-weight: 600;
-    color: rgba(255,255,255,0.75);
-    margin-bottom: 0.2rem;
+    color: var(--text-sub);
+    margin-bottom: 3px;
 }
 
 .ollama-desc {
     display: block;
-    font-size: 0.72rem;
-    color: rgba(255,255,255,0.35);
-    margin-bottom: 0.5rem;
+    font-size: 0.68rem;
+    color: var(--text-muted);
+    margin-bottom: 8px;
     line-height: 1.4;
-}
-
-.ollama-input {
-    flex: 1;
-    height: 34px;
-    background: rgba(255,255,255,0.06);
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 6px;
-    color: #d1d1d1;
-    font-size: 0.82rem;
-    padding: 0 0.75rem;
-    outline: none;
-    transition: border-color 0.2s;
-    width: 100%;
-
-    &::placeholder { color: rgba(255,255,255,0.2); }
-    &:focus { border-color: rgba(82,254,254,0.4); }
 }
 
 .ollama-url-row {
     display: flex;
-    gap: 0.5rem;
-    align-items: flex-start;
+    gap: 8px;
+    align-items: center;
+}
 
-    :global(.svelteui-Input-wrapper), :global(input) {
-        flex: 1;
+.field-input {
+    flex: 1;
+    height: 40px;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: var(--r-md);
+    color: var(--text);
+    font-size: 0.82rem;
+    padding: 0 12px;
+    transition: var(--ease);
+
+    &::placeholder { color: var(--text-muted); }
+    &:focus { border-color: rgba(0,229,255,0.5); }
+}
+
+/* ===== ABOUT ===== */
+.about-block {
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 0.82rem;
+    line-height: 1.8;
+}
+
+.about-version {
+    margin-bottom: 16px;
+}
+
+.about-name {
+    display: block;
+    font-size: 1.5rem;
+    font-weight: 800;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.8);
+    font-family: var(--font-mono);
+    margin-bottom: 6px;
+}
+
+.about-version-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.about-ver {
+    font-size: 0.88rem;
+    font-family: var(--font-mono);
+    color: rgba(0,229,255,0.65);
+    letter-spacing: 1px;
+}
+
+.about-badge {
+    font-size: 0.58rem;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    color: rgba(0,229,255,0.55);
+    border: 1px solid rgba(0,229,255,0.3);
+    border-radius: var(--r-sm);
+    padding: 1px 5px;
+}
+
+.about-copyright {
+    margin: 0 0 12px;
+    color: var(--text-muted);
+    b { color: rgba(255,255,255,0.5); }
+}
+
+.about-links {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.about-support p { margin: 0; }
+
+.about-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--text-muted);
+    text-decoration: none;
+    transition: var(--ease);
+
+    img { opacity: 0.45; transition: opacity 140ms ease; margin-top: -2px; }
+
+    span {
+        color: #1a6b8a;
+        border-bottom: 1px solid #1a6b8a;
+        transition: color 140ms ease, border-color 140ms ease;
+        font-size: 0.8rem;
+    }
+
+    &:hover {
+        img { opacity: 1; }
+        span { color: var(--accent); border-color: var(--accent); }
+    }
+
+    &--inline { vertical-align: middle; }
+}
+
+/* ===== BUTTONS ===== */
+.settings-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 12px 0 6px;
+}
+
+.btn-save {
+    width: 100%;
+    height: 44px;
+    background: linear-gradient(180deg, rgba(0,229,255,0.16), rgba(0,180,255,0.08));
+    border: 1px solid rgba(0,229,255,0.25);
+    border-radius: var(--r-md);
+    color: var(--accent);
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    cursor: pointer;
+    transition: var(--ease);
+    box-shadow: inset 0 0 20px rgba(0,229,255,0.08), 0 0 20px rgba(0,229,255,0.06);
+
+    &:hover:not(:disabled) {
+        background: linear-gradient(180deg, rgba(0,229,255,0.22), rgba(0,180,255,0.12));
+        border-color: rgba(0,229,255,0.4);
+        box-shadow: inset 0 0 24px rgba(0,229,255,0.12), 0 0 28px rgba(0,229,255,0.14);
+        transform: translateY(-1px);
+    }
+
+    &:active:not(:disabled) { transform: scale(0.99); }
+
+    &:disabled {
+        opacity: 0.3;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
     }
 }
 
-.about-section {
-    text-align: center;
-    color: #6c6e71;
-    font-size: 13px;
-    line-height: 1.8em;
+.btn-back {
+    width: 100%;
+    height: 44px;
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: var(--r-md);
+    color: rgba(255,255,255,0.38);
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    cursor: pointer;
+    transition: var(--ease);
+    opacity: 0.55;
 
-    .about-version-block {
-        margin-bottom: 1.25rem;
+    &:hover {
+        opacity: 1;
+        border-color: var(--border-strong);
+        color: rgba(255,255,255,0.6);
+        background: rgba(255,255,255,0.03);
+    }
+}
+
+.btn-secondary {
+    height: 36px;
+    padding: 0 14px;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: var(--r-md);
+    color: rgba(255,255,255,0.5);
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    transition: var(--ease);
+    white-space: nowrap;
+
+    &:hover:not(:disabled) {
+        border-color: var(--border-strong);
+        color: rgba(255,255,255,0.75);
+        background: var(--bg-hover);
     }
 
-    .about-version-name {
-        font-size: 1.6rem;
-        font-weight: 800;
-        letter-spacing: 6px;
-        text-transform: uppercase;
-        color: rgba(255,255,255,0.82);
-        font-family: monospace;
-        margin-bottom: 0.35rem;
-    }
+    &:disabled { opacity: 0.4; cursor: not-allowed; }
+}
 
-    .about-version-row {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0.5rem;
-    }
+.btn-sm { height: 30px; font-size: 0.65rem; padding: 0 10px; }
 
+<<<<<<< HEAD
     .about-version-num {
         font-size: 0.9rem;
         font-family: monospace;
@@ -923,45 +1121,50 @@ $voice-max-visible: 3;
         border-radius: 3px;
         padding: 0.1rem 0.4rem;
     }
+=======
+/* ===== SVELTEUI COMPONENT OVERRIDES ===== */
+:global(.svelteui-Input-wrapper),
+:global(.svelteui-InputWrapper-root) {
+    width: 100% !important;
+}
 
-    .about-copyright {
-        margin: 0 0 1rem;
-        color: #6c6e71;
-        b { color: #888; }
-    }
+:global(.svelteui-InputWrapper-label) {
+    font-family: var(--font) !important;
+    font-size: 0.72rem !important;
+    font-weight: 600 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.1em !important;
+    color: var(--text-sub) !important;
+    margin-bottom: 6px !important;
+    line-height: 1.3 !important;
+}
+>>>>>>> dev
 
-    .about-links {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 0.5rem;
-        margin-bottom: 1rem;
-    }
+:global(.svelteui-InputWrapper-description) {
+    font-family: var(--font) !important;
+    font-size: 0.68rem !important;
+    color: var(--text-muted) !important;
+    margin-bottom: 8px !important;
+    line-height: 1.45 !important;
+    white-space: pre-line;
+    opacity: 0.58;
+}
 
-    .about-support p { margin: 0; }
+:global(.svelteui-Input-input) {
+    font-family: var(--font) !important;
+    height: 40px !important;
+    background: rgba(255,255,255,0.03) !important;
+    border: 1px solid rgba(255,255,255,0.08) !important;
+    border-radius: var(--r-md) !important;
+    color: var(--text) !important;
+    font-size: 0.84rem !important;
+    padding: 0 10px !important;
+    transition: var(--ease) !important;
 
-    .about-link {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.4rem;
-        color: #555759;
-        text-decoration: none;
-        transition: 0.3s;
-
-        img { opacity: 0.5; transition: opacity 0.3s; margin-top: -2px; }
-
-        span {
-            color: #185876;
-            border-bottom: 1px solid #185876;
-            transition: color 0.3s, border-color 0.3s;
-        }
-
-        &:hover {
-            img { opacity: 1; }
-            span { color: #2A9CD0; border-color: #2A9CD0; }
-        }
-
-        &--inline { vertical-align: middle; }
+    &:focus {
+        border-color: rgba(0,229,255,0.5) !important;
+        background: rgba(255,255,255,0.04) !important;
+        outline: none !important;
     }
 }
 </style>
