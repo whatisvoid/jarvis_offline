@@ -20,21 +20,8 @@
 
 <header class="header">
 
-    <!-- Level 1: Window titlebar -->
+    <!-- Level 1: System Shell -->
     <div class="shell-bar">
-        <div class="title-group">
-            <svg class="title-icon" width="16" height="16" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="20" cy="20" r="13" stroke="currentColor" stroke-width="2.5" stroke-dasharray="3.5 4.5" opacity="0.55"/>
-                <circle cx="20" cy="20" r="8" stroke="currentColor" stroke-width="2.5" opacity="0.75"/>
-                <circle cx="20" cy="20" r="3.5" fill="currentColor"/>
-            </svg>
-            <span class="title-text">Jarvis Voice Assistant</span>
-        </div>
-        <WindowFrame />
-    </div>
-
-    <!-- Level 2: App chrome — brand + navigation -->
-    <nav class="nav-bar">
         <a class="logo" href="/" title="JARVIS" on:click|preventDefault={() => navigate('/')}>
             <svg class="logo-icon" width="36" height="36" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <circle cx="20" cy="20" r="18" stroke="currentColor" stroke-width="0.75" opacity="0.28"/>
@@ -51,24 +38,25 @@
             </svg>
             <span class="brand-name">JARVIS</span>
         </a>
+        <WindowFrame />
+    </div>
 
-        <div class="nav-tabs">
-            <button
-                class="nav-tab"
-                class:active={currentPath === '/commands'}
-                on:click={() => navigate('/commands')}
-            >
-                {t('header-commands')}
-            </button>
-            <button
-                class="nav-tab"
-                class:active={currentPath === '/settings'}
-                on:click={() => navigate('/settings')}
-            >
-                {t('header-settings')}
-            </button>
-        </div>
-
+    <!-- Level 2: Application Navigation -->
+    <nav class="nav-bar">
+        <button
+            class="nav-tab"
+            class:active={currentPath === '/commands'}
+            on:click={() => navigate('/commands')}
+        >
+            {t('header-commands')}
+        </button>
+        <button
+            class="nav-tab"
+            class:active={currentPath === '/settings'}
+            on:click={() => navigate('/settings')}
+        >
+            {t('header-settings')}
+        </button>
         <div class="scan-line" aria-hidden="true"></div>
     </nav>
 
@@ -83,13 +71,13 @@
     z-index: 100;
 }
 
-/* ── Level 1: Window titlebar ── */
+/* ── Level 1: System shell ── */
 .shell-bar {
     height: var(--shell-h);
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0 0 0 16px;
+    padding: 0 0 0 20px;
     background: linear-gradient(180deg, rgba(11,15,22,0.98) 0%, rgba(7,10,15,0.96) 100%);
     box-shadow: inset 0 1px 0 rgba(0,229,255,0.08),
                 inset 0 -10px 18px rgba(0,0,0,0.16);
@@ -109,49 +97,6 @@
     }
 }
 
-/* ── Window title group ── */
-.title-group {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.title-icon {
-    flex-shrink: 0;
-    color: rgba(0,229,255,0.40);
-}
-
-.title-text {
-    font-size: 0.72rem;
-    font-weight: 400;
-    letter-spacing: 0.04em;
-    color: rgba(255,255,255,0.28);
-    user-select: none;
-}
-
-/* ── Level 2: App chrome (brand + navigation) ── */
-.nav-bar {
-    height: var(--nav-h);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 20px 0 14px;
-    background: linear-gradient(180deg, rgba(7,10,15,0.92) 0%, rgba(5,8,12,0.90) 100%);
-    position: relative;
-    flex-shrink: 0;
-
-    &::after {
-        content: '';
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        height: 1px;
-        background: linear-gradient(90deg, transparent 0%, rgba(0,229,255,0.22) 30%, rgba(0,229,255,0.22) 70%, transparent 100%);
-        pointer-events: none;
-    }
-}
-
 /* ── Logo / brand ── */
 .logo {
     display: flex;
@@ -159,9 +104,9 @@
     gap: 9px;
     text-decoration: none;
     color: var(--accent);
+    -webkit-app-region: no-drag;
     position: relative;
     transition: opacity 140ms ease;
-    flex-shrink: 0;
 
     &::before {
         content: '';
@@ -204,12 +149,27 @@
     padding-right: 0.05em;
 }
 
-/* ── Nav tabs group ── */
-.nav-tabs {
+/* ── Level 2: Application navigation ── */
+.nav-bar {
+    height: var(--nav-h);
     display: flex;
     align-items: center;
-    height: 100%;
     gap: 28px;
+    padding: 0 20px;
+    background: linear-gradient(180deg, rgba(7,10,15,0.92) 0%, rgba(5,8,12,0.90) 100%);
+    position: relative;
+    flex-shrink: 0;
+
+    &::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: linear-gradient(90deg, transparent 0%, rgba(0,229,255,0.22) 30%, rgba(0,229,255,0.22) 70%, transparent 100%);
+        pointer-events: none;
+    }
 }
 
 /* ── Nav tabs ── */

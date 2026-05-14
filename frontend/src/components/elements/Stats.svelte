@@ -87,9 +87,8 @@
 
 .stats-separator {
     height: 1px;
-    width: 92%;
-    max-width: 480px;
-    background: linear-gradient(90deg, transparent, rgba(0,229,255,0.22), transparent);
+    align-self: stretch;
+    background: linear-gradient(90deg, transparent 0%, rgba(0,229,255,0.22) 30%, rgba(0,229,255,0.22) 70%, transparent 100%);
     background-size: 200% 100%;
     animation: footerLineSweep 7s linear infinite;
     margin-bottom: 18px;
