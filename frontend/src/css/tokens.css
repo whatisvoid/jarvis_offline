@@ -38,10 +38,10 @@
     /* Animation */
     --ease: all 140ms ease;
 
-    /* Header — shell bar (36px) + nav bar (26px) */
-    --header-h:         62px;
-    --shell-h:          36px;
-    --nav-h:            26px;
+    /* Header — shell bar (56px) + nav bar (40px) */
+    --header-h:         96px;
+    --shell-h:          56px;
+    --nav-h:            40px;
     --header-bg:        linear-gradient(180deg, rgba(10,15,24,0.98), rgba(5,8,14,0.96));
     --header-border:    1px solid rgba(255,255,255,0.04);
 

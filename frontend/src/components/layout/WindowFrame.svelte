@@ -53,9 +53,10 @@
 <style lang="scss">
 .win-controls {
     display: flex;
-    align-items: stretch;
-    height: var(--shell-h);
+    align-items: center;
+    align-self: stretch;
     border-left: 1px solid rgba(255,255,255,0.04);
+    padding: 0 2px;
     -webkit-app-region: no-drag;
     flex-shrink: 0;
 }
@@ -65,9 +66,10 @@
     align-items: center;
     justify-content: center;
     width: 42px;
-    height: 100%;
+    height: 30px;
     background: transparent;
     border: none;
+    border-radius: 2px;
     color: rgba(255,255,255,0.32);
     cursor: pointer;
     transition: background 140ms ease, color 140ms ease;
@@ -75,8 +77,8 @@
     flex-shrink: 0;
 
     &:hover {
-        background: rgba(255,255,255,0.04);
-        color: rgba(255,255,255,0.82);
+        background: rgba(255,255,255,0.05);
+        color: rgba(255,255,255,0.85);
     }
 
     &--close:hover {

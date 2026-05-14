@@ -23,25 +23,25 @@
     <!-- Level 1: System Shell -->
     <div class="shell-bar">
         <a class="logo" href="/" title="JARVIS" on:click|preventDefault={() => navigate('/')}>
-            <svg class="logo-icon" width="26" height="26" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="20" cy="20" r="18" stroke="currentColor" stroke-width="0.8" opacity="0.30"/>
+            <svg class="logo-icon" width="44" height="44" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="20" cy="20" r="18" stroke="currentColor" stroke-width="0.75" opacity="0.28"/>
                 <g class="logo-spin">
                     <circle cx="20" cy="20" r="13" stroke="currentColor" stroke-width="1"
-                            stroke-dasharray="3.5 4.5" opacity="0.60"/>
+                            stroke-dasharray="3.5 4.5" opacity="0.58"/>
                 </g>
-                <circle cx="20" cy="20" r="8" stroke="currentColor" stroke-width="1.3" opacity="0.82"/>
+                <circle cx="20" cy="20" r="8" stroke="currentColor" stroke-width="1.25" opacity="0.78"/>
                 <circle cx="20" cy="20" r="3.5" fill="currentColor"/>
-                <line x1="20" y1="2" x2="20" y2="7" stroke="currentColor" stroke-width="1" opacity="0.42"/>
-                <line x1="20" y1="33" x2="20" y2="38" stroke="currentColor" stroke-width="1" opacity="0.42"/>
-                <line x1="2" y1="20" x2="7" y2="20" stroke="currentColor" stroke-width="1" opacity="0.42"/>
-                <line x1="33" y1="20" x2="38" y2="20" stroke="currentColor" stroke-width="1" opacity="0.42"/>
+                <line x1="20" y1="2" x2="20" y2="7" stroke="currentColor" stroke-width="1" opacity="0.40"/>
+                <line x1="20" y1="33" x2="20" y2="38" stroke="currentColor" stroke-width="1" opacity="0.40"/>
+                <line x1="2" y1="20" x2="7" y2="20" stroke="currentColor" stroke-width="1" opacity="0.40"/>
+                <line x1="33" y1="20" x2="38" y2="20" stroke="currentColor" stroke-width="1" opacity="0.40"/>
             </svg>
             <span class="brand-name">JARVIS</span>
         </a>
         <WindowFrame />
     </div>
 
-    <!-- Level 2: Navigation -->
+    <!-- Level 2: Application Navigation -->
     <nav class="nav-bar">
         <button
             class="nav-tab"
@@ -77,9 +77,10 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0 0 0 16px;
-    background: linear-gradient(180deg, rgba(8,12,18,0.98) 0%, rgba(5,8,12,0.97) 100%);
-    box-shadow: inset 0 1px 0 rgba(0,229,255,0.10);
+    padding: 0 0 0 20px;
+    background: linear-gradient(180deg, rgba(11,15,22,0.98) 0%, rgba(7,10,15,0.97) 100%);
+    box-shadow: inset 0 1px 0 rgba(0,229,255,0.10),
+                inset 0 -8px 18px rgba(0,0,0,0.18);
     -webkit-app-region: drag;
     position: relative;
     flex-shrink: 0;
@@ -91,7 +92,7 @@
         left: 0;
         right: 0;
         height: 1px;
-        background: rgba(255,255,255,0.04);
+        background: linear-gradient(90deg, transparent 0%, rgba(0,229,255,0.30) 35%, rgba(0,229,255,0.30) 65%, transparent 100%);
         pointer-events: none;
     }
 }
@@ -100,7 +101,7 @@
 .logo {
     display: flex;
     align-items: center;
-    gap: 9px;
+    gap: 10px;
     text-decoration: none;
     color: var(--accent);
     -webkit-app-region: no-drag;
@@ -110,27 +111,27 @@
     &::before {
         content: '';
         position: absolute;
-        left: -2px;
+        left: -4px;
         top: 50%;
         transform: translateY(-50%);
-        width: 36px;
-        height: 36px;
-        background: radial-gradient(circle, rgba(0,229,255,0.12), transparent 70%);
+        width: 52px;
+        height: 52px;
+        background: radial-gradient(circle, rgba(0,229,255,0.14), transparent 70%);
         border-radius: 50%;
         pointer-events: none;
     }
 
-    &:hover { opacity: 0.72; }
+    &:hover { opacity: 0.75; }
 }
 
 .logo-icon {
-    filter: drop-shadow(0 0 10px rgba(0,229,255,0.18));
+    filter: drop-shadow(0 0 10px rgba(0,229,255,0.16));
     flex-shrink: 0;
 }
 
 .logo-spin {
     transform-origin: 20px 20px;
-    animation: logo-spin 26s linear infinite;
+    animation: logo-spin 24s linear infinite;
 }
 
 @keyframes logo-spin {
@@ -139,23 +140,23 @@
 }
 
 .brand-name {
-    font-size: 1.15rem;
+    font-size: 1.35rem;
     font-weight: 700;
-    letter-spacing: 0.16em;
+    letter-spacing: 0.12em;
     color: var(--text);
     text-transform: uppercase;
     line-height: 1;
-    padding-right: 0.06em;
+    padding-right: 0.05em;
 }
 
-/* ── Level 2: Navigation bar ── */
+/* ── Level 2: Application navigation ── */
 .nav-bar {
     height: var(--nav-h);
     display: flex;
     align-items: center;
-    gap: 24px;
-    padding: 0 16px;
-    background: linear-gradient(180deg, rgba(6,9,14,0.97) 0%, rgba(4,7,11,0.96) 100%);
+    gap: 22px;
+    padding: 0 20px;
+    background: linear-gradient(180deg, rgba(7,10,15,0.94) 0%, rgba(5,8,12,0.92) 100%);
     position: relative;
     flex-shrink: 0;
 
@@ -166,7 +167,7 @@
         left: 0;
         right: 0;
         height: 1px;
-        background: linear-gradient(90deg, transparent 0%, rgba(0,229,255,0.20) 30%, rgba(0,229,255,0.20) 70%, transparent 100%);
+        background: linear-gradient(90deg, transparent 0%, rgba(0,229,255,0.22) 30%, rgba(0,229,255,0.22) 70%, transparent 100%);
         pointer-events: none;
     }
 }
@@ -178,12 +179,12 @@
     padding: 0;
     background: transparent;
     border: none;
-    color: rgba(255,255,255,0.52);
+    color: rgba(255,255,255,0.55);
     font-family: var(--font);
-    font-size: 0.62rem;
+    font-size: 0.75rem;
     font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.16em;
+    letter-spacing: 0.14em;
     cursor: pointer;
     transition: color 140ms ease;
     white-space: nowrap;
@@ -194,9 +195,9 @@
         bottom: 0;
         left: 0;
         right: 0;
-        height: 1px;
-        background: var(--accent);
-        box-shadow: 0 0 8px rgba(0,229,255,0.28);
+        height: 2px;
+        background: rgba(0,229,255,0.85);
+        box-shadow: 0 0 10px rgba(0,229,255,0.22);
         opacity: 0;
         transition: opacity 140ms ease;
     }
@@ -218,7 +219,7 @@
     left: -30%;
     width: 30%;
     height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(0,229,255,0.45), transparent);
+    background: linear-gradient(90deg, transparent, rgba(0,229,255,0.42), transparent);
     animation: scan-sweep 8s linear infinite;
     pointer-events: none;
 }
