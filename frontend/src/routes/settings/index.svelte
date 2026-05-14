@@ -272,7 +272,7 @@
     <div class="settings-content">
         {#if activeTab === 'general'}
             <div class="lang-select">
-                <label>{t('settings-language')}</label>
+                <span class="section-label">{t('settings-language')}</span>
                 <div class="lang-options">
                     {#each languages as lang}
                         <button
@@ -289,7 +289,7 @@
             </div>
             <Space h="md" />
             <div class="voice-select">
-                <label>{t('settings-voice')}</label>
+                <span class="section-label">{t('settings-voice')}</span>
                 <p class="description">{t('settings-voice-desc')}</p>
                 <div class="voice-options">
                     {#each availableVoices as voice}
@@ -675,14 +675,12 @@
     }
 }
 
-.lang-select {
-    label {
-        font-weight: 600;
-        font-size: 0.85rem;
-        color: rgba(255,255,255,0.7);
-        display: block;
-        margin-bottom: 0.5rem;
-    }
+.section-label {
+    display: block;
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: rgba(255,255,255,0.7);
+    margin-bottom: 0.5rem;
 }
 
 .lang-options {
@@ -722,14 +720,6 @@
 }
 
 .voice-select {
-    label {
-        font-weight: 600;
-        font-size: 0.85rem;
-        color: rgba(255,255,255,0.7);
-        display: block;
-        margin-bottom: 0.25rem;
-    }
-
     .description {
         font-size: 0.75rem;
         color: rgba(255,255,255,0.5);
