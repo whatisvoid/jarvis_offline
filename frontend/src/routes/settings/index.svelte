@@ -392,7 +392,6 @@
                 <span class="section-label">{t('settings-gain-normalizer')}</span>
                 <p class="section-desc">{t('settings-gain-normalizer-desc')}</p>
                 <div class="toggle-row">
-                    <span class="toggle-state">{gainNormalizerEnabled ? t('settings-enabled') : t('settings-disabled')}</span>
                     <button
                         type="button"
                         class="toggle-btn"
@@ -402,6 +401,7 @@
                     >
                         <span class="toggle-thumb"></span>
                     </button>
+                    <span class="toggle-state">{gainNormalizerEnabled ? t('settings-enabled') : t('settings-disabled')}</span>
                 </div>
             </div>
 
@@ -742,20 +742,21 @@
 
 /* ===== TOGGLE ===== */
 .toggle-row {
-    display: flex;
+    display: inline-flex;
     align-items: center;
-    justify-content: space-between;
+    gap: 12px;
+    margin-top: 2px;
 }
 
 .toggle-state {
-    font-size: 0.8rem;
-    color: var(--text-muted);
+    font-size: 13px;
+    color: rgba(210,230,245,0.78);
 }
 
 .toggle-btn {
     position: relative;
-    width: 36px;
-    height: 20px;
+    width: 38px;
+    height: 22px;
     border-radius: 10px;
     border: 1px solid rgba(255,255,255,0.12);
     background: rgba(255,255,255,0.06);
