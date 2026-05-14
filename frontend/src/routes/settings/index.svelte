@@ -238,28 +238,6 @@
 
 <Space h="xl" />
 
-<Notification
-    title={t('settings-beta-title')}
-    icon={QuestionMarkCircled}
-    color="blue"
-    withCloseButton={false}
->
-    {t('settings-beta-desc')}<br />
-    {t('settings-beta-feedback')} <a href={feedbackLink} target="_blank">{t('settings-beta-bot')}</a>.
-    <Space h="sm" />
-    <Button
-        color="gray"
-        radius="md"
-        size="xs"
-        uppercase
-        on:click={() => showInExplorer(logFilePath)}
-    >
-        {t('settings-open-logs')}
-    </Button>
-</Notification>
-
-<Space h="xl" />
-
 {#if settingsSaved}
     <Notification
         title={t('notification-saved')}
@@ -493,6 +471,26 @@
     </Tabs.Tab>
 
     <Tabs.Tab label={t('settings-about')} icon={InfoCircled}>
+        <Space h="sm" />
+        <Notification
+            title={t('settings-beta-title')}
+            icon={QuestionMarkCircled}
+            color="blue"
+            withCloseButton={false}
+        >
+            {t('settings-beta-desc')}<br />
+            {t('settings-beta-feedback')} <a href={feedbackLink} target="_blank">{t('settings-beta-bot')}</a>.
+            <Space h="sm" />
+            <Button
+                color="gray"
+                radius="md"
+                size="xs"
+                uppercase
+                on:click={() => showInExplorer(logFilePath)}
+            >
+                {t('settings-open-logs')}
+            </Button>
+        </Notification>
         <Space h="lg" />
         <div class="about-section">
             <p class="about-copyright">© 2026. {t('footer-author')}: <b>{authorName}</b></p>
