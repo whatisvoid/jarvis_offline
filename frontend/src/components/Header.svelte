@@ -23,7 +23,7 @@
     <!-- Level 1: System Shell -->
     <div class="shell-bar">
         <a class="logo" href="/" title="JARVIS" on:click|preventDefault={() => navigate('/')}>
-            <svg class="logo-icon" width="44" height="44" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <svg class="logo-icon" width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <circle cx="20" cy="20" r="18" stroke="currentColor" stroke-width="0.75" opacity="0.28"/>
                 <g class="logo-spin">
                     <circle cx="20" cy="20" r="13" stroke="currentColor" stroke-width="1"
@@ -78,9 +78,9 @@
     align-items: center;
     justify-content: space-between;
     padding: 0 0 0 20px;
-    background: linear-gradient(180deg, rgba(11,15,22,0.98) 0%, rgba(7,10,15,0.97) 100%);
-    box-shadow: inset 0 1px 0 rgba(0,229,255,0.10),
-                inset 0 -8px 18px rgba(0,0,0,0.18);
+    background: linear-gradient(180deg, rgba(10,14,20,0.96) 0%, rgba(6,9,14,0.94) 100%);
+    box-shadow: inset 0 1px 0 rgba(0,229,255,0.08),
+                inset 0 -6px 14px rgba(0,0,0,0.14);
     -webkit-app-region: drag;
     position: relative;
     flex-shrink: 0;
@@ -92,7 +92,7 @@
         left: 0;
         right: 0;
         height: 1px;
-        background: linear-gradient(90deg, transparent 0%, rgba(0,229,255,0.30) 35%, rgba(0,229,255,0.30) 65%, transparent 100%);
+        background: linear-gradient(90deg, transparent 0%, rgba(0,229,255,0.25) 35%, rgba(0,229,255,0.25) 65%, transparent 100%);
         pointer-events: none;
     }
 }
@@ -101,7 +101,7 @@
 .logo {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 9px;
     text-decoration: none;
     color: var(--accent);
     -webkit-app-region: no-drag;
@@ -116,7 +116,7 @@
         transform: translateY(-50%);
         width: 52px;
         height: 52px;
-        background: radial-gradient(circle, rgba(0,229,255,0.14), transparent 70%);
+        background: radial-gradient(circle, rgba(0,229,255,0.10), transparent 70%);
         border-radius: 50%;
         pointer-events: none;
     }
@@ -125,7 +125,7 @@
 }
 
 .logo-icon {
-    filter: drop-shadow(0 0 10px rgba(0,229,255,0.16));
+    filter: drop-shadow(0 0 8px rgba(0,229,255,0.12));
     flex-shrink: 0;
 }
 
@@ -140,9 +140,9 @@
 }
 
 .brand-name {
-    font-size: 1.35rem;
-    font-weight: 700;
-    letter-spacing: 0.12em;
+    font-size: 1.2rem;
+    font-weight: 600;
+    letter-spacing: 0.10em;
     color: var(--text);
     text-transform: uppercase;
     line-height: 1;
@@ -156,7 +156,7 @@
     align-items: center;
     gap: 22px;
     padding: 0 20px;
-    background: linear-gradient(180deg, rgba(7,10,15,0.94) 0%, rgba(5,8,12,0.92) 100%);
+    background: linear-gradient(180deg, rgba(7,10,15,0.92) 0%, rgba(5,8,12,0.90) 100%);
     position: relative;
     flex-shrink: 0;
 
@@ -181,10 +181,10 @@
     border: none;
     color: rgba(255,255,255,0.55);
     font-family: var(--font);
-    font-size: 0.75rem;
+    font-size: 13px;
     font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.14em;
+    letter-spacing: 0.08em;
     cursor: pointer;
     transition: color 140ms ease;
     white-space: nowrap;
@@ -195,9 +195,9 @@
         bottom: 0;
         left: 0;
         right: 0;
-        height: 2px;
-        background: rgba(0,229,255,0.85);
-        box-shadow: 0 0 10px rgba(0,229,255,0.22);
+        height: 1px;
+        background: rgba(0,229,255,0.9);
+        box-shadow: 0 0 8px rgba(0,229,255,0.18);
         opacity: 0;
         transition: opacity 140ms ease;
     }
@@ -208,7 +208,7 @@
         color: var(--text);
         font-weight: 700;
 
-        &::after { opacity: 1; }
+        &::after { opacity: 0.75; }
     }
 }
 
@@ -219,7 +219,7 @@
     left: -30%;
     width: 30%;
     height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(0,229,255,0.42), transparent);
+    background: linear-gradient(90deg, transparent, rgba(0,229,255,0.28), transparent);
     animation: scan-sweep 8s linear infinite;
     pointer-events: none;
 }
