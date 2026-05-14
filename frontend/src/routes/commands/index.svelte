@@ -155,6 +155,8 @@
     flex-direction: column;
     gap: 4px;
     padding-bottom: 1rem;
+    overflow-y: auto;
+    max-height: calc(100vh - var(--header-h) - 80px);
 }
 
 .command-card {
@@ -209,12 +211,12 @@
 }
 
 .phrase-chip {
-    font-size: 0.68rem;
-    background: rgba(0,255,198,0.06);
-    border: 1px solid rgba(0,255,198,0.18);
+    font-size: 0.67rem;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.07);
     border-radius: var(--r-sm);
     padding: 2px 7px;
-    color: rgba(0,255,198,0.75);
+    color: rgba(255,255,255,0.38);
     font-style: italic;
 }
 

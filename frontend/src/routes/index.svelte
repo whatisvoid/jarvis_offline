@@ -60,7 +60,7 @@
     </div>
 
     <div class="reactor-section">
-        <div class="reactor-wrapper" class:dimmed={!processRunning}>
+        <div class="reactor-wrapper">
             <ArcReactor />
         </div>
 
@@ -93,6 +93,12 @@
     overflow: hidden;
 }
 
+.search-section {
+    padding-top: 20px;
+    padding-bottom: 4px;
+    flex-shrink: 0;
+}
+
 .reactor-section {
     flex: 1;
     display: flex;
@@ -101,10 +107,7 @@
     justify-content: center;
     overflow: hidden;
     position: relative;
-}
-
-.search-section {
-    padding-top: 18px;
+    padding-bottom: 16px;
 }
 
 .stats-footer {

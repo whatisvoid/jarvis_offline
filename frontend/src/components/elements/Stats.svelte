@@ -78,28 +78,29 @@
         display: flex;
         align-items: flex-start;
         justify-content: space-between;
-        padding: 14px 0 10px;
-        border-top: 1px solid var(--border-section);
+        padding: 12px 0 8px;
+        border-top: 1px solid rgba(255,255,255,0.04);
     }
 
     .stat-item {
         display: flex;
         align-items: flex-start;
-        gap: 8px;
+        gap: 7px;
     }
 
     .stat-dot {
-        width: 7px;
-        height: 7px;
+        width: 5px;
+        height: 5px;
         border-radius: 50%;
-        margin-top: 5px;
-        background: rgba(255,255,255,0.12);
+        margin-top: 4px;
+        background: rgba(255,255,255,0.08);
         flex-shrink: 0;
         transition: all 0.4s ease;
 
         &.active {
             background: var(--color);
-            box-shadow: 0 0 8px var(--color);
+            box-shadow: 0 0 6px var(--color);
+            opacity: 0.75;
         }
     }
 
@@ -110,21 +111,21 @@
     }
 
     .stat-label {
-        font-size: 0.68rem;
+        font-size: 0.62rem;
         font-weight: 700;
-        color: var(--text-sub);
+        color: rgba(184,194,204,0.65);
         text-transform: uppercase;
-        letter-spacing: 0.08em;
+        letter-spacing: 0.10em;
     }
 
     .stat-value {
-        font-size: 0.65rem;
-        color: var(--text-muted);
+        font-size: 0.62rem;
+        color: rgba(110,123,135,0.58);
         line-height: 1.3;
     }
 
     .stat-value-sub {
-        font-size: 0.6rem;
-        color: rgba(110,123,135,0.7);
+        font-size: 0.58rem;
+        color: rgba(110,123,135,0.38);
     }
 </style>

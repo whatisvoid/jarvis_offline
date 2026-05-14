@@ -173,9 +173,9 @@
         border-radius: 50%;
         background: radial-gradient(
             circle,
-            rgba(var(--arc-color), 0.10) 0%,
-            rgba(var(--arc-color), 0.07) 35%,
-            rgba(var(--arc-color), 0.03) 55%,
+            rgba(var(--arc-color), 0.065) 0%,
+            rgba(var(--arc-color), 0.04)  35%,
+            rgba(var(--arc-color), 0.015) 55%,
             transparent 70%
         );
         z-index: -1;
@@ -188,8 +188,8 @@
         height: 238px;
         width: 238px;
         background-color: #161a1b;
-        box-shadow: 0px 0px 50px 15px rgba(var(--arc-color), 0.3),
-                    inset 0px 0px 50px 15px rgba(var(--arc-color), 0.3);
+        box-shadow: 0px 0px 50px 15px rgba(var(--arc-color), 0.16),
+                    inset 0px 0px 50px 15px rgba(var(--arc-color), 0.16);
         transition: box-shadow 0.8s ease;
     }
 
@@ -205,9 +205,9 @@
         width: 70px;
         height: 70px;
         border: 5px solid var(--arc-core-border);
-        background-color: #ffffff;
-        box-shadow: 0px 0px 7px 5px var(--arc-glow),
-                    0px 0px 10px 10px var(--arc-glow) inset;
+        background-color: rgba(200,235,248,0.52);
+        box-shadow: 0px 0px 5px 3px var(--arc-glow),
+                    0px 0px 7px 6px var(--arc-glow) inset;
         transition: box-shadow 0.8s ease;
     }
 
@@ -215,9 +215,9 @@
         width: 120px;
         height: 120px;
         border: 1px solid var(--arc-glow);
-        background-color: #ffffff;
-        box-shadow: 0px 0px 2px 1px var(--arc-glow),
-                    0px 0px 10px 5px var(--arc-glow) inset;
+        background-color: rgba(180,225,245,0.28);
+        box-shadow: 0px 0px 1px 1px var(--arc-glow),
+                    0px 0px 7px 3px var(--arc-glow) inset;
         transition: box-shadow 0.8s ease, border-color 0.8s ease;
     }
 
@@ -225,17 +225,17 @@
         width: 180px;
         height: 180px;
         background-color: var(--arc-core-bg);
-        box-shadow: 0px 0px 5px 4px var(--arc-glow),
-                    0px 0px 6px 2px var(--arc-glow) inset;
+        box-shadow: 0px 0px 4px 3px var(--arc-glow),
+                    0px 0px 4px 1px var(--arc-glow) inset;
         transition: box-shadow 0.8s ease, background-color 0.8s ease;
     }
 
     .tunnel {
         width: 220px;
         height: 220px;
-        background-color: #ffffff;
-        box-shadow: 0px 0px 5px 1px var(--arc-glow),
-                    0px 0px 5px 4px var(--arc-glow) inset;
+        background-color: rgba(160,215,240,0.16);
+        box-shadow: 0px 0px 3px 1px var(--arc-glow),
+                    0px 0px 3px 2px var(--arc-glow) inset;
         transition: box-shadow 0.8s ease;
     }
 
@@ -464,27 +464,27 @@
     // ========================================================
     .reactor-container.idle {
         transform: scale(0.95);
-        opacity: 0.9;
+        opacity: 0.85;
 
         .coil-container { animation-duration: 10s; }
-        .e7 { opacity: 0.6; }
+        .e7 { opacity: 0.5; }
 
         .e5_1 {
-            border-top-color: rgba(var(--arc-color), 0.2);
-            border-left-color: rgba(var(--arc-color), 0.2);
+            border-top-color: rgba(var(--arc-color), 0.15);
+            border-left-color: rgba(var(--arc-color), 0.15);
             animation: rotate 9s linear infinite;
         }
         .e5_2 {
-            border-right-color: rgba(var(--arc-color), 0.35);
-            border-bottom-color: rgba(var(--arc-color), 0.35);
+            border-right-color: rgba(var(--arc-color), 0.28);
+            border-bottom-color: rgba(var(--arc-color), 0.28);
             animation: rotate_anti 15s linear infinite;
         }
         .e5_3 {
-            border-top-color: rgba(var(--arc-color), 0.5);
+            border-top-color: rgba(var(--arc-color), 0.42);
             animation: rotate 12s linear infinite;
         }
         .e5_4 {
-            border-bottom-color: rgba(var(--arc-color), 0.65);
+            border-bottom-color: rgba(var(--arc-color), 0.55);
             animation: rotate_anti 14s linear infinite;
         }
         .e5_1_ghost {
@@ -510,7 +510,7 @@
     }
 
     .reactor-container.idle::before {
-        opacity: 0.7;
+        opacity: 0.42;
         transform: translate(-50%, -50%) scale(0.9);
         animation: bg-pulse 5s ease-in-out infinite;
     }
@@ -565,24 +565,24 @@
         }
 
         .reactor-container-inner {
-            box-shadow: 0px 0px 70px 25px rgba(var(--arc-color), 0.3),
-                        inset 0px 0px 70px 25px rgba(var(--arc-color), 0.3);
+            box-shadow: 0px 0px 70px 25px rgba(var(--arc-color), 0.20),
+                        inset 0px 0px 70px 25px rgba(var(--arc-color), 0.20);
         }
         .core-inner {
-            box-shadow: 0px 0px 15px 10px var(--arc-glow),
-                        0px 0px 20px 15px var(--arc-glow) inset;
+            box-shadow: 0px 0px 10px 7px var(--arc-glow),
+                        0px 0px 14px 10px var(--arc-glow) inset;
         }
         .core-outer {
-            box-shadow: 0px 0px 5px 3px var(--arc-glow),
-                        0px 0px 15px 10px var(--arc-glow) inset;
+            box-shadow: 0px 0px 3px 2px var(--arc-glow),
+                        0px 0px 10px 6px var(--arc-glow) inset;
         }
         .core-wrapper {
-            box-shadow: 0px 0px 10px 8px var(--arc-glow),
-                        0px 0px 10px 5px var(--arc-glow) inset;
+            box-shadow: 0px 0px 7px 5px var(--arc-glow),
+                        0px 0px 7px 3px var(--arc-glow) inset;
         }
         .tunnel {
-            box-shadow: 0px 0px 10px 3px var(--arc-glow),
-                        0px 0px 10px 8px var(--arc-glow) inset;
+            box-shadow: 0px 0px 6px 2px var(--arc-glow),
+                        0px 0px 6px 5px var(--arc-glow) inset;
         }
         .marks li {
             animation: colour_ease2_active 1s infinite ease-in-out;

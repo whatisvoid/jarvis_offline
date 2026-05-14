@@ -14,9 +14,10 @@
         Alert,
         Input,
         InputWrapper,
-        NativeSelect,
         Switch
     } from "@svelteuidev/core"
+
+    import Select from "@/components/ui/Select.svelte"
 
     import {
         Check,
@@ -311,18 +312,17 @@
 
         {:else if activeTab === 'devices'}
             <div class="settings-section">
-                <NativeSelect
+                <Select
                     data={availableMicrophones}
                     label={t('settings-microphone')}
                     description={t('settings-microphone-desc')}
-                    variant="filled"
                     bind:value={selectedMicrophone}
                 />
             </div>
 
         {:else if activeTab === 'neural'}
             <div class="settings-section">
-                <NativeSelect
+                <Select
                     data={[
                         { label: "Rustpotter", value: "Rustpotter" },
                         { label: "Vosk", value: "Vosk" },
@@ -330,7 +330,6 @@
                     ]}
                     label={t('settings-wake-word-engine')}
                     description={t('settings-wake-word-desc')}
-                    variant="filled"
                     bind:value={selectedWakeWordEngine}
                 />
 
@@ -362,15 +361,12 @@
                 {/if}
 
                 <div class="field-gap"></div>
-                {#key availableVoskModels}
-                <NativeSelect
+                <Select
                     data={[{ label: t('settings-auto-detect'), value: "" }, ...availableVoskModels]}
                     label={t('settings-vosk-model')}
                     description={t('settings-vosk-model-desc')}
-                    variant="filled"
                     bind:value={selectedVoskModel}
                 />
-                {/key}
 
                 {#if availableVoskModels.length === 0}
                     <Space h="sm" />
@@ -380,40 +376,35 @@
                 {/if}
 
                 <div class="field-gap"></div>
-                <NativeSelect
+                <Select
                     data={[
                         { label: "Intent Classifier", value: "IntentClassifier" },
                         { label: "Embedding Classifier", value: "EmbeddingClassifier" }
                     ]}
                     label={t('settings-intent-engine')}
                     description={t('settings-intent-engine-desc')}
-                    variant="filled"
                     bind:value={selectedIntentRecognitionEngine}
                 />
 
                 <div class="field-gap"></div>
-                <NativeSelect
+                <Select
                     data={[
                         { label: t('settings-disabled'), value: "None" },
                         { label: "GLiNER (NER)", value: "GLiNER" }
                     ]}
                     label={t('settings-slot-engine')}
                     description={t('settings-slot-engine-desc')}
-                    variant="filled"
                     bind:value={selectedSlotExtractionEngine}
                 />
 
                 {#if selectedSlotExtractionEngine === "GLiNER"}
                     <Space h="sm" />
-                    {#key availableGlinerModels}
-                    <NativeSelect
+                    <Select
                         data={[{ label: t('settings-auto-detect'), value: "" }, ...availableGlinerModels]}
                         label={t('settings-gliner-model')}
                         description={t('settings-gliner-model-desc')}
-                        variant="filled"
                         bind:value={selectedGlinerModel}
                     />
-                    {/key}
                     {#if availableGlinerModels.length === 0}
                         <Space h="sm" />
                         <Alert title={t('settings-models-not-found')} color="orange" variant="outline">
@@ -423,19 +414,18 @@
                 {/if}
 
                 <div class="field-gap"></div>
-                <NativeSelect
+                <Select
                     data={[
                         { label: t('settings-disabled'), value: "None" },
                         { label: "Nnnoiseless", value: "Nnnoiseless" }
                     ]}
                     label={t('settings-noise-suppression')}
                     description={t('settings-noise-suppression-desc')}
-                    variant="filled"
                     bind:value={selectedNoiseSuppression}
                 />
 
                 <Space h="md" />
-                <NativeSelect
+                <Select
                     data={[
                         { label: t('settings-disabled'), value: "None" },
                         { label: "Energy", value: "Energy" },
@@ -443,7 +433,6 @@
                     ]}
                     label={t('settings-vad')}
                     description={t('settings-vad-desc')}
-                    variant="filled"
                     bind:value={selectedVad}
                 />
 
@@ -492,15 +481,12 @@
 
                     {#if availableOllamaModels.length > 0}
                         <Space h="sm" />
-                        {#key availableOllamaModels}
-                        <NativeSelect
+                        <Select
                             data={availableOllamaModels}
                             label={t('settings-ollama-model')}
                             description={t('settings-ollama-model-desc')}
-                            variant="filled"
                             bind:value={ollamaModel}
                         />
-                        {/key}
                     {:else if ollamaModelsLoaded}
                         <Space h="xs" />
                         <Alert title={t('settings-ollama-no-models')} color="orange" variant="outline" />
@@ -673,7 +659,7 @@
 .settings-content {
     flex: 1;
     overflow-y: auto;
-    max-height: calc(100vh - 295px);
+    max-height: calc(100vh - var(--header-h) - 140px);
     padding-top: 4px;
 
     &::-webkit-scrollbar { width: 4px; }
@@ -1094,12 +1080,8 @@
 
 .btn-sm { height: 30px; font-size: 0.65rem; padding: 0 10px; }
 
-/* ===== SVELTEUI NATIVE SELECT OVERRIDES ===== */
-:global(.svelteui-NativeSelect-root),
-:global(.svelteui-Input-wrapper) {
-    width: 100% !important;
-}
-
+/* ===== SVELTEUI COMPONENT OVERRIDES ===== */
+:global(.svelteui-Input-wrapper),
 :global(.svelteui-InputWrapper-root) {
     width: 100% !important;
 }
@@ -1125,7 +1107,7 @@
     opacity: 0.58;
 }
 
-:global(select.svelteui-Input-input) {
+:global(.svelteui-Input-input) {
     font-family: var(--font) !important;
     height: 40px !important;
     background: rgba(255,255,255,0.03) !important;
@@ -1135,16 +1117,11 @@
     font-size: 0.84rem !important;
     padding: 0 10px !important;
     transition: var(--ease) !important;
-    cursor: pointer;
 
     &:focus {
         border-color: rgba(0,229,255,0.5) !important;
         background: rgba(255,255,255,0.04) !important;
+        outline: none !important;
     }
-}
-
-:global(.svelteui-Input-rightSection) {
-    pointer-events: none;
-    color: var(--text-muted) !important;
 }
 </style>

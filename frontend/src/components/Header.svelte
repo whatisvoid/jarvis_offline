@@ -18,62 +18,146 @@
     }
 </script>
 
-<header class="header" data-tauri-drag-region>
-    <div class="header-left">
+<header class="header">
+
+    <!-- Level 1: System Shell -->
+    <div class="shell-bar">
         <a class="logo" href="/" title="JARVIS" on:click|preventDefault={() => navigate('/')}>
-            <svg class="logo-icon" width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="20" cy="20" r="18" stroke="currentColor" stroke-width="0.75" opacity="0.28"/>
+            <svg class="logo-icon" width="36" height="36" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="20" cy="20" r="18" stroke="currentColor" stroke-width="0.75" opacity="0.22"/>
                 <g class="logo-spin">
                     <circle cx="20" cy="20" r="13" stroke="currentColor" stroke-width="1"
-                            stroke-dasharray="3.5 4.5" opacity="0.55"/>
+                            stroke-dasharray="3.5 4.5" opacity="0.5"/>
                 </g>
-                <circle cx="20" cy="20" r="8" stroke="currentColor" stroke-width="1.25" opacity="0.75"/>
+                <circle cx="20" cy="20" r="8" stroke="currentColor" stroke-width="1.25" opacity="0.7"/>
                 <circle cx="20" cy="20" r="3.5" fill="currentColor"/>
-                <line x1="20" y1="2" x2="20" y2="7" stroke="currentColor" stroke-width="1" opacity="0.4"/>
-                <line x1="20" y1="33" x2="20" y2="38" stroke="currentColor" stroke-width="1" opacity="0.4"/>
-                <line x1="2" y1="20" x2="7" y2="20" stroke="currentColor" stroke-width="1" opacity="0.4"/>
-                <line x1="33" y1="20" x2="38" y2="20" stroke="currentColor" stroke-width="1" opacity="0.4"/>
+                <line x1="20" y1="2" x2="20" y2="7" stroke="currentColor" stroke-width="1" opacity="0.35"/>
+                <line x1="20" y1="33" x2="20" y2="38" stroke="currentColor" stroke-width="1" opacity="0.35"/>
+                <line x1="2" y1="20" x2="7" y2="20" stroke="currentColor" stroke-width="1" opacity="0.35"/>
+                <line x1="33" y1="20" x2="38" y2="20" stroke="currentColor" stroke-width="1" opacity="0.35"/>
             </svg>
-            <span class="logo-name">JARVIS</span>
+            <span class="brand-name">JARVIS</span>
         </a>
-    </div>
-
-    <div class="header-right">
-        <nav class="header-nav">
-            <button
-                class="nav-btn"
-                class:active={currentPath === '/commands'}
-                on:click={() => navigate('/commands')}
-            >
-                {t('header-commands')}
-            </button>
-            <button
-                class="nav-btn"
-                class:active={currentPath === '/settings'}
-                on:click={() => navigate('/settings')}
-            >
-                {t('header-settings')}
-            </button>
-        </nav>
         <WindowFrame />
     </div>
 
-    <div class="scan-line" aria-hidden="true"></div>
+    <!-- Level 2: Navigation -->
+    <nav class="nav-bar">
+        <button
+            class="nav-tab"
+            class:active={currentPath === '/commands'}
+            on:click={() => navigate('/commands')}
+        >
+            {t('header-commands')}
+        </button>
+        <button
+            class="nav-tab"
+            class:active={currentPath === '/settings'}
+            on:click={() => navigate('/settings')}
+        >
+            {t('header-settings')}
+        </button>
+        <div class="scan-line" aria-hidden="true"></div>
+    </nav>
+
 </header>
 
 <style lang="scss">
+/* ── Outer shell ── */
 .header {
-    height: var(--header-h);
-    background: linear-gradient(180deg, #0A0F18 0%, #05070B 100%);
     display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 0 0 24px;
+    flex-direction: column;
     flex-shrink: 0;
     position: relative;
     z-index: 100;
+}
+
+/* ── Level 1: System shell bar ── */
+.shell-bar {
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 0 0 20px;
+    background: linear-gradient(180deg, rgba(10,15,24,0.98) 0%, rgba(6,10,16,0.96) 100%);
+    box-shadow: inset 0 1px 0 rgba(0,229,255,0.12);
     -webkit-app-region: drag;
-    box-shadow: inset 0 1px 0 rgba(0,229,255,0.18);
+    flex-shrink: 0;
+
+    &::after {
+        content: '';
+        position: absolute;
+        top: 48px;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: rgba(255,255,255,0.04);
+        pointer-events: none;
+    }
+}
+
+/* ── Logo / brand ── */
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+    color: var(--accent);
+    -webkit-app-region: no-drag;
+    position: relative;
+    transition: opacity 140ms ease;
+
+    &::before {
+        content: '';
+        position: absolute;
+        left: -2px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 44px;
+        height: 44px;
+        background: radial-gradient(circle, rgba(0,229,255,0.10), transparent 70%);
+        border-radius: 50%;
+        pointer-events: none;
+    }
+
+    &:hover { opacity: 0.75; }
+}
+
+.logo-icon {
+    filter: drop-shadow(0 0 7px rgba(0,229,255,0.28));
+    flex-shrink: 0;
+}
+
+.logo-spin {
+    transform-origin: 20px 20px;
+    animation: logo-spin 22s linear infinite;
+}
+
+@keyframes logo-spin {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+}
+
+.brand-name {
+    font-size: 1.35rem;
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    color: var(--text);
+    text-transform: uppercase;
+    line-height: 1;
+    padding-right: 0.08em;
+}
+
+/* ── Level 2: Navigation bar ── */
+.nav-bar {
+    height: 44px;
+    display: flex;
+    align-items: center;
+    gap: 28px;
+    padding: 0 20px;
+    background: linear-gradient(180deg, rgba(7,10,17,0.97) 0%, rgba(5,8,14,0.96) 100%);
+    position: relative;
+    flex-shrink: 0;
 
     &::after {
         content: '';
@@ -82,133 +166,67 @@
         left: 0;
         right: 0;
         height: 1px;
-        background: linear-gradient(90deg, transparent 5%, rgba(0,229,255,0.38) 40%, rgba(0,229,255,0.38) 60%, transparent 95%);
+        background: linear-gradient(90deg, transparent 0%, rgba(0,229,255,0.22) 25%, rgba(0,229,255,0.22) 75%, transparent 100%);
         pointer-events: none;
     }
 }
 
+/* ── Nav tabs ── */
+.nav-tab {
+    position: relative;
+    height: 100%;
+    padding: 0;
+    background: transparent;
+    border: none;
+    color: rgba(255,255,255,0.55);
+    font-family: var(--font);
+    font-size: 0.65rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    cursor: pointer;
+    transition: color 140ms ease, opacity 140ms ease;
+    white-space: nowrap;
+
+    &::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: var(--accent);
+        box-shadow: 0 0 10px rgba(0,229,255,0.35);
+        opacity: 0;
+        transition: opacity 140ms ease;
+    }
+
+    &:hover {
+        color: rgba(255,255,255,0.9);
+    }
+
+    &.active {
+        color: var(--text);
+        font-weight: 700;
+
+        &::after { opacity: 1; }
+    }
+}
+
+/* ── Scan line ── */
 .scan-line {
     position: absolute;
-    bottom: -1px;
-    left: -20%;
-    width: 40%;
+    bottom: 0;
+    left: -30%;
+    width: 35%;
     height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(0,229,255,0.55), transparent);
+    background: linear-gradient(90deg, transparent, rgba(0,229,255,0.5), transparent);
     animation: scan-sweep 8s linear infinite;
     pointer-events: none;
 }
 
 @keyframes scan-sweep {
-    from { left: -40%; }
-    to   { left: 120%; }
-}
-
-.header-left {
-    -webkit-app-region: no-drag;
-    flex-shrink: 0;
-}
-
-.logo {
-    display: flex;
-    align-items: center;
-    gap: 11px;
-    text-decoration: none;
-    color: var(--accent);
-    transition: var(--ease);
-    position: relative;
-
-    &::before {
-        content: '';
-        position: absolute;
-        left: -4px;
-        top: 50%;
-        transform: translateY(-50%);
-        width: 48px;
-        height: 48px;
-        background: radial-gradient(circle, rgba(0,229,255,0.12), transparent 70%);
-        pointer-events: none;
-        border-radius: 50%;
-    }
-
-    &:hover { opacity: 0.8; }
-}
-
-.logo-icon {
-    filter: drop-shadow(0 0 8px rgba(0,229,255,0.32));
-    flex-shrink: 0;
-}
-
-.logo-spin {
-    transform-origin: 20px 20px;
-    animation: logo-spin 18s linear infinite;
-}
-
-@keyframes logo-spin {
-    from { transform: rotate(0deg); }
-    to   { transform: rotate(360deg); }
-}
-
-.logo-name {
-    font-size: 0.92rem;
-    font-weight: 700;
-    letter-spacing: 0.26em;
-    color: var(--text);
-    text-transform: uppercase;
-}
-
-.header-right {
-    display: flex;
-    align-items: center;
-    -webkit-app-region: no-drag;
-    flex-shrink: 0;
-}
-
-.header-nav {
-    display: flex;
-    align-items: center;
-    gap: 2px;
-    padding: 0 8px;
-}
-
-.nav-btn {
-    position: relative;
-    height: 34px;
-    padding: 0 14px;
-    background: transparent;
-    border: none;
-    border-radius: var(--r-md);
-    color: rgba(255,255,255,0.4);
-    font-size: 0.68rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.14em;
-    cursor: pointer;
-    transition: var(--ease);
-    -webkit-app-region: no-drag;
-
-    &::after {
-        content: '';
-        position: absolute;
-        bottom: 5px;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 0;
-        height: 1.5px;
-        background: var(--accent);
-        border-radius: 1px;
-        transition: width 160ms ease;
-        opacity: 0.85;
-    }
-
-    &:hover {
-        color: rgba(255,255,255,0.7);
-        background: rgba(255,255,255,0.04);
-    }
-
-    &.active {
-        color: var(--text);
-
-        &::after { width: calc(100% - 18px); }
-    }
+    from { left: -35%; }
+    to   { left: 110%; }
 }
 </style>
