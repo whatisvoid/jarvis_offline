@@ -712,9 +712,9 @@
     }
 
     &.selected {
-        background: rgba(82, 254, 254, 0.1);
-        border-color: rgba(82, 254, 254, 0.4);
-        color: #52fefe;
+        background: rgba(0, 200, 220, 0.1);
+        border-color: rgba(0, 200, 220, 0.4);
+        color: #00c8dc;
         img { opacity: 1; }
     }
 }
@@ -767,8 +767,8 @@ $voice-max-visible: 3;
     }
 
     &.selected {
-        background: rgba(82, 254, 254, 0.1);
-        border-color: rgba(82, 254, 254, 0.4);
+        background: rgba(0, 200, 220, 0.1);
+        border-color: rgba(0, 200, 220, 0.4);
     }
 }
 
@@ -910,7 +910,7 @@ $voice-max-visible: 3;
     .about-version-num {
         font-size: 0.9rem;
         font-family: monospace;
-        color: rgba(82, 254, 254, 0.7);
+        color: rgba(0, 200, 220, 0.7);
         letter-spacing: 1px;
     }
 
@@ -918,8 +918,8 @@ $voice-max-visible: 3;
         font-size: 0.6rem;
         font-weight: 700;
         letter-spacing: 1.2px;
-        color: rgba(82, 254, 254, 0.6);
-        border: 1px solid rgba(82, 254, 254, 0.35);
+        color: rgba(0, 200, 220, 0.6);
+        border: 1px solid rgba(0, 200, 220, 0.35);
         border-radius: 3px;
         padding: 0.1rem 0.4rem;
     }
