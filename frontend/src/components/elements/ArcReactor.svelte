@@ -471,41 +471,41 @@
         .e7 { opacity: 0.38; }
 
         .e5_1 {
-            border-top-color: rgba(var(--arc-color), 0.12);
-            border-left-color: rgba(var(--arc-color), 0.12);
+            border-top-color: rgba(var(--arc-color), 0.09);
+            border-left-color: rgba(var(--arc-color), 0.09);
             animation: rotate 9s linear infinite;
         }
         .e5_2 {
-            border-right-color: rgba(var(--arc-color), 0.28);
-            border-bottom-color: rgba(var(--arc-color), 0.28);
+            border-right-color: rgba(var(--arc-color), 0.20);
+            border-bottom-color: rgba(var(--arc-color), 0.20);
             animation: rotate_anti 15s linear infinite;
         }
         .e5_3 {
-            border-top-color: rgba(var(--arc-color), 0.42);
+            border-top-color: rgba(var(--arc-color), 0.32);
             animation: rotate 12s linear infinite;
         }
         .e5_4 {
-            border-bottom-color: rgba(var(--arc-color), 0.55);
+            border-bottom-color: rgba(var(--arc-color), 0.44);
             animation: rotate_anti 14s linear infinite;
         }
         .e5_1_ghost {
-            border-top-color: rgba(var(--arc-color), 0.06);
-            border-right-color: rgba(var(--arc-color), 0.06);
+            border-top-color: rgba(var(--arc-color), 0.04);
+            border-right-color: rgba(var(--arc-color), 0.04);
             animation: rotate_anti 14s linear infinite;
         }
         .e5_2_ghost {
-            border-top-color: rgba(var(--arc-color), 0.1);
-            border-left-color: rgba(var(--arc-color), 0.1);
+            border-top-color: rgba(var(--arc-color), 0.07);
+            border-left-color: rgba(var(--arc-color), 0.07);
             animation: rotate 22s linear infinite;
         }
         .e5_3_ghost {
-            border-right-color: rgba(var(--arc-color), 0.15);
-            border-bottom-color: rgba(var(--arc-color), 0.15);
+            border-right-color: rgba(var(--arc-color), 0.10);
+            border-bottom-color: rgba(var(--arc-color), 0.10);
             animation: rotate_anti 18s linear infinite;
         }
         .e5_4_ghost {
-            border-top-color: rgba(var(--arc-color), 0.2);
-            border-left-color: rgba(var(--arc-color), 0.2);
+            border-top-color: rgba(var(--arc-color), 0.14);
+            border-left-color: rgba(var(--arc-color), 0.14);
             animation: rotate 21s linear infinite;
         }
     }

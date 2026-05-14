@@ -92,7 +92,6 @@
     display: flex;
     flex-direction: column;
     height: calc(100vh - var(--header-h));
-    overflow: hidden;
 }
 
 .search-section {
@@ -117,10 +116,11 @@
     align-items: center;
     justify-content: center;
     padding-bottom: 96px;
-    transform: translateY(36px);
+    transform: translateY(20px);
 }
 
 .stats-footer {
     flex-shrink: 0;
+    padding-bottom: 24px;
 }
 </style>

@@ -4,7 +4,6 @@
     import {
         isJarvisRunning,
         jarvisRamUsage,
-        jarvisCpuUsage,
         ipcConnected,
         translations,
         translate
@@ -44,55 +43,36 @@
     }
 </script>
 
-<div class="stats-bar">
-    <div class="stats-separator"></div>
+<div class="footer-separator"></div>
 
-    <div class="telemetry-grid">
-        <div class="stat-item">
-            <div class="stat-label-row">
-                <span class="stat-dot"
-                    class:dot-online={$isJarvisRunning}
-                    class:dot-offline={!$isJarvisRunning}
-                ></span>
-                <span class="stat-label">{t('stats-microphone')}</span>
-            </div>
-            <span class="stat-value" title="{microphoneName}">{truncate(microphoneName, 18)}</span>
+<div class="telemetry-grid">
+    <div class="stat-item">
+        <div class="stat-label-row">
+            <span class="footer-status-dot"></span>
+            <span class="stat-label">{t('stats-microphone')}</span>
         </div>
+        <span class="stat-value" title="{microphoneName}">{truncate(microphoneName, 18)}</span>
+    </div>
 
-        <div class="stat-item">
-            <div class="stat-label-row">
-                <span class="stat-dot"
-                    class:dot-idle={$ipcConnected}
-                    class:dot-warning={$isJarvisRunning && !$ipcConnected}
-                    class:dot-offline={!$isJarvisRunning && !$ipcConnected}
-                ></span>
-                <span class="stat-label">{t('stats-neural-networks')}</span>
-            </div>
-            <span class="stat-value">{neuralLabel}</span>
+    <div class="stat-item">
+        <div class="stat-label-row">
+            <span class="footer-status-dot"></span>
+            <span class="stat-label">{t('stats-neural-networks')}</span>
         </div>
+        <span class="stat-value">{neuralLabel}</span>
+    </div>
 
-        <div class="stat-item">
-            <div class="stat-label-row">
-                <span class="stat-dot"
-                    class:dot-idle={!!$jarvisRamUsage}
-                    class:dot-offline={!$jarvisRamUsage}
-                ></span>
-                <span class="stat-label">{t('stats-resources')}</span>
-            </div>
-            <span class="stat-value">{$jarvisRamUsage ? `RAM ${$jarvisRamUsage}mb` : '—'}</span>
+    <div class="stat-item">
+        <div class="stat-label-row">
+            <span class="footer-status-dot"></span>
+            <span class="stat-label">{t('stats-resources')}</span>
         </div>
+        <span class="stat-value">{$jarvisRamUsage ? `RAM ${$jarvisRamUsage}mb` : '—'}</span>
     </div>
 </div>
 
 <style lang="scss">
-.stats-bar {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding-bottom: 24px;
-}
-
-.stats-separator {
+.footer-separator {
     height: 1px;
     width: calc(100% + 48px);
     margin-left: -24px;
@@ -102,6 +82,7 @@
 
 .telemetry-grid {
     width: 440px;
+    margin: 0 auto;
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     column-gap: 48px;
@@ -119,34 +100,16 @@
     display: inline-flex;
     align-items: center;
     gap: 8px;
+    margin-bottom: 6px;
 }
 
-.stat-dot {
+.footer-status-dot {
     width: 5px;
     height: 5px;
-    border-radius: 50%;
+    border-radius: 999px;
+    background: rgba(0, 229, 255, 0.75);
+    box-shadow: 0 0 6px rgba(0, 229, 255, 0.18);
     flex-shrink: 0;
-    transition: background 0.4s ease, box-shadow 0.4s ease;
-
-    &.dot-online {
-        background: rgba(0,255,170,0.85);
-        box-shadow: 0 0 8px rgba(0,255,170,0.25);
-    }
-
-    &.dot-idle {
-        background: rgba(0,229,255,0.65);
-        box-shadow: 0 0 8px rgba(0,229,255,0.18);
-    }
-
-    &.dot-warning {
-        background: rgba(255,170,60,0.85);
-        box-shadow: 0 0 8px rgba(255,170,60,0.22);
-    }
-
-    &.dot-offline {
-        background: rgba(120,135,150,0.45);
-        box-shadow: none;
-    }
 }
 
 .stat-label {
@@ -160,7 +123,7 @@
 .stat-value {
     margin-left: 13px;
     font-size: 10px;
-    color: rgba(160,180,200,0.46);
-    line-height: 1.3;
+    color: rgba(160,180,200,0.52);
+    line-height: 1.35;
 }
 </style>

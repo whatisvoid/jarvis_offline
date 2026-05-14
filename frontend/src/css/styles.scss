@@ -9,7 +9,7 @@
 /* Firefox scrollbar */
 * {
     scrollbar-width: thin;
-    scrollbar-color: rgba(0,229,255,0.22) transparent;
+    scrollbar-color: rgba(0,229,255,0.14) transparent;
 }
 
 html, body {
@@ -26,13 +26,13 @@ html, body {
 }
 
 /* Webkit scrollbar — unified design */
-::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar { width: 4px; height: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb {
-    background: rgba(0,229,255,0.18);
+    background: rgba(0,229,255,0.14);
     border-radius: 999px;
 }
-::-webkit-scrollbar-thumb:hover { background: rgba(0,229,255,0.32); }
+::-webkit-scrollbar-thumb:hover { background: rgba(0,229,255,0.22); }
 ::-webkit-scrollbar-corner { background: transparent; }
 
 ::selection {
@@ -75,7 +75,6 @@ a:hover { opacity: 0.8; }
 
 main {
     flex: 1;
-    overflow: hidden;
     padding: 0 24px;
 }
 

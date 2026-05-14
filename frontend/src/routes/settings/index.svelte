@@ -544,7 +544,7 @@
     display: flex;
     flex-direction: row;
     flex-shrink: 0;
-    height: 44px;
+    height: 38px;
     border-radius: var(--r-lg);
     overflow: hidden;
     background: rgba(255,255,255,0.02);
@@ -560,15 +560,15 @@
     justify-content: center;
     flex: 1;
     height: 100%;
-    padding: 0 0.5rem;
+    padding: 0 16px;
     background: transparent;
     border: none;
     border-right: 1px solid rgba(255,255,255,0.04);
     color: rgba(255,255,255,0.35);
-    font-size: 0.64rem;
+    font-size: 11px;
     font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.10em;
     cursor: pointer;
     transition: var(--ease);
     white-space: nowrap;
@@ -576,15 +576,15 @@
     &:last-child { border-right: none; }
 
     &:hover {
-        background: rgba(255,255,255,0.03);
+        background: rgba(0,229,255,0.035);
         color: rgba(255,255,255,0.65);
     }
 
     &.active {
-        background: linear-gradient(180deg, rgba(0,229,255,0.10), rgba(0,229,255,0.03));
+        background: rgba(0,229,255,0.06);
         border-right-color: rgba(0,229,255,0.12);
         color: var(--accent);
-        box-shadow: 0 0 20px rgba(0,229,255,0.08);
+        box-shadow: 0 0 12px rgba(0,229,255,0.05);
 
         &::before {
             content: '';
@@ -594,7 +594,7 @@
             right: 0;
             height: 2px;
             background: linear-gradient(90deg, transparent, var(--accent), transparent);
-            opacity: 0.7;
+            opacity: 0.55;
         }
     }
 }
@@ -815,8 +815,8 @@
 .beta-panel {
     padding: 12px;
     border-radius: 10px;
-    background: rgba(255,190,90,0.045);
-    border: 1px solid rgba(255,190,90,0.14);
+    background: rgba(255,190,90,0.032);
+    border: 1px solid rgba(255,190,90,0.10);
     margin-bottom: 8px;
 }
 
@@ -956,8 +956,8 @@
 .settings-actions {
     display: flex;
     flex-direction: column;
-    gap: 6px;
-    padding: 12px 0 8px;
+    gap: 12px;
+    padding: 18px 0 24px;
     flex-shrink: 0;
     border-top: 1px solid rgba(255,255,255,0.05);
     background: transparent;

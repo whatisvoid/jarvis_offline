@@ -153,20 +153,23 @@
 .commands-list {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 8px;
     padding-bottom: 1rem;
     overflow-y: auto;
     max-height: calc(100vh - var(--header-h) - 80px);
 }
 
 .command-card {
-    background: var(--bg-card);
-    border: 1px solid var(--border);
+    background: rgba(255,255,255,0.018);
+    border: 1px solid rgba(255,255,255,0.045);
     border-radius: var(--r-md);
     padding: 10px 14px;
     transition: var(--ease);
 
-    &:hover { border-color: var(--border-strong); }
+    &:hover {
+        background: rgba(0,229,255,0.018);
+        border-color: rgba(0,229,255,0.08);
+    }
 }
 
 .card-header {
@@ -212,12 +215,13 @@
 
 .phrase-chip {
     font-size: 0.67rem;
-    background: rgba(255,255,255,0.04);
-    border: 1px solid rgba(255,255,255,0.07);
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
     border-radius: var(--r-sm);
     padding: 2px 7px;
     color: rgba(255,255,255,0.38);
     font-style: italic;
+    opacity: 0.78;
 }
 
 .cmd-slots {
@@ -229,12 +233,13 @@
 
 .slot-chip {
     font-size: 0.65rem;
-    background: rgba(168,85,247,0.07);
-    border: 1px solid rgba(168,85,247,0.22);
+    background: rgba(168,85,247,0.045);
+    border: 1px solid rgba(168,85,247,0.14);
     border-radius: var(--r-sm);
     padding: 1px 6px;
-    color: rgba(168,85,247,0.8);
+    color: rgba(168,85,247,0.72);
     font-family: var(--font-mono);
     cursor: help;
+    opacity: 0.78;
 }
 </style>
