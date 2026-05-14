@@ -125,6 +125,7 @@
     let boostyLink = ""
     let patreonLink = ""
     let authorName = ""
+    let appVersion = ""
     appInfo.subscribe(info => {
         feedbackLink = info.feedbackLink
         logFilePath = info.logFilePath
@@ -169,6 +170,7 @@
     onMount(async () => {
         try {
             authorName = await invoke<string>("get_author_name")
+            appVersion = await invoke<string>("get_app_version")
         } catch (err) {
             console.error("failed to get author name:", err)
         }
@@ -536,6 +538,13 @@
             </Notification>
             <Space h="lg" />
             <div class="about-section">
+                <div class="about-version-block">
+                    <div class="about-version-name">JARVIS</div>
+                    <div class="about-version-row">
+                        <span class="about-version-num">v{appVersion}</span>
+                        <span class="about-version-badge">BETA</span>
+                    </div>
+                </div>
                 <p class="about-copyright">© 2026. {t('footer-author')}: <b>{authorName}</b></p>
                 <div class="about-links">
                     {#if $currentLanguage === "ru" || $currentLanguage === "ua"}

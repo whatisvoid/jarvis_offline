@@ -1,18 +1,6 @@
 <script lang="ts">
     import { goto } from "@roxi/routify"
-    import { invoke } from "@tauri-apps/api/core"
-    import { onMount } from "svelte"
     import { translations, translate } from "@/stores"
-
-    let appVersion = ""
-
-    onMount(async () => {
-        try {
-            appVersion = await invoke<string>("get_app_version")
-        } catch {
-            // ignore
-        }
-    })
 
     $: t = (key: string) => translate($translations, key)
 </script>
@@ -25,7 +13,6 @@
             </a>
             <div class="logo-text">
                 <span class="logo-title"><a href="/" id="jarvis-logo">&nbsp;</a></span>
-                <span class="logo-version"><small>v</small>{appVersion} <span class="v-badge">BETA</span></span>
             </div>
         </div>
     </div>
