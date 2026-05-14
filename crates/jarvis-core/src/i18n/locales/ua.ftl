@@ -15,8 +15,10 @@ tray-vad = Детекцiя голосу (VAD)
 tray-gain-normalizer = Нормалізація гучності
 
 # ### HEADER
+header-home = ГОЛОВНА
 header-commands = КОМАНДИ
 header-settings = НАЛАШТУВАННЯ
+header-system = СИСТЕМА
 
 # ### SEARCH
 search-placeholder = Введіть команду вручну або скажіть «Джарвіс» ...

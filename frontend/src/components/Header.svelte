@@ -45,6 +45,13 @@
     <nav class="nav-bar">
         <button
             class="nav-tab"
+            class:active={currentPath === '/'}
+            on:click={() => navigate('/')}
+        >
+            {t('header-home')}
+        </button>
+        <button
+            class="nav-tab"
             class:active={currentPath === '/commands'}
             on:click={() => navigate('/commands')}
         >
@@ -56,6 +63,13 @@
             on:click={() => navigate('/settings')}
         >
             {t('header-settings')}
+        </button>
+        <button
+            class="nav-tab"
+            class:active={currentPath === '/system'}
+            on:click={() => navigate('/system')}
+        >
+            {t('header-system')}
         </button>
         <div class="scan-line" aria-hidden="true"></div>
     </nav>

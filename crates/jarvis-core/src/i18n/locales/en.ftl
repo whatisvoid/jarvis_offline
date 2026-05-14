@@ -15,8 +15,10 @@ tray-vad = Voice Activity Detection
 tray-gain-normalizer = Gain Normalizer
 
 # ### HEADER
+header-home = HOME
 header-commands = COMMANDS
 header-settings = SETTINGS
+header-system = SYSTEM
 
 # ### SEARCH
 search-placeholder = Enter a command manually or say «Jarvis» ...
