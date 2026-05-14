@@ -5,7 +5,7 @@
     import { setTimeout } from "worker-timers"
 
     import { showInExplorer } from "@/functions"
-    import { appInfo, assistantVoice, currentLanguage, translations, translate } from "@/stores"
+    import { appInfo, assistantVoice, currentLanguage, setLanguage, translations, translate } from "@/stores"
 
     import HDivider from "@/components/elements/HDivider.svelte"
     import {
@@ -83,6 +83,16 @@
     let gainNormalizerEnabled = false
     let apiKeyPicovoice = ""
     let apiKeyOpenai = ""
+
+    const languages = [
+        { code: "ru", label: "RU", flag: "🇷🇺", name: "Русский" },
+        { code: "en", label: "EN", flag: "🇬🇧", name: "English" },
+        { code: "ua", label: "UA", flag: "🇺🇦", name: "Українська" },
+    ]
+
+    async function selectLanguage(code: string) {
+        await setLanguage(code)
+    }
 
     // subscribe to stores
     assistantVoice.subscribe(value => {
@@ -251,6 +261,23 @@
 <Tabs class="form" color="#8AC832" position="left">
     <Tabs.Tab label={t('settings-general')} icon={Gear}>
         <Space h="sm" />
+        <div class="lang-select">
+            <label>{t('settings-language')}</label>
+            <div class="lang-options">
+                {#each languages as lang}
+                    <button
+                        type="button"
+                        class="lang-option"
+                        class:selected={lang.code === $currentLanguage}
+                        on:click={() => selectLanguage(lang.code)}
+                    >
+                        <img src="/media/flags/{lang.label}.png" width="22" alt={lang.flag} />
+                        <span>{lang.name}</span>
+                    </button>
+                {/each}
+            </div>
+        </div>
+        <Space h="md" />
         <div class="voice-select">
             <label>{t('settings-voice')}</label>
             <p class="description">{t('settings-voice-desc')}</p>
@@ -660,6 +687,55 @@ $voice-max-visible: 3;
     font-size: 0.8rem;
     color: rgba(255,255,255,0.4);
     font-style: italic;
+}
+
+.lang-select {
+    label {
+        font-weight: 600;
+        font-size: 0.9rem;
+        color: #fff;
+        display: block;
+        margin-bottom: 0.5rem;
+    }
+}
+
+.lang-options {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.lang-option {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.5rem 0.85rem;
+    background: rgba(30, 40, 45, 0.8);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 8px;
+    cursor: pointer;
+    color: rgba(255,255,255,0.65);
+    font-size: 0.8rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+
+    img {
+        border-radius: 2px;
+        opacity: 0.75;
+    }
+
+    &:hover {
+        background: rgba(40, 55, 60, 0.9);
+        border-color: rgba(255,255,255,0.2);
+        color: #fff;
+        img { opacity: 1; }
+    }
+
+    &.selected {
+        background: rgba(82, 254, 254, 0.1);
+        border-color: rgba(82, 254, 254, 0.4);
+        color: #52fefe;
+        img { opacity: 1; }
+    }
 }
 
 .about-section {
