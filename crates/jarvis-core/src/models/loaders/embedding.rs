@@ -23,6 +23,7 @@ pub fn load(registry: &ModelRegistry, model_id: &str) -> Result<Arc<EmbeddingMod
         let user_model = UserDefinedEmbeddingModel {
             onnx_file: std::fs::read(model_dir.join("model.onnx"))
                 .map_err(|e| format!("Failed to read model.onnx: {}", e))?,
+            external_initializers: Vec::new(),
             tokenizer_files: TokenizerFiles {
                 tokenizer_file: std::fs::read(model_dir.join("tokenizer.json"))
                     .map_err(|e| format!("Failed to read tokenizer.json: {}", e))?,

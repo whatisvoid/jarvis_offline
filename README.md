@@ -1,6 +1,6 @@
 # JARVIS Voice Assistant
 
-![We are NOT limited by the technology of our time!](poster.jpg)
+![We are NOT limited by the technology of our time!](poster-jarvis.png)
 
 `Jarvis` is a 100% offline voice assistant built as an experiment using neural networks for **STT / Wake Word / NLU / Intent Classification** and more.
 

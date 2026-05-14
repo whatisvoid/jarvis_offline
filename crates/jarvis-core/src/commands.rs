@@ -202,7 +202,7 @@ pub fn execute_command(cmd_path: &PathBuf, cmd_config: &JCommand, _phrase: Optio
         // LUA command
         #[cfg(feature = "lua")]
         "lua" => {
-            execute_lua_command(cmd_path, cmd_config, phrase, slots)
+            execute_lua_command(cmd_path, cmd_config, _phrase, _slots)
         }
 
         // AutoHotkey command
