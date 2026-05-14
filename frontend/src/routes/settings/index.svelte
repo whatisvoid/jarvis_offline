@@ -891,6 +891,44 @@ $voice-max-visible: 3;
     font-size: 13px;
     line-height: 1.8em;
 
+    .about-version-block {
+        margin-bottom: 1.25rem;
+    }
+
+    .about-version-name {
+        font-size: 1.6rem;
+        font-weight: 800;
+        letter-spacing: 6px;
+        text-transform: uppercase;
+        color: rgba(255,255,255,0.82);
+        font-family: monospace;
+        margin-bottom: 0.35rem;
+    }
+
+    .about-version-row {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+
+    .about-version-num {
+        font-size: 0.9rem;
+        font-family: monospace;
+        color: rgba(82, 254, 254, 0.7);
+        letter-spacing: 1px;
+    }
+
+    .about-version-badge {
+        font-size: 0.6rem;
+        font-weight: 700;
+        letter-spacing: 1.2px;
+        color: rgba(82, 254, 254, 0.6);
+        border: 1px solid rgba(82, 254, 254, 0.35);
+        border-radius: 3px;
+        padding: 0.1rem 0.4rem;
+    }
+
     .about-copyright {
         margin: 0 0 1rem;
         color: #6c6e71;
