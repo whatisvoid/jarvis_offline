@@ -608,45 +608,51 @@
 <style lang="scss">
 .settings-layout {
     display: flex;
-    gap: 0;
+    flex-direction: column;
+    gap: 0.85rem;
     min-height: 0;
 }
 
 .settings-nav {
     display: flex;
-    flex-direction: column;
-    gap: 2px;
-    width: 120px;
+    flex-direction: row;
     flex-shrink: 0;
-    border-right: 1px solid rgba(255,255,255,0.07);
-    padding-right: 0.5rem;
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 8px;
+    overflow: hidden;
 }
 
 .nav-item {
     display: flex;
+    flex-direction: column;
     align-items: center;
-    gap: 0.4rem;
-    padding: 0.55rem 0.65rem;
+    justify-content: center;
+    gap: 0.3rem;
+    flex: 1;
+    padding: 0.6rem 0.4rem;
     background: transparent;
     border: none;
-    border-radius: 6px;
-    color: rgba(255,255,255,0.45);
-    font-size: 0.75rem;
+    border-right: 1px solid rgba(255,255,255,0.07);
+    color: rgba(255,255,255,0.38);
+    font-size: 0.67rem;
     font-weight: 500;
     cursor: pointer;
-    text-align: left;
-    transition: all 0.15s ease;
+    text-align: center;
+    transition: background 0.15s ease, color 0.15s ease;
     white-space: nowrap;
+
+    &:last-child { border-right: none; }
 
     :global(svg) {
         flex-shrink: 0;
-        opacity: 0.6;
+        opacity: 0.5;
+        transition: opacity 0.15s ease;
     }
 
     &:hover {
-        background: rgba(255,255,255,0.05);
-        color: rgba(255,255,255,0.75);
-        :global(svg) { opacity: 0.9; }
+        background: rgba(255,255,255,0.04);
+        color: rgba(255,255,255,0.7);
+        :global(svg) { opacity: 0.8; }
     }
 
     &.active {
@@ -658,9 +664,8 @@
 
 .settings-content {
     flex: 1;
-    padding-left: 1rem;
     overflow-y: auto;
-    max-height: calc(100vh - 240px);
+    max-height: calc(100vh - 270px);
 
     &::-webkit-scrollbar { width: 4px; }
     &::-webkit-scrollbar-track { background: transparent; }
