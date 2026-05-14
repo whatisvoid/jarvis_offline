@@ -121,6 +121,5 @@
 
 .stats-footer {
     flex-shrink: 0;
-    padding-bottom: 24px;
 }
 </style>
