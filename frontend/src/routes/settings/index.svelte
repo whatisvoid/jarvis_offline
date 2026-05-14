@@ -7,24 +7,9 @@
     import { showInExplorer } from "@/functions"
     import { appInfo, assistantVoice, currentLanguage, setLanguage, translations, translate } from "@/stores"
 
-    import {
-        Notification,
-        Text,
-        Space,
-        Alert,
-        Input,
-        InputWrapper,
-        Switch
-    } from "@svelteuidev/core"
-
+    import { Notification } from "@svelteuidev/core"
+    import { Check } from "radix-icons-svelte"
     import Select from "@/components/ui/Select.svelte"
-
-    import {
-        Check,
-        Code,
-        QuestionMarkCircled,
-        CrossCircled
-    } from "radix-icons-svelte"
 
     $: t = (key: string) => translate($translations, key)
 
@@ -42,15 +27,6 @@
     }
 
     let availableVoices: VoiceMeta[] = []
-
-    async function selectVoice(voiceId: string) {
-        voiceVal = voiceId
-        try {
-            await invoke("preview_voice", { voiceId })
-        } catch (err) {
-            console.error("Failed to preview voice:", err)
-        }
-    }
 
     interface MicrophoneOption {
         label: string
@@ -82,10 +58,12 @@
     let ollamaModelsLoaded = false
 
     const languages = [
-        { code: "ru", label: "RU", flag: "🇷🇺", name: "Русский" },
-        { code: "en", label: "EN", flag: "🇬🇧", name: "English" },
-        { code: "ua", label: "UA", flag: "🇺🇦", name: "Українська" },
+        { code: "ru", name: "Русский" },
+        { code: "en", name: "English" },
+        { code: "ua", name: "Українська" },
     ]
+
+    $: selectedVoiceMeta = availableVoices.find(v => v.id === voiceVal)
 
     async function selectLanguage(code: string) {
         await setLanguage(code)
@@ -154,7 +132,6 @@
 
             assistantVoice.set(voiceVal)
             settingsSaved = true
-
             setTimeout(() => { settingsSaved = false }, 5000)
         } catch (err) {
             console.error("failed to save settings:", err)
@@ -240,7 +217,6 @@
         color="teal"
         on:close={() => { settingsSaved = false }}
     />
-    <Space h="sm" />
 {/if}
 
 <div class="settings-layout">
@@ -260,297 +236,262 @@
     </nav>
 
     <div class="settings-content">
+
+        <!-- ===== GENERAL ===== -->
         {#if activeTab === 'general'}
+
             <div class="settings-section">
                 <span class="section-label">{t('settings-language')}</span>
-                <div class="lang-options">
-                    {#each languages as lang}
-                        <button
-                            type="button"
-                            class="lang-option"
-                            class:selected={lang.code === $currentLanguage}
-                            on:click={() => selectLanguage(lang.code)}
-                        >
-                            <img src="/media/flags/{lang.label}.png" width="20" alt={lang.flag} />
-                            <span>{lang.name}</span>
-                        </button>
-                    {/each}
-                </div>
+                <Select
+                    data={languages.map(l => ({ value: l.code, label: l.name }))}
+                    value={$currentLanguage || "ru"}
+                    on:change={(e) => selectLanguage(e.detail)}
+                />
             </div>
-
-            <div class="section-divider"></div>
 
             <div class="settings-section">
                 <span class="section-label">{t('settings-voice')}</span>
                 <p class="section-desc">{t('settings-voice-desc')}</p>
-                <div class="voice-list">
-                    {#each availableVoices as voice}
-                        <button
-                            type="button"
-                            class="voice-item"
-                            class:selected={voiceVal === voice.id}
-                            on:click={() => selectVoice(voice.id)}
-                        >
-                            <div class="voice-info">
-                                <span class="voice-name">{voice.name}</span>
-                                {#if voice.author}
-                                    <span class="voice-author">by {voice.author}</span>
-                                {/if}
-                            </div>
-                            <div class="voice-langs">
-                                {#each voice.languages as l}
-                                    <img src="/media/flags/{l.toUpperCase()}.png" alt={l} width="18" title={l} />
-                                {/each}
-                            </div>
-                        </button>
-                    {/each}
-                    {#if availableVoices.length === 0}
-                        <p class="empty-hint">{t('settings-no-voices')}</p>
+                {#if availableVoices.length > 0}
+                    <Select
+                        data={availableVoices.map(v => ({ value: v.id, label: v.name }))}
+                        bind:value={voiceVal}
+                        on:change={(e) => invoke("preview_voice", { voiceId: e.detail }).catch(err => console.error("Failed to preview voice:", err))}
+                    />
+                    {#if selectedVoiceMeta}
+                        <div class="voice-meta">
+                            {#if selectedVoiceMeta.author}
+                                <span class="voice-meta-author">by {selectedVoiceMeta.author}</span>
+                            {/if}
+                            {#if selectedVoiceMeta.languages.length > 0}
+                                <span class="voice-meta-langs">{selectedVoiceMeta.languages.map(l => l.toUpperCase()).join(' · ')}</span>
+                            {/if}
+                        </div>
                     {/if}
-                </div>
+                {:else}
+                    <p class="empty-hint">{t('settings-no-voices')}</p>
+                {/if}
             </div>
 
+        <!-- ===== DEVICES ===== -->
         {:else if activeTab === 'devices'}
+
             <div class="settings-section">
+                <span class="section-label">{t('settings-microphone')}</span>
+                <p class="section-desc">{t('settings-microphone-desc')}</p>
                 <Select
                     data={availableMicrophones}
-                    label={t('settings-microphone')}
-                    description={t('settings-microphone-desc')}
                     bind:value={selectedMicrophone}
                 />
             </div>
 
+        <!-- ===== NEURAL ===== -->
         {:else if activeTab === 'neural'}
+
             <div class="settings-section">
+                <span class="section-label">{t('settings-wake-word-engine')}</span>
+                <p class="section-desc">{t('settings-wake-word-desc')}</p>
                 <Select
                     data={[
                         { label: "Rustpotter", value: "Rustpotter" },
                         { label: "Vosk", value: "Vosk" },
                         { label: "Picovoice Porcupine", value: "Picovoice" }
                     ]}
-                    label={t('settings-wake-word-engine')}
-                    description={t('settings-wake-word-desc')}
                     bind:value={selectedWakeWordEngine}
                 />
-
-                {#if selectedWakeWordEngine === "picovoice"}
-                    <Space h="sm" />
-                    <Alert title={t('settings-attention')} color="#868E96" variant="outline">
-                        <Notification
-                            title={t('settings-picovoice-warning')}
-                            icon={CrossCircled}
-                            color="orange"
-                            withCloseButton={false}
-                        >
-                            {t('settings-picovoice-waiting')}
-                        </Notification>
-                        <Space h="sm" />
-                        <Text size="sm" color="gray">
-                            {t('settings-picovoice-key-desc')}
-                            <a href="https://console.picovoice.ai/" target="_blank">Picovoice Console</a>.
-                        </Text>
-                        <Space h="sm" />
-                        <Input
-                            icon={Code}
+                {#if selectedWakeWordEngine === "Picovoice"}
+                    <div class="warn-panel">
+                        <p class="warn-panel-text">{t('settings-picovoice-warning')}</p>
+                        <p class="warn-panel-text">{t('settings-picovoice-key-desc')} <a href="https://console.picovoice.ai/" target="_blank" class="warn-link">Picovoice Console</a>.</p>
+                        <input
+                            class="field-input"
+                            style="margin-top: 10px; width: 100%;"
                             placeholder={t('settings-picovoice-key')}
-                            variant="filled"
                             autocomplete="off"
                             bind:value={apiKeyPicovoice}
                         />
-                    </Alert>
+                    </div>
                 {/if}
+            </div>
 
-                <div class="field-gap"></div>
+            <div class="settings-section">
+                <span class="section-label">{t('settings-vosk-model')}</span>
+                <p class="section-desc">{t('settings-vosk-model-desc')}</p>
                 <Select
                     data={[{ label: t('settings-auto-detect'), value: "" }, ...availableVoskModels]}
-                    label={t('settings-vosk-model')}
-                    description={t('settings-vosk-model-desc')}
                     bind:value={selectedVoskModel}
                 />
-
                 {#if availableVoskModels.length === 0}
-                    <Space h="sm" />
-                    <Alert title={t('settings-models-not-found')} color="orange" variant="outline">
-                        <Text size="sm" color="gray">{t('settings-models-hint')}</Text>
-                    </Alert>
+                    <p class="info-hint">{t('settings-models-hint')}</p>
                 {/if}
+            </div>
 
-                <div class="field-gap"></div>
+            <div class="settings-section">
+                <span class="section-label">{t('settings-intent-engine')}</span>
+                <p class="section-desc">{t('settings-intent-engine-desc')}</p>
                 <Select
                     data={[
                         { label: "Intent Classifier", value: "IntentClassifier" },
                         { label: "Embedding Classifier", value: "EmbeddingClassifier" }
                     ]}
-                    label={t('settings-intent-engine')}
-                    description={t('settings-intent-engine-desc')}
                     bind:value={selectedIntentRecognitionEngine}
                 />
+            </div>
 
-                <div class="field-gap"></div>
+            <div class="settings-section">
+                <span class="section-label">{t('settings-slot-engine')}</span>
+                <p class="section-desc">{t('settings-slot-engine-desc')}</p>
                 <Select
                     data={[
                         { label: t('settings-disabled'), value: "None" },
                         { label: "GLiNER (NER)", value: "GLiNER" }
                     ]}
-                    label={t('settings-slot-engine')}
-                    description={t('settings-slot-engine-desc')}
                     bind:value={selectedSlotExtractionEngine}
                 />
-
                 {#if selectedSlotExtractionEngine === "GLiNER"}
-                    <Space h="sm" />
-                    <Select
-                        data={[{ label: t('settings-auto-detect'), value: "" }, ...availableGlinerModels]}
-                        label={t('settings-gliner-model')}
-                        description={t('settings-gliner-model-desc')}
-                        bind:value={selectedGlinerModel}
-                    />
-                    {#if availableGlinerModels.length === 0}
-                        <Space h="sm" />
-                        <Alert title={t('settings-models-not-found')} color="orange" variant="outline">
-                            <Text size="sm" color="gray">{t('settings-gliner-models-hint')}</Text>
-                        </Alert>
-                    {/if}
+                    <div class="sub-field">
+                        <span class="field-label">{t('settings-gliner-model')}</span>
+                        <p class="field-desc">{t('settings-gliner-model-desc')}</p>
+                        <Select
+                            data={[{ label: t('settings-auto-detect'), value: "" }, ...availableGlinerModels]}
+                            bind:value={selectedGlinerModel}
+                        />
+                        {#if availableGlinerModels.length === 0}
+                            <p class="info-hint">{t('settings-gliner-models-hint')}</p>
+                        {/if}
+                    </div>
                 {/if}
+            </div>
 
-                <div class="field-gap"></div>
+            <div class="settings-section">
+                <span class="section-label">{t('settings-noise-suppression')}</span>
+                <p class="section-desc">{t('settings-noise-suppression-desc')}</p>
                 <Select
                     data={[
                         { label: t('settings-disabled'), value: "None" },
                         { label: "Nnnoiseless", value: "Nnnoiseless" }
                     ]}
-                    label={t('settings-noise-suppression')}
-                    description={t('settings-noise-suppression-desc')}
                     bind:value={selectedNoiseSuppression}
                 />
+            </div>
 
-                <Space h="md" />
+            <div class="settings-section">
+                <span class="section-label">{t('settings-vad')}</span>
+                <p class="section-desc">{t('settings-vad-desc')}</p>
                 <Select
                     data={[
                         { label: t('settings-disabled'), value: "None" },
                         { label: "Energy", value: "Energy" },
                         { label: "Nnnoiseless", value: "Nnnoiseless" }
                     ]}
-                    label={t('settings-vad')}
-                    description={t('settings-vad-desc')}
                     bind:value={selectedVad}
                 />
+            </div>
 
-                <Space h="md" />
-                <InputWrapper label={t('settings-gain-normalizer')}>
-                    <Text size="sm" color="gray">{t('settings-gain-normalizer-desc')}</Text>
-                    <Space h="xs" />
-                    <Switch
-                        label={gainNormalizerEnabled ? t('settings-enabled') : t('settings-disabled')}
-                        bind:checked={gainNormalizerEnabled}
+            <div class="settings-section">
+                <span class="section-label">{t('settings-gain-normalizer')}</span>
+                <p class="section-desc">{t('settings-gain-normalizer-desc')}</p>
+                <div class="toggle-row">
+                    <span class="toggle-state">{gainNormalizerEnabled ? t('settings-enabled') : t('settings-disabled')}</span>
+                    <button
+                        type="button"
+                        class="toggle-btn"
+                        class:on={gainNormalizerEnabled}
+                        on:click={() => gainNormalizerEnabled = !gainNormalizerEnabled}
+                        aria-pressed={gainNormalizerEnabled}
+                    >
+                        <span class="toggle-thumb"></span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="settings-section">
+                <span class="section-label">OLLAMA</span>
+                <p class="section-desc">{t('settings-ollama-desc')}</p>
+                <div class="ollama-url-row">
+                    <input
+                        id="ollama-url-input"
+                        class="field-input"
+                        placeholder="http://localhost:11434"
+                        bind:value={ollamaUrl}
                     />
-                </InputWrapper>
-
-                <div class="field-gap"></div>
-                <div class="ollama-section">
-                    <div class="ollama-header">
-                        <span class="ollama-title">Ollama</span>
-                        <span class="ollama-badge">LOCAL LLM</span>
-                    </div>
-                    <Text size="sm" color="gray">{t('settings-ollama-desc')}</Text>
-                    <Space h="sm" />
-                    <div class="ollama-field">
-                        <label for="ollama-url-input" class="ollama-label">{t('settings-ollama-url')}</label>
-                        <small class="ollama-desc">{t('settings-ollama-url-desc')}</small>
-                        <div class="ollama-url-row">
-                            <input
-                                id="ollama-url-input"
-                                class="field-input"
-                                placeholder="http://localhost:11434"
-                                bind:value={ollamaUrl}
-                            />
-                            <button
-                                class="btn-secondary btn-sm"
-                                on:click={loadOllamaModels}
-                                disabled={ollamaLoading}
-                            >
-                                {ollamaLoading ? '...' : t('settings-ollama-load-models')}
-                            </button>
-                        </div>
-                    </div>
-
-                    {#if ollamaError}
-                        <Space h="xs" />
-                        <Text size="sm" color="red">{ollamaError}</Text>
-                    {/if}
-
-                    {#if availableOllamaModels.length > 0}
-                        <Space h="sm" />
+                    <button
+                        class="btn-secondary btn-sm"
+                        on:click={loadOllamaModels}
+                        disabled={ollamaLoading}
+                    >
+                        {ollamaLoading ? '...' : t('settings-ollama-load-models')}
+                    </button>
+                </div>
+                {#if ollamaError}
+                    <p class="error-text">{ollamaError}</p>
+                {/if}
+                {#if availableOllamaModels.length > 0}
+                    <div class="sub-field">
                         <Select
                             data={availableOllamaModels}
-                            label={t('settings-ollama-model')}
-                            description={t('settings-ollama-model-desc')}
                             bind:value={ollamaModel}
                         />
-                    {:else if ollamaModelsLoaded}
-                        <Space h="xs" />
-                        <Alert title={t('settings-ollama-no-models')} color="orange" variant="outline" />
+                    </div>
+                {:else if ollamaModelsLoaded}
+                    <p class="info-hint">{t('settings-ollama-no-models')}</p>
+                {/if}
+            </div>
+
+        <!-- ===== ABOUT ===== -->
+        {:else if activeTab === 'about'}
+
+            <div class="beta-panel">
+                <div class="beta-panel-header">
+                    <span class="beta-panel-dot"></span>
+                    <span class="beta-panel-title">{t('settings-beta-title')}</span>
+                </div>
+                <p class="beta-panel-body">{t('settings-beta-desc')}</p>
+                <p class="beta-panel-body">{t('settings-beta-feedback')} <a href={feedbackLink} target="_blank" class="beta-panel-link">{t('settings-beta-bot')}</a>.</p>
+                <button class="btn-secondary btn-sm" style="margin-top: 12px;" on:click={() => showInExplorer(logFilePath)}>
+                    {t('settings-open-logs')}
+                </button>
+            </div>
+
+            <div class="settings-section">
+                <span class="section-label">{t('settings-about')}</span>
+                <div class="about-card">
+                    <span class="about-card-name">JARVIS</span>
+                    <div class="about-card-version">
+                        <span class="about-card-ver">v{appVersion}</span>
+                        <span class="ver-badge">BETA</span>
+                    </div>
+                    <p class="about-card-copy">© 2026 · {authorName}</p>
+                </div>
+            </div>
+
+            <div class="settings-section">
+                <span class="section-label">LINKS</span>
+                <div class="link-rows">
+                    {#if $currentLanguage === "ru" || $currentLanguage === "ua"}
+                        <a href={tgLink} target="_blank" class="link-row">
+                            <span class="link-name">{t('footer-telegram')}</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                    {/if}
+                    <a href={repoLink} target="_blank" class="link-row">
+                        <span class="link-name">{t('footer-github')}</span>
+                        <span class="link-arrow">→</span>
+                    </a>
+                    {#if $currentLanguage === "ru"}
+                        <a href={boostyLink} target="_blank" class="link-row">
+                            <span class="link-name">Boosty</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                    {:else if $currentLanguage === "ua" || $currentLanguage === "en"}
+                        <a href={patreonLink} target="_blank" class="link-row">
+                            <span class="link-name">Patreon</span>
+                            <span class="link-arrow">→</span>
+                        </a>
                     {/if}
                 </div>
             </div>
 
-        {:else if activeTab === 'about'}
-            <div class="settings-section">
-                <Notification
-                    title={t('settings-beta-title')}
-                    icon={QuestionMarkCircled}
-                    color="blue"
-                    withCloseButton={false}
-                >
-                    {t('settings-beta-desc')}<br />
-                    {t('settings-beta-feedback')} <a href={feedbackLink} target="_blank">{t('settings-beta-bot')}</a>.
-                    <Space h="sm" />
-                    <button class="btn-secondary btn-sm" on:click={() => showInExplorer(logFilePath)}>
-                        {t('settings-open-logs')}
-                    </button>
-                </Notification>
-
-                <Space h="lg" />
-
-                <div class="about-block">
-                    <div class="about-version">
-                        <span class="about-name">JARVIS</span>
-                        <div class="about-version-row">
-                            <span class="about-ver">v{appVersion}</span>
-                            <span class="about-badge">BETA</span>
-                        </div>
-                    </div>
-
-                    <p class="about-copyright">© 2026. {t('footer-author')}: <b>{authorName}</b></p>
-
-                    <div class="about-links">
-                        {#if $currentLanguage === "ru" || $currentLanguage === "ua"}
-                        <a href={tgLink} target="_blank" class="about-link">
-                            <img src="/media/icons/telegram.webp" alt="Telegram" width="16" />
-                            <span>{t('footer-telegram')}</span>
-                        </a>
-                        {/if}
-                        <a href={repoLink} target="_blank" class="about-link">
-                            <img src="/media/icons/github-logo.png" alt="GitHub" width="16" />
-                            <span>{t('footer-github')}</span>
-                        </a>
-                    </div>
-
-                    <div class="about-support">
-                        {#if $currentLanguage === "ru"}
-                        <p>{t('footer-support')} <a href={boostyLink} target="_blank" class="about-link about-link--inline">
-                            <img src="/media/icons/boosty.webp" alt="Boosty" width="16" />
-                            <span>Boosty</span>
-                        </a>.</p>
-                        {:else if $currentLanguage === "ua" || $currentLanguage === "en"}
-                        <p>{t('footer-support')} <a href={patreonLink} target="_blank" class="about-link about-link--inline">
-                            <img src="/media/icons/patreon.png" alt="Patreon" width="16" />
-                            <span>Patreon</span>
-                        </a>.</p>
-                        {/if}
-                    </div>
-                </div>
-            </div>
         {/if}
     </div>
 </div>
@@ -607,6 +548,7 @@
     background: rgba(255,255,255,0.02);
     border: 1px solid rgba(255,255,255,0.05);
     position: relative;
+    margin-bottom: 12px;
 }
 
 .nav-item {
@@ -659,368 +601,358 @@
 .settings-content {
     flex: 1;
     overflow-y: auto;
-    max-height: calc(100vh - var(--header-h) - 140px);
-    padding-top: 4px;
+    max-height: calc(100vh - var(--header-h) - 148px);
 
-    &::-webkit-scrollbar { width: 4px; }
+    &::-webkit-scrollbar { width: 3px; }
     &::-webkit-scrollbar-track { background: transparent; }
     &::-webkit-scrollbar-thumb {
-        background: rgba(255,255,255,0.1);
+        background: rgba(255,255,255,0.08);
         border-radius: 2px;
     }
 }
 
+/* ===== SECTION PANEL ===== */
 .settings-section {
-    padding: 16px;
+    padding: 18px;
     border-radius: 10px;
-    background: linear-gradient(180deg, rgba(255,255,255,0.022), rgba(255,255,255,0.010));
-    border: 1px solid rgba(255,255,255,0.04);
+    background: linear-gradient(180deg, rgba(255,255,255,0.025), rgba(255,255,255,0.012));
+    border: 1px solid rgba(255,255,255,0.055);
     margin-bottom: 8px;
 }
 
-.section-divider { display: none; }
-
-.field-gap { height: 18px; }
-
-/* ===== LABELS ===== */
+/* ===== SECTION TITLE ===== */
 .section-label {
     display: flex;
     align-items: center;
-    gap: 8px;
-    font-size: 0.75rem;
+    gap: 10px;
+    font-size: 13px;
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.18em;
+    letter-spacing: 0.12em;
     color: var(--text-sub);
     margin-bottom: 12px;
 
     &::before {
         content: '';
-        display: inline-block;
-        width: 2px;
-        height: 14px;
-        background: var(--accent);
-        border-radius: 1px;
-        opacity: 0.75;
         flex-shrink: 0;
+        width: 2px;
+        height: 16px;
+        background: var(--accent);
+        border-radius: 2px;
+        box-shadow: 0 0 8px rgba(0,229,255,0.35);
     }
 }
 
 .section-desc {
     font-size: 0.7rem;
     color: var(--text-muted);
-    margin: -8px 0 12px 10px;
+    opacity: 0.7;
+    margin: -6px 0 12px 12px;
     line-height: 1.5;
     white-space: pre-line;
 }
 
-/* ===== LANGUAGE OPTIONS ===== */
-.lang-options {
-    display: flex;
-    gap: 6px;
-}
-
-.lang-option {
+/* ===== VOICE META ===== */
+.voice-meta {
     display: flex;
     align-items: center;
-    gap: 6px;
-    padding: 6px 12px;
-    background: var(--bg-input);
-    border: 1px solid var(--border);
-    border-radius: var(--r-md);
-    cursor: pointer;
-    color: rgba(255,255,255,0.5);
-    font-size: 0.78rem;
-    font-weight: 500;
-    transition: var(--ease);
-    opacity: 0.55;
-
-    img { border-radius: 2px; opacity: 0.6; transition: opacity 140ms ease; }
-
-    &:hover {
-        background: var(--bg-hover);
-        border-color: var(--border-strong);
-        color: var(--text);
-        opacity: 1;
-        img { opacity: 1; }
-    }
-
-    &.selected {
-<<<<<<< HEAD
-        background: rgba(0, 200, 220, 0.1);
-        border-color: rgba(0, 200, 220, 0.4);
-        color: #00c8dc;
-=======
-        background: rgba(0,229,255,0.12);
-        border-color: rgba(0,229,255,0.38);
-        color: var(--accent);
-        box-shadow: 0 0 18px rgba(0,229,255,0.08);
-        opacity: 1;
->>>>>>> dev
-        img { opacity: 1; }
-    }
+    gap: 10px;
+    margin-top: 8px;
+    padding-left: 2px;
 }
 
-/* ===== VOICE LIST ===== */
-.voice-list {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    max-height: 196px;
-    overflow-y: auto;
-
-    &::-webkit-scrollbar { width: 4px; }
-    &::-webkit-scrollbar-track { background: transparent; }
-    &::-webkit-scrollbar-thumb {
-        background: rgba(255,255,255,0.12);
-        border-radius: 2px;
-    }
-}
-
-.voice-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    height: 56px;
-    padding: 0 14px 0 12px;
-    background: linear-gradient(90deg, rgba(0,229,255,0.03), rgba(255,255,255,0.01));
-    border: none;
-    border-left: 2px solid transparent;
-    border-radius: var(--r-md);
-    cursor: pointer;
-    transition: var(--ease);
-    text-align: left;
-    width: 100%;
-    text-decoration: none;
-    outline: none;
-
-    &::after,
-    &:hover::after {
-        display: none;
-        content: none;
-    }
-
-    &:hover {
-        background: rgba(0,229,255,0.035);
-        border-left-color: rgba(0,229,255,0.65);
-        transform: translateX(2px);
-    }
-
-    &.selected {
-<<<<<<< HEAD
-        background: rgba(0, 200, 220, 0.1);
-        border-color: rgba(0, 200, 220, 0.4);
-=======
-        background: rgba(0,229,255,0.08);
-        border-left: 2px solid #00e5ff;
-    }
-
-    &:focus-visible {
-        outline: 1px solid rgba(0,229,255,0.35);
-        outline-offset: 2px;
->>>>>>> dev
-    }
-}
-
-.voice-info {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-}
-
-.voice-name {
-    font-size: 0.82rem;
-    color: var(--text);
-    font-weight: 500;
-}
-
-.voice-author {
+.voice-meta-author {
     font-size: 0.68rem;
     color: var(--text-muted);
+    opacity: 0.7;
 }
 
-.voice-langs {
-    display: flex;
-    gap: 5px;
-    img { opacity: 0.75; border-radius: 2px; }
-}
-
-.empty-hint {
-    font-size: 0.78rem;
-    color: var(--text-muted);
-    font-style: italic;
-    padding: 8px 0;
-}
-
-/* ===== OLLAMA SECTION ===== */
-.ollama-section {
-    border: 1px solid rgba(255,255,255,0.05);
-    border-left: 2px solid rgba(0,229,255,0.2);
-    border-radius: var(--r-md);
-    padding: 14px 14px 14px 12px;
-    background: rgba(255,255,255,0.015);
-    margin-top: 4px;
-}
-
-.ollama-header {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 6px;
-}
-
-.ollama-title {
-    font-size: 0.85rem;
-    font-weight: 700;
-    color: var(--text);
-}
-
-.ollama-badge {
-    font-size: 0.58rem;
-    font-weight: 700;
-    letter-spacing: 0.8px;
-    color: var(--accent);
-    border: 1px solid rgba(0,229,255,0.4);
-    border-radius: var(--r-sm);
-    padding: 1px 5px;
-    opacity: 0.85;
-    text-transform: uppercase;
-}
-
-.ollama-field { margin-bottom: 4px; }
-
-.ollama-label {
-    display: block;
-    font-size: 0.75rem;
+.voice-meta-langs {
+    font-size: 0.65rem;
     font-weight: 600;
-    color: var(--text-sub);
-    margin-bottom: 3px;
+    letter-spacing: 0.06em;
+    color: rgba(0,229,255,0.45);
+    font-family: var(--font-mono);
 }
 
-.ollama-desc {
+/* ===== SUB-FIELDS (nested within a section) ===== */
+.sub-field {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid rgba(255,255,255,0.04);
+}
+
+.field-label {
     display: block;
-    font-size: 0.68rem;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-sub);
+    margin-bottom: 4px;
+    opacity: 0.8;
+}
+
+.field-desc {
+    display: block;
+    font-size: 0.67rem;
     color: var(--text-muted);
+    opacity: 0.65;
     margin-bottom: 8px;
     line-height: 1.4;
 }
 
+/* ===== HINT / ERROR TEXT ===== */
+.empty-hint,
+.info-hint {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    font-style: italic;
+    padding: 8px 0 0;
+    opacity: 0.65;
+}
+
+.error-text {
+    font-size: 0.72rem;
+    color: rgba(255,80,80,0.85);
+    padding: 6px 0 0;
+}
+
+/* ===== WARN PANEL (picovoice) ===== */
+.warn-panel {
+    margin-top: 12px;
+    padding: 14px;
+    border-radius: 8px;
+    background: rgba(255,190,90,0.04);
+    border: 1px solid rgba(255,190,90,0.14);
+}
+
+.warn-panel-text {
+    font-size: 0.72rem;
+    color: rgba(255,190,90,0.82);
+    line-height: 1.5;
+    margin: 0 0 4px;
+}
+
+.warn-link {
+    color: rgba(255,190,90,0.9);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+
+/* ===== TOGGLE ===== */
+.toggle-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.toggle-state {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+.toggle-btn {
+    position: relative;
+    width: 36px;
+    height: 20px;
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,0.12);
+    background: rgba(255,255,255,0.06);
+    cursor: pointer;
+    transition: background 200ms ease, border-color 200ms ease;
+    flex-shrink: 0;
+
+    &.on {
+        background: rgba(0,229,255,0.22);
+        border-color: rgba(0,229,255,0.4);
+    }
+}
+
+.toggle-thumb {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.4);
+    transition: transform 200ms ease, background 200ms ease;
+
+    .on & {
+        transform: translateX(16px);
+        background: #00e5ff;
+    }
+}
+
+/* ===== OLLAMA URL ROW ===== */
 .ollama-url-row {
     display: flex;
     gap: 8px;
     align-items: center;
 }
 
+/* ===== FIELD INPUT ===== */
 .field-input {
     flex: 1;
     height: 40px;
-    background: var(--bg-input);
-    border: 1px solid var(--border);
+    background: rgba(255,255,255,0.025);
+    border: 1px solid rgba(255,255,255,0.08);
     border-radius: var(--r-md);
-    color: var(--text);
+    color: rgba(230,245,255,0.92);
+    font-family: var(--font);
     font-size: 0.82rem;
-    padding: 0 12px;
+    padding: 0 14px;
     transition: var(--ease);
+    outline: none;
 
-    &::placeholder { color: var(--text-muted); }
-    &:focus { border-color: rgba(0,229,255,0.5); }
+    &::placeholder { color: var(--text-muted); opacity: 0.5; }
+    &:focus {
+        border-color: rgba(0,229,255,0.42);
+        background: rgba(0,229,255,0.02);
+        box-shadow: 0 0 14px rgba(0,229,255,0.06);
+    }
 }
 
-/* ===== ABOUT ===== */
-.about-block {
-    text-align: center;
-    color: var(--text-muted);
-    font-size: 0.82rem;
-    line-height: 1.8;
+/* ===== BETA PANEL ===== */
+.beta-panel {
+    padding: 16px;
+    border-radius: 10px;
+    background: rgba(255,190,90,0.045);
+    border: 1px solid rgba(255,190,90,0.14);
+    margin-bottom: 8px;
 }
 
-.about-version {
-    margin-bottom: 16px;
-}
-
-.about-name {
-    display: block;
-    font-size: 1.5rem;
-    font-weight: 800;
-    letter-spacing: 0.35em;
-    text-transform: uppercase;
-    color: rgba(255,255,255,0.8);
-    font-family: var(--font-mono);
-    margin-bottom: 6px;
-}
-
-.about-version-row {
+.beta-panel-header {
     display: flex;
     align-items: center;
-    justify-content: center;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+.beta-panel-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: rgba(255,190,90,0.9);
+    box-shadow: 0 0 6px rgba(255,190,90,0.5);
+    flex-shrink: 0;
+}
+
+.beta-panel-title {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: rgba(255,190,90,0.92);
+}
+
+.beta-panel-body {
+    font-size: 0.72rem;
+    color: rgba(255,190,90,0.7);
+    line-height: 1.5;
+    margin: 0 0 4px;
+}
+
+.beta-panel-link {
+    color: rgba(255,190,90,0.9);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+
+/* ===== ABOUT CARD ===== */
+.about-card {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.about-card-name {
+    font-size: 1.1rem;
+    font-weight: 800;
+    letter-spacing: 0.2em;
+    color: rgba(255,255,255,0.82);
+    font-family: var(--font-mono);
+}
+
+.about-card-version {
+    display: flex;
+    align-items: center;
     gap: 8px;
 }
 
-.about-ver {
-    font-size: 0.88rem;
+.about-card-ver {
+    font-size: 0.82rem;
     font-family: var(--font-mono);
-    color: rgba(0,229,255,0.65);
-    letter-spacing: 1px;
+    color: rgba(0,229,255,0.6);
 }
 
-.about-badge {
-    font-size: 0.58rem;
+.ver-badge {
+    font-size: 0.56rem;
     font-weight: 700;
-    letter-spacing: 1.2px;
+    letter-spacing: 1px;
     text-transform: uppercase;
     color: rgba(0,229,255,0.55);
-    border: 1px solid rgba(0,229,255,0.3);
+    border: 1px solid rgba(0,229,255,0.28);
     border-radius: var(--r-sm);
     padding: 1px 5px;
 }
 
-.about-copyright {
-    margin: 0 0 12px;
+.about-card-copy {
+    font-size: 0.68rem;
     color: var(--text-muted);
-    b { color: rgba(255,255,255,0.5); }
+    opacity: 0.55;
+    margin: 4px 0 0;
 }
 
-.about-links {
+/* ===== LINKS ===== */
+.link-rows {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 12px;
+    gap: 4px;
 }
 
-.about-support p { margin: 0; }
-
-.about-link {
-    display: inline-flex;
+.link-row {
+    display: flex;
     align-items: center;
-    gap: 6px;
-    color: var(--text-muted);
+    justify-content: space-between;
+    height: 36px;
+    padding: 0 12px;
+    border-radius: 8px;
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.04);
     text-decoration: none;
     transition: var(--ease);
 
-    img { opacity: 0.45; transition: opacity 140ms ease; margin-top: -2px; }
-
-    span {
-        color: #1a6b8a;
-        border-bottom: 1px solid #1a6b8a;
-        transition: color 140ms ease, border-color 140ms ease;
-        font-size: 0.8rem;
-    }
-
     &:hover {
-        img { opacity: 1; }
-        span { color: var(--accent); border-color: var(--accent); }
-    }
+        background: rgba(0,229,255,0.04);
+        border-color: rgba(0,229,255,0.14);
 
-    &--inline { vertical-align: middle; }
+        .link-arrow { color: var(--accent); opacity: 1; }
+        .link-name { color: rgba(255,255,255,0.82); }
+    }
 }
 
-/* ===== BUTTONS ===== */
+.link-name {
+    font-size: 0.78rem;
+    color: rgba(255,255,255,0.55);
+    transition: color 140ms ease;
+}
+
+.link-arrow {
+    font-size: 0.85rem;
+    color: rgba(255,255,255,0.2);
+    opacity: 0.6;
+    transition: color 140ms ease, opacity 140ms ease;
+}
+
+/* ===== ACTIONS ===== */
 .settings-actions {
     display: flex;
     flex-direction: column;
     gap: 6px;
     padding: 12px 0 6px;
+    flex-shrink: 0;
 }
 
 .btn-save {
@@ -1030,6 +962,7 @@
     border: 1px solid rgba(0,229,255,0.25);
     border-radius: var(--r-md);
     color: var(--accent);
+    font-family: var(--font);
     font-size: 0.7rem;
     font-weight: 700;
     text-transform: uppercase;
@@ -1062,6 +995,7 @@
     border: 1px solid rgba(255,255,255,0.07);
     border-radius: var(--r-md);
     color: rgba(255,255,255,0.38);
+    font-family: var(--font);
     font-size: 0.7rem;
     font-weight: 600;
     text-transform: uppercase;
@@ -1072,7 +1006,7 @@
 
     &:hover {
         opacity: 1;
-        border-color: var(--border-strong);
+        border-color: rgba(255,255,255,0.14);
         color: rgba(255,255,255,0.6);
         background: rgba(255,255,255,0.03);
     }
@@ -1082,9 +1016,10 @@
     height: 36px;
     padding: 0 14px;
     background: transparent;
-    border: 1px solid var(--border);
+    border: 1px solid rgba(255,255,255,0.08);
     border-radius: var(--r-md);
     color: rgba(255,255,255,0.5);
+    font-family: var(--font);
     font-size: 0.7rem;
     font-weight: 600;
     text-transform: uppercase;
@@ -1094,77 +1029,13 @@
     white-space: nowrap;
 
     &:hover:not(:disabled) {
-        border-color: var(--border-strong);
+        border-color: rgba(255,255,255,0.16);
         color: rgba(255,255,255,0.75);
-        background: var(--bg-hover);
+        background: rgba(255,255,255,0.04);
     }
 
     &:disabled { opacity: 0.4; cursor: not-allowed; }
 }
 
 .btn-sm { height: 30px; font-size: 0.65rem; padding: 0 10px; }
-
-<<<<<<< HEAD
-    .about-version-num {
-        font-size: 0.9rem;
-        font-family: monospace;
-        color: rgba(0, 200, 220, 0.7);
-        letter-spacing: 1px;
-    }
-
-    .about-version-badge {
-        font-size: 0.6rem;
-        font-weight: 700;
-        letter-spacing: 1.2px;
-        color: rgba(0, 200, 220, 0.6);
-        border: 1px solid rgba(0, 200, 220, 0.35);
-        border-radius: 3px;
-        padding: 0.1rem 0.4rem;
-    }
-=======
-/* ===== SVELTEUI COMPONENT OVERRIDES ===== */
-:global(.svelteui-Input-wrapper),
-:global(.svelteui-InputWrapper-root) {
-    width: 100% !important;
-}
-
-:global(.svelteui-InputWrapper-label) {
-    font-family: var(--font) !important;
-    font-size: 0.72rem !important;
-    font-weight: 600 !important;
-    text-transform: uppercase !important;
-    letter-spacing: 0.1em !important;
-    color: var(--text-sub) !important;
-    margin-bottom: 6px !important;
-    line-height: 1.3 !important;
-}
->>>>>>> dev
-
-:global(.svelteui-InputWrapper-description) {
-    font-family: var(--font) !important;
-    font-size: 0.68rem !important;
-    color: var(--text-muted) !important;
-    margin-bottom: 8px !important;
-    line-height: 1.45 !important;
-    white-space: pre-line;
-    opacity: 0.58;
-}
-
-:global(.svelteui-Input-input) {
-    font-family: var(--font) !important;
-    height: 40px !important;
-    background: rgba(255,255,255,0.03) !important;
-    border: 1px solid rgba(255,255,255,0.08) !important;
-    border-radius: var(--r-md) !important;
-    color: var(--text) !important;
-    font-size: 0.84rem !important;
-    padding: 0 10px !important;
-    transition: var(--ease) !important;
-
-    &:focus {
-        border-color: rgba(0,229,255,0.5) !important;
-        background: rgba(255,255,255,0.04) !important;
-        outline: none !important;
-    }
-}
 </style>
