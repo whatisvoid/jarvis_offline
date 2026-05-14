@@ -67,7 +67,7 @@
 
 <div class="commands-header">
     <input
-        class="search-input"
+        class="shell-input"
         type="text"
         placeholder={t('commands-search')}
         bind:value={searchQuery}
@@ -123,23 +123,8 @@
     display: flex;
     align-items: center;
     gap: 0.75rem;
+    padding-right: 12px;
     margin-bottom: 10px;
-}
-
-.search-input {
-    flex: 1;
-    height: 36px;
-    background: var(--bg-input);
-    border: 1px solid var(--border);
-    border-radius: var(--r-md);
-    color: var(--text);
-    font-size: 0.82rem;
-    padding: 0 12px;
-    outline: none;
-    transition: var(--ease);
-
-    &::placeholder { color: var(--text-muted); }
-    &:focus { border-color: rgba(0,229,255,0.5); }
 }
 
 .empty-state {
@@ -154,6 +139,7 @@
     display: flex;
     flex-direction: column;
     gap: 8px;
+    padding-right: 12px;
     padding-bottom: 1rem;
     overflow-y: auto;
     max-height: calc(100vh - var(--header-h) - 80px);

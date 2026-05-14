@@ -9,7 +9,7 @@
 /* Firefox scrollbar */
 * {
     scrollbar-width: thin;
-    scrollbar-color: rgba(0,229,255,0.14) transparent;
+    scrollbar-color: rgba(0,229,255,0.18) rgba(255,255,255,0.02);
 }
 
 html, body {
@@ -26,13 +26,13 @@ html, body {
 }
 
 /* Webkit scrollbar — unified design */
-::-webkit-scrollbar { width: 4px; height: 4px; }
-::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: rgba(255,255,255,0.02); }
 ::-webkit-scrollbar-thumb {
-    background: rgba(0,229,255,0.14);
+    background: rgba(0,229,255,0.18);
     border-radius: 999px;
 }
-::-webkit-scrollbar-thumb:hover { background: rgba(0,229,255,0.22); }
+::-webkit-scrollbar-thumb:hover { background: rgba(0,229,255,0.30); }
 ::-webkit-scrollbar-corner { background: transparent; }
 
 ::selection {

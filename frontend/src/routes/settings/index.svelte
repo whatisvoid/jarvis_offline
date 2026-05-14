@@ -514,29 +514,6 @@
     padding-top: 16px;
     height: calc(100vh - var(--header-h));
     overflow: hidden;
-    position: relative;
-
-    &::before, &::after {
-        content: '';
-        position: absolute;
-        width: 6px;
-        height: 6px;
-        border-color: rgba(0,229,255,0.3);
-        border-style: solid;
-        pointer-events: none;
-    }
-
-    &::before {
-        top: 16px;
-        left: 0;
-        border-width: 1px 0 0 1px;
-    }
-
-    &::after {
-        top: 16px;
-        right: 0;
-        border-width: 1px 1px 0 0;
-    }
 }
 
 /* ===== TABS ===== */
@@ -585,17 +562,6 @@
         border-right-color: rgba(0,229,255,0.12);
         color: var(--accent);
         box-shadow: 0 0 12px rgba(0,229,255,0.05);
-
-        &::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 2px;
-            background: linear-gradient(90deg, transparent, var(--accent), transparent);
-            opacity: 0.55;
-        }
     }
 }
 
@@ -604,6 +570,7 @@
     flex: 1;
     min-height: 0;
     overflow-y: auto;
+    padding-right: 12px;
     padding-bottom: 8px;
 }
 

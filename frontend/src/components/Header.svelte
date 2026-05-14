@@ -168,8 +168,8 @@
     height: var(--nav-h);
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 28px;
-    padding: 0 20px;
     background: linear-gradient(180deg, rgba(7,10,15,0.92) 0%, rgba(5,8,12,0.90) 100%);
     position: relative;
     flex-shrink: 0;
