@@ -33,6 +33,9 @@ pub struct Settings {
     pub language: String,
 
     pub api_keys: ApiKeys,
+
+    #[serde(default)]
+    pub ollama: OllamaConfig,
 }
 
 fn default_intent_backend() -> String { config::DEFAULT_INTENT_BACKEND.to_string() }
@@ -59,7 +62,8 @@ impl Settings {
             "gain_normalizer"           => Some(self.gain_normalizer.to_string()),
             "language"                  => Some(self.language.clone()),
             "api_key__picovoice"        => Some(self.api_keys.picovoice.clone()),
-            "api_key__openai"           => Some(self.api_keys.openai.clone()),
+            "ollama_url"                => Some(self.ollama.url.clone()),
+            "ollama_model"              => Some(self.ollama.model.clone()),
             _ => None,
         }
     }
@@ -117,8 +121,11 @@ impl Settings {
             "api_key__picovoice" => {
                 self.api_keys.picovoice = val.to_string();
             }
-            "api_key__openai" => {
-                self.api_keys.openai = val.to_string();
+            "ollama_url" => {
+                self.ollama.url = val.to_string();
+            }
+            "ollama_model" => {
+                self.ollama.model = val.to_string();
             }
             _ => return Err(format!("unknown setting: '{}'", key)),
         }
@@ -141,7 +148,8 @@ impl Settings {
             "gain_normalizer",
             "language",
             "api_key__picovoice",
-            "api_key__openai",
+            "ollama_url",
+            "ollama_model",
         ]
     }
 }
@@ -171,7 +179,10 @@ impl Default for Settings {
 
             api_keys: ApiKeys {
                 picovoice: String::from(""),
-                openai: String::from(""),
+            },
+            ollama: OllamaConfig {
+                url: String::from("http://localhost:11434"),
+                model: String::from(""),
             },
         }
     }
@@ -180,5 +191,19 @@ impl Default for Settings {
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct ApiKeys {
     pub picovoice: String,
-    pub openai: String,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct OllamaConfig {
+    pub url: String,
+    pub model: String,
+}
+
+impl Default for OllamaConfig {
+    fn default() -> Self {
+        OllamaConfig {
+            url: String::from("http://localhost:11434"),
+            model: String::from(""),
+        }
+    }
 }

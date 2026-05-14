@@ -104,9 +104,15 @@ settings-vosk-model-desc =
 settings-models-not-found = Models not found
 settings-models-hint = Place Vosk models in resources/vosk folder
 
-# settings - openai
-settings-openai-key = OpenAI Key
-settings-openai-not-supported = ChatGPT is not currently supported. It will be added in future updates.
+# settings - ollama
+settings-ollama-desc = Ollama lets you run language models locally — no internet, no data sent to third-party servers.
+settings-ollama-url = Ollama server URL
+settings-ollama-url-desc = Address of your running Ollama instance. Default: http://localhost:11434
+settings-ollama-load-models = Load models
+settings-ollama-model = Model
+settings-ollama-model-desc = Select a model after connecting to the Ollama server.
+settings-ollama-no-models = No models found. Make sure Ollama is running and models are installed.
+settings-ollama-error = Could not connect to Ollama
 
 # ### COMMANDS PAGE
 commands-title = Commands

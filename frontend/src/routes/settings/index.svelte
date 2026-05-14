@@ -78,7 +78,12 @@
     let selectedVad = ""
     let gainNormalizerEnabled = false
     let apiKeyPicovoice = ""
-    let apiKeyOpenai = ""
+    let ollamaUrl = "http://localhost:11434"
+    let ollamaModel = ""
+    let availableOllamaModels: { label: string; value: string }[] = []
+    let ollamaLoading = false
+    let ollamaError = ""
+    let ollamaModelsLoaded = false
 
     const languages = [
         { code: "ru", label: "RU", flag: "🇷🇺", name: "Русский" },
@@ -88,6 +93,25 @@
 
     async function selectLanguage(code: string) {
         await setLanguage(code)
+    }
+
+    async function loadOllamaModels() {
+        ollamaLoading = true
+        ollamaError = ""
+        ollamaModelsLoaded = false
+        try {
+            const models = await invoke<string[]>("list_ollama_models", { url: ollamaUrl })
+            availableOllamaModels = models.map(m => ({ label: m, value: m }))
+            ollamaModelsLoaded = true
+            if (models.length > 0 && !ollamaModel) {
+                ollamaModel = models[0]
+            }
+        } catch (err: any) {
+            ollamaError = err?.toString() ?? t('settings-ollama-error')
+            availableOllamaModels = []
+        } finally {
+            ollamaLoading = false
+        }
     }
 
     assistantVoice.subscribe(value => {
@@ -127,7 +151,8 @@
                 invoke("db_write", { key: "vad", val: selectedVad }),
                 invoke("db_write", { key: "gain_normalizer", val: gainNormalizerEnabled.toString() }),
                 invoke("db_write", { key: "api_key__picovoice", val: apiKeyPicovoice }),
-                invoke("db_write", { key: "api_key__openai", val: apiKeyOpenai })
+                invoke("db_write", { key: "ollama_url", val: ollamaUrl }),
+                invoke("db_write", { key: "ollama_model", val: ollamaModel })
             ])
 
             assistantVoice.set(voiceVal)
@@ -177,7 +202,7 @@
             availableGlinerModels = glinerModels.map(m => ({ label: m.display_name, value: m.value }))
 
             const [mic, wakeWord, intentReco, slotEngine, glinerModel, voskModel,
-                   noiseSuppression, vad, gainNormalizer, pico, openai] = await Promise.all([
+                   noiseSuppression, vad, gainNormalizer, pico, savedOllamaUrl, savedOllamaModel] = await Promise.all([
                 invoke<string>("db_read", { key: "selected_microphone" }),
                 invoke<string>("db_read", { key: "selected_wake_word_engine" }),
                 invoke<string>("db_read", { key: "selected_intent_recognition_engine" }),
@@ -188,7 +213,8 @@
                 invoke<string>("db_read", { key: "vad" }),
                 invoke<string>("db_read", { key: "gain_normalizer" }),
                 invoke<string>("db_read", { key: "api_key__picovoice" }),
-                invoke<string>("db_read", { key: "api_key__openai" })
+                invoke<string>("db_read", { key: "ollama_url" }),
+                invoke<string>("db_read", { key: "ollama_model" })
             ])
 
             selectedMicrophone = mic
@@ -201,7 +227,8 @@
             selectedVad = vad
             gainNormalizerEnabled = gainNormalizer === "true"
             apiKeyPicovoice = pico
-            apiKeyOpenai = openai
+            if (savedOllamaUrl) ollamaUrl = savedOllamaUrl
+            ollamaModel = savedOllamaModel
         } catch (err) {
             console.error("failed to load settings:", err)
         }
@@ -435,18 +462,55 @@
             </InputWrapper>
 
             <Space h="xl" />
-            <InputWrapper label={t('settings-openai-key')}>
-                <Text size="sm" color="gray">{t('settings-openai-not-supported')}</Text>
+            <div class="ollama-section">
+                <div class="ollama-header">
+                    <span class="ollama-title">Ollama</span>
+                    <span class="ollama-badge">LOCAL LLM</span>
+                </div>
+                <Text size="sm" color="gray">{t('settings-ollama-desc')}</Text>
                 <Space h="sm" />
-                <Input
-                    icon={Code}
-                    placeholder={t('settings-openai-key')}
-                    variant="filled"
-                    autocomplete="off"
-                    bind:value={apiKeyOpenai}
-                    disabled
-                />
-            </InputWrapper>
+                <InputWrapper label={t('settings-ollama-url')} description={t('settings-ollama-url-desc')}>
+                    <Space h="xs" />
+                    <div class="ollama-url-row">
+                        <Input
+                            placeholder="http://localhost:11434"
+                            variant="filled"
+                            bind:value={ollamaUrl}
+                        />
+                        <Button
+                            color="gray"
+                            radius="md"
+                            size="sm"
+                            uppercase
+                            on:click={loadOllamaModels}
+                            disabled={ollamaLoading}
+                        >
+                            {ollamaLoading ? '...' : t('settings-ollama-load-models')}
+                        </Button>
+                    </div>
+                </InputWrapper>
+
+                {#if ollamaError}
+                    <Space h="xs" />
+                    <Text size="sm" color="red">{ollamaError}</Text>
+                {/if}
+
+                {#if availableOllamaModels.length > 0}
+                    <Space h="sm" />
+                    {#key availableOllamaModels}
+                    <NativeSelect
+                        data={availableOllamaModels}
+                        label={t('settings-ollama-model')}
+                        description={t('settings-ollama-model-desc')}
+                        variant="filled"
+                        bind:value={ollamaModel}
+                    />
+                    {/key}
+                {:else if ollamaModelsLoaded}
+                    <Space h="xs" />
+                    <Alert title={t('settings-ollama-no-models')} color="orange" variant="outline" />
+                {/if}
+            </div>
 
         {:else if activeTab === 'about'}
             <Notification
@@ -730,6 +794,47 @@ $voice-max-visible: 3;
     font-size: 0.8rem;
     color: rgba(255,255,255,0.4);
     font-style: italic;
+}
+
+.ollama-section {
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 8px;
+    padding: 0.85rem;
+    background: rgba(255,255,255,0.02);
+}
+
+.ollama-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.4rem;
+}
+
+.ollama-title {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: rgba(255,255,255,0.85);
+}
+
+.ollama-badge {
+    font-size: 0.6rem;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+    color: #8AC832;
+    border: 1px solid #8AC832;
+    border-radius: 3px;
+    padding: 0.1rem 0.35rem;
+    opacity: 0.8;
+}
+
+.ollama-url-row {
+    display: flex;
+    gap: 0.5rem;
+    align-items: flex-start;
+
+    :global(.svelteui-Input-wrapper), :global(input) {
+        flex: 1;
+    }
 }
 
 .about-section {

@@ -104,9 +104,15 @@ settings-vosk-model-desc =
 settings-models-not-found = Моделі не знайдено
 settings-models-hint = Помістіть моделі Vosk в папку resources/vosk
 
-# settings - openai
-settings-openai-key = Ключ OpenAI
-settings-openai-not-supported = Наразі ChatGPT не підтримується. Він буде доданий у наступних оновленнях.
+# settings - ollama
+settings-ollama-desc = Ollama дозволяє запускати мовні моделі локально — без інтернету та без передачі даних стороннім серверам.
+settings-ollama-url = URL сервера Ollama
+settings-ollama-url-desc = Адреса запущеного Ollama. За замовчуванням: http://localhost:11434
+settings-ollama-load-models = Завантажити моделі
+settings-ollama-model = Модель
+settings-ollama-model-desc = Виберіть модель після підключення до сервера Ollama.
+settings-ollama-no-models = Моделі не знайдено. Переконайтеся що Ollama запущена та моделі встановлені.
+settings-ollama-error = Не вдалося підключитися до Ollama
 
 # ### COMMANDS PAGE
 commands-title = Команди

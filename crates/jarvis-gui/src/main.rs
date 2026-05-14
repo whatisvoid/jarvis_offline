@@ -99,6 +99,9 @@ fn main() {
             tauri_commands::list_voices,
             tauri_commands::get_voice,
             tauri_commands::preview_voice,
+
+            // ollama
+            tauri_commands::list_ollama_models,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
