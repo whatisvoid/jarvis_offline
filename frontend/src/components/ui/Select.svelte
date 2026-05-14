@@ -1,11 +1,13 @@
 <script lang="ts">
-    import { tick } from 'svelte'
+    import { tick, createEventDispatcher } from 'svelte'
 
     export let data: { label: string; value: string }[] = []
     export let value: string = ""
     export let label: string = ""
     export let description: string = ""
     export const variant: string = ""  // for NativeSelect compat, unused
+
+    const dispatch = createEventDispatcher<{ change: string }>()
 
     let open = false
     let triggerEl: HTMLButtonElement
@@ -42,6 +44,7 @@
         value = val
         open = false
         triggerEl?.focus()
+        dispatch('change', val)
     }
 
     function handleTriggerKeydown(e: KeyboardEvent) {
@@ -182,11 +185,11 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0 10px;
-    background: rgba(255,255,255,0.03);
+    padding: 0 14px;
+    background: rgba(255,255,255,0.025);
     border: 1px solid rgba(255,255,255,0.08);
     border-radius: var(--r-md);
-    color: var(--text);
+    color: rgba(230,245,255,0.92);
     font-family: var(--font);
     font-size: 0.84rem;
     cursor: pointer;
@@ -194,14 +197,14 @@
     text-align: left;
 
     &:hover {
-        background: rgba(255,255,255,0.05);
-        border-color: rgba(255,255,255,0.14);
+        background: rgba(0,229,255,0.025);
+        border-color: rgba(0,229,255,0.22);
     }
 
     &:focus-visible {
         outline: none;
-        border-color: rgba(0,229,255,0.5);
-        background: rgba(255,255,255,0.04);
+        border-color: rgba(0,229,255,0.42);
+        box-shadow: 0 0 14px rgba(0,229,255,0.08);
     }
 
     &[aria-expanded="true"] {
@@ -228,7 +231,7 @@
 .select-dropdown {
     position: fixed;
     z-index: 9999;
-    background: rgba(10,14,20,0.98);
+    background: rgba(8,12,18,0.98);
     border: 1px solid rgba(0,229,255,0.18);
     border-radius: var(--r-md);
     padding: 4px;
@@ -237,7 +240,7 @@
     max-height: 220px;
     overflow-y: auto;
     outline: none;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.5), 0 0 0 1px rgba(0,229,255,0.06);
+    box-shadow: 0 12px 32px rgba(0,0,0,0.35), 0 0 0 1px rgba(0,229,255,0.06);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
 
@@ -256,28 +259,30 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 7px 10px;
+    min-height: 36px;
+    padding: 0 14px;
     border-radius: 4px;
     font-family: var(--font);
     font-size: 0.82rem;
-    color: rgba(255,255,255,0.65);
+    color: rgba(220,235,245,0.82);
     cursor: pointer;
     transition: background 100ms ease, color 100ms ease;
     user-select: none;
 
     &.focused {
-        background: rgba(255,255,255,0.06);
+        background: rgba(0,229,255,0.06);
         color: var(--text);
     }
 
     &.selected {
-        color: var(--accent);
+        color: #00e5ff;
+        background: rgba(0,229,255,0.08);
 
-        svg { color: var(--accent); }
+        svg { color: #00e5ff; }
     }
 
     &.focused.selected {
-        background: rgba(0,229,255,0.08);
+        background: rgba(0,229,255,0.10);
     }
 }
 </style>
