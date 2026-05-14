@@ -785,16 +785,29 @@
     transition: var(--ease);
     text-align: left;
     width: 100%;
+    text-decoration: none;
+    outline: none;
+
+    &::after,
+    &:hover::after {
+        display: none;
+        content: none;
+    }
 
     &:hover {
-        background: linear-gradient(90deg, rgba(0,229,255,0.06), rgba(255,255,255,0.02));
-        border-left-color: rgba(0,229,255,0.25);
+        background: rgba(0,229,255,0.035);
+        border-left-color: rgba(0,229,255,0.65);
         transform: translateX(2px);
     }
 
     &.selected {
-        background: linear-gradient(90deg, rgba(0,229,255,0.10), rgba(0,229,255,0.02));
-        border-left-color: var(--accent);
+        background: rgba(0,229,255,0.08);
+        border-left: 2px solid #00e5ff;
+    }
+
+    &:focus-visible {
+        outline: 1px solid rgba(0,229,255,0.35);
+        outline-offset: 2px;
     }
 }
 
