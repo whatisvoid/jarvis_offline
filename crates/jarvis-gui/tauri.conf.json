@@ -17,10 +17,13 @@
     "windows": [
       {
         "fullscreen": false,
-        "resizable": false,
+        "resizable": true,
+        "decorations": false,
         "title": "Jarvis Voice Assistant",
         "width": 550,
-        "height": 800
+        "height": 800,
+        "minWidth": 420,
+        "minHeight": 600
       }
     ]
   },

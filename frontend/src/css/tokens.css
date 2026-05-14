@@ -39,8 +39,8 @@
     --ease: all 140ms ease;
 
     /* Header */
-    --header-h:      64px;
-    --header-bg:     linear-gradient(180deg, rgba(16,23,34,0.95), rgba(7,11,17,0.92));
+    --header-h:      72px;
+    --header-bg:     linear-gradient(180deg, rgba(14,20,30,0.97), rgba(5,7,11,0.95));
     --header-border: 1px solid rgba(255,255,255,0.06);
 
     /* Glows */
