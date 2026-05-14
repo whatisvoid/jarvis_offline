@@ -40,7 +40,7 @@
     })
 
     const TYPE_COLORS: Record<string, string> = {
-        lua:           "#8AC832",
+        lua:           "#00FFC6",
         ahk:           "#3b82f6",
         cli:           "#f97316",
         voice:         "#a855f7",
@@ -85,7 +85,6 @@
         {#each filtered as cmd (cmd.id)}
             {@const phrases = getPhrases(cmd)}
             <div class="command-card">
-
                 <div class="card-header">
                     <span class="cmd-id">{cmd.id}</span>
                     <span class="cmd-type-badge" style="--type-color: {typeColor(cmd.type)}">
@@ -114,7 +113,6 @@
                         {/each}
                     </div>
                 {/if}
-
             </div>
         {/each}
     </div>
@@ -125,126 +123,116 @@
     display: flex;
     align-items: center;
     gap: 0.75rem;
-    margin-bottom: 0.5rem;
-}
-
-.commands-count {
-    font-size: 0.75rem;
-    color: rgba(255,255,255,0.35);
-    white-space: nowrap;
-    text-transform: uppercase;
-    letter-spacing: 1px;
+    margin-bottom: 10px;
 }
 
 .search-input {
     flex: 1;
-    height: 32px;
-    background: rgba(255,255,255,0.05);
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 6px;
-    color: #ccc;
+    height: 36px;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: var(--r-md);
+    color: var(--text);
     font-size: 0.82rem;
-    padding: 0 0.75rem;
+    padding: 0 12px;
     outline: none;
-    transition: border-color 0.2s;
+    transition: var(--ease);
 
-    &::placeholder { color: rgba(255,255,255,0.25); }
-    &:focus { border-color: rgba(138,200,50,0.5); }
+    &::placeholder { color: var(--text-muted); }
+    &:focus { border-color: rgba(0,229,255,0.5); }
 }
 
 .empty-state {
     text-align: center;
-    color: rgba(255,255,255,0.25);
-    font-size: 0.85rem;
-    padding: 2rem 0;
+    color: var(--text-muted);
+    font-size: 0.82rem;
+    padding: 2.5rem 0;
     font-style: italic;
 }
 
 .commands-list {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: 4px;
     padding-bottom: 1rem;
 }
 
 .command-card {
-    background: rgba(255,255,255,0.04);
-    border: 1px solid rgba(255,255,255,0.07);
-    border-radius: 8px;
-    padding: 0.65rem 0.85rem;
-    transition: border-color 0.2s;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--r-md);
+    padding: 10px 14px;
+    transition: var(--ease);
 
-    &:hover {
-        border-color: rgba(255,255,255,0.14);
-    }
+    &:hover { border-color: var(--border-strong); }
 }
 
 .card-header {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    margin-bottom: 0.4rem;
+    gap: 8px;
+    margin-bottom: 5px;
 }
 
 .cmd-id {
-    font-size: 0.8rem;
+    font-size: 0.78rem;
     font-weight: 600;
     color: rgba(255,255,255,0.75);
-    font-family: monospace;
+    font-family: var(--font-mono);
     letter-spacing: 0.3px;
 }
 
 .cmd-type-badge {
-    font-size: 0.65rem;
+    font-size: 0.6rem;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.8px;
     color: var(--type-color);
     border: 1px solid var(--type-color);
-    border-radius: 3px;
-    padding: 0.1rem 0.35rem;
-    opacity: 0.85;
+    border-radius: var(--r-sm);
+    padding: 1px 5px;
+    opacity: 0.82;
 }
 
 .cmd-description {
-    font-size: 0.75rem;
-    color: rgba(255,255,255,0.45);
-    margin: 0 0 0.4rem;
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    margin: 0 0 5px;
     font-style: italic;
 }
 
 .cmd-phrases {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.3rem;
-    margin-top: 0.2rem;
+    gap: 4px;
+    margin-top: 3px;
 }
 
 .phrase-chip {
-    font-size: 0.72rem;
-    background: rgba(138,200,50,0.08);
-    border: 1px solid rgba(138,200,50,0.2);
-    border-radius: 4px;
-    padding: 0.15rem 0.5rem;
-    color: rgba(138,200,50,0.8);
+    font-size: 0.68rem;
+    background: rgba(0,255,198,0.06);
+    border: 1px solid rgba(0,255,198,0.18);
+    border-radius: var(--r-sm);
+    padding: 2px 7px;
+    color: rgba(0,255,198,0.75);
     font-style: italic;
 }
 
 .cmd-slots {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.3rem;
-    margin-top: 0.35rem;
+    gap: 4px;
+    margin-top: 5px;
 }
 
 .slot-chip {
-    font-size: 0.68rem;
-    background: rgba(168,85,247,0.08);
-    border: 1px solid rgba(168,85,247,0.25);
-    border-radius: 4px;
-    padding: 0.1rem 0.45rem;
+    font-size: 0.65rem;
+    background: rgba(168,85,247,0.07);
+    border: 1px solid rgba(168,85,247,0.22);
+    border-radius: var(--r-sm);
+    padding: 1px 6px;
     color: rgba(168,85,247,0.8);
-    font-family: monospace;
+    font-family: var(--font-mono);
     cursor: help;
 }
 </style>

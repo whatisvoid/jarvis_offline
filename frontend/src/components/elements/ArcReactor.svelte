@@ -65,9 +65,9 @@
 
     // [ DEFAULT THEME - CYAN ]
     .reactor-container {
-        --arc-color: 2, 254, 255;
-        --arc-glow: #52fefe;
-        --arc-glow-rgb: 82, 254, 254;
+        --arc-color: 0, 200, 220;
+        --arc-glow: #00c8dc;
+        --arc-glow-rgb: 0, 200, 220;
         --arc-core-border: #1b4e5f;
         --arc-core-bg: #073c4b;
 
@@ -90,9 +90,9 @@
 
     // [ COLOR THEMES ]
     .reactor-container.arc-cyan {
-        --arc-color: 2, 254, 255;
-        --arc-glow: #52fefe;
-        --arc-glow-rgb: 82, 254, 254;
+        --arc-color: 0, 200, 220;
+        --arc-glow: #00c8dc;
+        --arc-glow-rgb: 0, 200, 220;
         --arc-core-border: #1b4e5f;
         --arc-core-bg: #073c4b;
     }
