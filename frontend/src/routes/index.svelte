@@ -67,15 +67,15 @@
         <div class="reactor-wrapper" class:dimmed={!processRunning}>
             <ArcReactor />
         </div>
-        
+
         {#if !processRunning}
             <div class="offline-badge">
                 <span class="offline-icon">⚠</span>
                 <span class="offline-text">{t('assistant-not-running')}</span>
                 <small>{t('assistant-offline-hint')}</small>
             </div>
-            <button 
-                class="start-button" 
+            <button
+                class="start-button"
                 on:click={runAssistant}
                 disabled={launching}
             >
@@ -84,6 +84,30 @@
         {/if}
     </div>
 
-    <HDivider noMargin />
-    <Stats />
+    <footer class="stats-footer">
+        <HDivider noMargin />
+        <Stats />
+    </footer>
+
 </div>
+
+<style lang="scss">
+.assist-page {
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 80px);
+    overflow: hidden;
+}
+
+.reactor-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.stats-footer {
+    flex-shrink: 0;
+}
+</style>
