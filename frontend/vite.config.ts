@@ -24,6 +24,14 @@ export default defineConfig({
     tsconfigPaths()
   ],
 
+  css: {
+    preprocessorOptions: {
+      scss: {
+        silenceDeprecations: ["legacy-js-api", "global-builtin", "color-functions", "import"],
+      },
+    },
+  },
+
   clearScreen: false,
   server: {
     port: 1420,

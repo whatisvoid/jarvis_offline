@@ -469,12 +469,14 @@
                 </div>
                 <Text size="sm" color="gray">{t('settings-ollama-desc')}</Text>
                 <Space h="sm" />
-                <InputWrapper label={t('settings-ollama-url')} description={t('settings-ollama-url-desc')}>
-                    <Space h="xs" />
+                <div class="ollama-field">
+                    <label for="ollama-url-input" class="ollama-label">{t('settings-ollama-url')}</label>
+                    <small class="ollama-desc">{t('settings-ollama-url-desc')}</small>
                     <div class="ollama-url-row">
-                        <Input
+                        <input
+                            id="ollama-url-input"
+                            class="ollama-input"
                             placeholder="http://localhost:11434"
-                            variant="filled"
                             bind:value={ollamaUrl}
                         />
                         <Button
@@ -488,7 +490,7 @@
                             {ollamaLoading ? '...' : t('settings-ollama-load-models')}
                         </Button>
                     </div>
-                </InputWrapper>
+                </div>
 
                 {#if ollamaError}
                     <Space h="xs" />
@@ -825,6 +827,43 @@ $voice-max-visible: 3;
     border-radius: 3px;
     padding: 0.1rem 0.35rem;
     opacity: 0.8;
+}
+
+.ollama-field {
+    margin-bottom: 0.25rem;
+}
+
+.ollama-label {
+    display: block;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: rgba(255,255,255,0.75);
+    margin-bottom: 0.2rem;
+}
+
+.ollama-desc {
+    display: block;
+    font-size: 0.72rem;
+    color: rgba(255,255,255,0.35);
+    margin-bottom: 0.5rem;
+    line-height: 1.4;
+}
+
+.ollama-input {
+    flex: 1;
+    height: 34px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 6px;
+    color: #d1d1d1;
+    font-size: 0.82rem;
+    padding: 0 0.75rem;
+    outline: none;
+    transition: border-color 0.2s;
+    width: 100%;
+
+    &::placeholder { color: rgba(255,255,255,0.2); }
+    &:focus { border-color: rgba(82,254,254,0.4); }
 }
 
 .ollama-url-row {

@@ -192,7 +192,7 @@ pub fn execute_cli(cmd: &str, args: &[String]) -> std::io::Result<Child> {
     }
 }
 
-pub fn execute_command(cmd_path: &PathBuf, cmd_config: &JCommand, phrase: Option<&str>, slots: Option<&HashMap<String, SlotValue>>) -> Result<bool, String> {
+pub fn execute_command(cmd_path: &PathBuf, cmd_config: &JCommand, _phrase: Option<&str>, _slots: Option<&HashMap<String, SlotValue>>) -> Result<bool, String> {
     // execute command by the type
     match cmd_config.cmd_type.as_str() {
 
