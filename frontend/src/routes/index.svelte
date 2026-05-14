@@ -107,7 +107,7 @@
     justify-content: center;
     overflow: hidden;
     position: relative;
-    padding-bottom: 16px;
+    padding-bottom: 96px;
 }
 
 .stats-footer {

@@ -55,7 +55,7 @@
     display: flex;
     align-items: center;
     align-self: stretch;
-    border-left: 1px solid rgba(255,255,255,0.03);
+    border-left: 1px solid rgba(255,255,255,0.04);
     padding: 0 2px;
     -webkit-app-region: no-drag;
     flex-shrink: 0;

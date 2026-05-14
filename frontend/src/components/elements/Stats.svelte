@@ -45,87 +45,123 @@
 </script>
 
 <div class="stats-bar">
-    <div class="stat-item">
-        <span class="stat-dot" class:active={$isJarvisRunning} style="--color: #22c55e;"></span>
-        <div class="stat-content">
-            <span class="stat-label">{t('stats-microphone')}</span>
-            <span class="stat-value" title="{microphoneName}">{truncate(microphoneName, 18)}</span>
-        </div>
-    </div>
+    <div class="stats-separator"></div>
 
-    <div class="stat-item">
-        <span class="stat-dot" class:active={$ipcConnected} style="--color: #f97316;"></span>
-        <div class="stat-content">
-            <span class="stat-label">{t('stats-neural-networks')}</span>
-            <span class="stat-value">
-                <span title="Wake Word Engine">{wakeWordEngine}</span> + <span title="Speech To Text">{sttEngine}</span>
-            </span>
-            <span class="stat-value-sub">{#if vadInfo !== "None"}VAD: {vadInfo}{/if}</span>
+    <div class="telemetry-grid">
+        <div class="stat-item">
+            <span class="stat-dot" class:active={$isJarvisRunning} style="--color: #22c55e;"></span>
+            <div class="stat-content">
+                <span class="stat-label">{t('stats-microphone')}</span>
+                <span class="stat-value" title="{microphoneName}">{truncate(microphoneName, 18)}</span>
+            </div>
         </div>
-    </div>
 
-    <div class="stat-item">
-        <span class="stat-dot" class:active={$ipcConnected} style="--color: #3b82f6;"></span>
-        <div class="stat-content">
-            <span class="stat-label">{t('stats-resources')}</span>
-            <span class="stat-value">{#if $jarvisRamUsage}RAM {$jarvisRamUsage}mb{:else}—{/if}</span>
+        <div class="stat-item">
+            <span class="stat-dot" class:active={$ipcConnected} style="--color: #f97316;"></span>
+            <div class="stat-content">
+                <span class="stat-label">{t('stats-neural-networks')}</span>
+                <span class="stat-value">
+                    <span title="Wake Word Engine">{wakeWordEngine}</span> + <span title="Speech To Text">{sttEngine}</span>
+                </span>
+                <span class="stat-value-sub">{#if vadInfo !== "None"}VAD: {vadInfo}{/if}</span>
+            </div>
+        </div>
+
+        <div class="stat-item">
+            <span class="stat-dot" class:active={$ipcConnected} style="--color: #3b82f6;"></span>
+            <div class="stat-content">
+                <span class="stat-label">{t('stats-resources')}</span>
+                <span class="stat-value">{#if $jarvisRamUsage}RAM {$jarvisRamUsage}mb{:else}—{/if}</span>
+            </div>
         </div>
     </div>
 </div>
 
 <style lang="scss">
-    .stats-bar {
-        display: flex;
-        align-items: flex-start;
-        justify-content: space-between;
-        padding: 12px 0 8px;
-        border-top: 1px solid rgba(255,255,255,0.04);
+.stats-bar {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-bottom: 24px;
+}
+
+.stats-separator {
+    height: 1px;
+    width: 92%;
+    max-width: 480px;
+    background: linear-gradient(90deg, transparent, rgba(0,229,255,0.22), transparent);
+    background-size: 200% 100%;
+    animation: footerLineSweep 7s linear infinite;
+    margin-bottom: 18px;
+}
+
+@keyframes footerLineSweep {
+    0%   { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+.telemetry-grid {
+    width: 440px;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    align-items: start;
+    margin-top: 0;
+}
+
+.stat-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 7px;
+
+    &:nth-child(2) {
+        justify-self: center;
+        .stat-content { align-items: center; }
     }
 
-    .stat-item {
-        display: flex;
-        align-items: flex-start;
-        gap: 7px;
+    &:nth-child(3) {
+        justify-self: end;
+        .stat-content { align-items: flex-end; }
     }
+}
 
-    .stat-dot {
-        width: 5px;
-        height: 5px;
-        border-radius: 50%;
-        margin-top: 4px;
-        background: rgba(255,255,255,0.08);
-        flex-shrink: 0;
-        transition: all 0.4s ease;
+.stat-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    margin-top: 4px;
+    background: rgba(255,255,255,0.08);
+    flex-shrink: 0;
+    transition: all 0.4s ease;
 
-        &.active {
-            background: var(--color);
-            box-shadow: 0 0 6px var(--color);
-            opacity: 0.75;
-        }
+    &.active {
+        background: var(--color);
+        box-shadow: 0 0 4px var(--color);
+        opacity: 0.55;
     }
+}
 
-    .stat-content {
-        display: flex;
-        flex-direction: column;
-        gap: 2px;
-    }
+.stat-content {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
 
-    .stat-label {
-        font-size: 0.62rem;
-        font-weight: 700;
-        color: rgba(184,194,204,0.65);
-        text-transform: uppercase;
-        letter-spacing: 0.10em;
-    }
+.stat-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: rgba(210,230,245,0.78);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
 
-    .stat-value {
-        font-size: 0.62rem;
-        color: rgba(110,123,135,0.58);
-        line-height: 1.3;
-    }
+.stat-value {
+    font-size: 10px;
+    color: rgba(160,180,200,0.46);
+    line-height: 1.3;
+}
 
-    .stat-value-sub {
-        font-size: 0.58rem;
-        color: rgba(110,123,135,0.38);
-    }
+.stat-value-sub {
+    font-size: 10px;
+    color: rgba(160,180,200,0.46);
+}
 </style>
