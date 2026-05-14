@@ -54,7 +54,8 @@
 .win-controls {
     display: flex;
     align-items: stretch;
-    height: 32px;
+    height: var(--shell-h);
+    border-left: 1px solid rgba(255,255,255,0.04);
     -webkit-app-region: no-drag;
     flex-shrink: 0;
 }
@@ -63,23 +64,23 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 46px;
+    width: 42px;
     height: 100%;
     background: transparent;
     border: none;
-    color: rgba(255,255,255,0.35);
+    color: rgba(255,255,255,0.32);
     cursor: pointer;
     transition: background 140ms ease, color 140ms ease;
     -webkit-app-region: no-drag;
     flex-shrink: 0;
 
     &:hover {
-        background: rgba(255,255,255,0.06);
-        color: rgba(255,255,255,0.85);
+        background: rgba(255,255,255,0.04);
+        color: rgba(255,255,255,0.82);
     }
 
     &--close:hover {
-        background: rgba(255,70,70,0.18);
+        background: rgba(255,70,70,0.14);
         color: #fff;
     }
 }

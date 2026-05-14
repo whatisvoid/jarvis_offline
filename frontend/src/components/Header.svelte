@@ -23,18 +23,18 @@
     <!-- Level 1: System Shell -->
     <div class="shell-bar">
         <a class="logo" href="/" title="JARVIS" on:click|preventDefault={() => navigate('/')}>
-            <svg class="logo-icon" width="36" height="36" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="20" cy="20" r="18" stroke="currentColor" stroke-width="0.75" opacity="0.22"/>
+            <svg class="logo-icon" width="26" height="26" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="20" cy="20" r="18" stroke="currentColor" stroke-width="0.8" opacity="0.30"/>
                 <g class="logo-spin">
                     <circle cx="20" cy="20" r="13" stroke="currentColor" stroke-width="1"
-                            stroke-dasharray="3.5 4.5" opacity="0.5"/>
+                            stroke-dasharray="3.5 4.5" opacity="0.60"/>
                 </g>
-                <circle cx="20" cy="20" r="8" stroke="currentColor" stroke-width="1.25" opacity="0.7"/>
+                <circle cx="20" cy="20" r="8" stroke="currentColor" stroke-width="1.3" opacity="0.82"/>
                 <circle cx="20" cy="20" r="3.5" fill="currentColor"/>
-                <line x1="20" y1="2" x2="20" y2="7" stroke="currentColor" stroke-width="1" opacity="0.35"/>
-                <line x1="20" y1="33" x2="20" y2="38" stroke="currentColor" stroke-width="1" opacity="0.35"/>
-                <line x1="2" y1="20" x2="7" y2="20" stroke="currentColor" stroke-width="1" opacity="0.35"/>
-                <line x1="33" y1="20" x2="38" y2="20" stroke="currentColor" stroke-width="1" opacity="0.35"/>
+                <line x1="20" y1="2" x2="20" y2="7" stroke="currentColor" stroke-width="1" opacity="0.42"/>
+                <line x1="20" y1="33" x2="20" y2="38" stroke="currentColor" stroke-width="1" opacity="0.42"/>
+                <line x1="2" y1="20" x2="7" y2="20" stroke="currentColor" stroke-width="1" opacity="0.42"/>
+                <line x1="33" y1="20" x2="38" y2="20" stroke="currentColor" stroke-width="1" opacity="0.42"/>
             </svg>
             <span class="brand-name">JARVIS</span>
         </a>
@@ -63,7 +63,6 @@
 </header>
 
 <style lang="scss">
-/* ── Outer shell ── */
 .header {
     display: flex;
     flex-direction: column;
@@ -72,22 +71,23 @@
     z-index: 100;
 }
 
-/* ── Level 1: System shell bar ── */
+/* ── Level 1: System shell ── */
 .shell-bar {
-    height: 48px;
+    height: var(--shell-h);
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0 0 0 20px;
-    background: linear-gradient(180deg, rgba(10,15,24,0.98) 0%, rgba(6,10,16,0.96) 100%);
-    box-shadow: inset 0 1px 0 rgba(0,229,255,0.12);
+    padding: 0 0 0 16px;
+    background: linear-gradient(180deg, rgba(8,12,18,0.98) 0%, rgba(5,8,12,0.97) 100%);
+    box-shadow: inset 0 1px 0 rgba(0,229,255,0.10);
     -webkit-app-region: drag;
+    position: relative;
     flex-shrink: 0;
 
     &::after {
         content: '';
         position: absolute;
-        top: 48px;
+        bottom: 0;
         left: 0;
         right: 0;
         height: 1px;
@@ -100,7 +100,7 @@
 .logo {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 9px;
     text-decoration: none;
     color: var(--accent);
     -webkit-app-region: no-drag;
@@ -113,24 +113,24 @@
         left: -2px;
         top: 50%;
         transform: translateY(-50%);
-        width: 44px;
-        height: 44px;
-        background: radial-gradient(circle, rgba(0,229,255,0.10), transparent 70%);
+        width: 36px;
+        height: 36px;
+        background: radial-gradient(circle, rgba(0,229,255,0.12), transparent 70%);
         border-radius: 50%;
         pointer-events: none;
     }
 
-    &:hover { opacity: 0.75; }
+    &:hover { opacity: 0.72; }
 }
 
 .logo-icon {
-    filter: drop-shadow(0 0 7px rgba(0,229,255,0.28));
+    filter: drop-shadow(0 0 10px rgba(0,229,255,0.18));
     flex-shrink: 0;
 }
 
 .logo-spin {
     transform-origin: 20px 20px;
-    animation: logo-spin 22s linear infinite;
+    animation: logo-spin 26s linear infinite;
 }
 
 @keyframes logo-spin {
@@ -139,23 +139,23 @@
 }
 
 .brand-name {
-    font-size: 1.35rem;
+    font-size: 1.15rem;
     font-weight: 700;
-    letter-spacing: 0.22em;
+    letter-spacing: 0.16em;
     color: var(--text);
     text-transform: uppercase;
     line-height: 1;
-    padding-right: 0.08em;
+    padding-right: 0.06em;
 }
 
 /* ── Level 2: Navigation bar ── */
 .nav-bar {
-    height: 44px;
+    height: var(--nav-h);
     display: flex;
     align-items: center;
-    gap: 28px;
-    padding: 0 20px;
-    background: linear-gradient(180deg, rgba(7,10,17,0.97) 0%, rgba(5,8,14,0.96) 100%);
+    gap: 24px;
+    padding: 0 16px;
+    background: linear-gradient(180deg, rgba(6,9,14,0.97) 0%, rgba(4,7,11,0.96) 100%);
     position: relative;
     flex-shrink: 0;
 
@@ -166,7 +166,7 @@
         left: 0;
         right: 0;
         height: 1px;
-        background: linear-gradient(90deg, transparent 0%, rgba(0,229,255,0.22) 25%, rgba(0,229,255,0.22) 75%, transparent 100%);
+        background: linear-gradient(90deg, transparent 0%, rgba(0,229,255,0.20) 30%, rgba(0,229,255,0.20) 70%, transparent 100%);
         pointer-events: none;
     }
 }
@@ -178,14 +178,14 @@
     padding: 0;
     background: transparent;
     border: none;
-    color: rgba(255,255,255,0.55);
+    color: rgba(255,255,255,0.52);
     font-family: var(--font);
-    font-size: 0.65rem;
+    font-size: 0.62rem;
     font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.18em;
+    letter-spacing: 0.16em;
     cursor: pointer;
-    transition: color 140ms ease, opacity 140ms ease;
+    transition: color 140ms ease;
     white-space: nowrap;
 
     &::after {
@@ -196,14 +196,12 @@
         right: 0;
         height: 1px;
         background: var(--accent);
-        box-shadow: 0 0 10px rgba(0,229,255,0.35);
+        box-shadow: 0 0 8px rgba(0,229,255,0.28);
         opacity: 0;
         transition: opacity 140ms ease;
     }
 
-    &:hover {
-        color: rgba(255,255,255,0.9);
-    }
+    &:hover { color: rgba(255,255,255,0.88); }
 
     &.active {
         color: var(--text);
@@ -218,15 +216,15 @@
     position: absolute;
     bottom: 0;
     left: -30%;
-    width: 35%;
+    width: 30%;
     height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(0,229,255,0.5), transparent);
+    background: linear-gradient(90deg, transparent, rgba(0,229,255,0.45), transparent);
     animation: scan-sweep 8s linear infinite;
     pointer-events: none;
 }
 
 @keyframes scan-sweep {
-    from { left: -35%; }
+    from { left: -30%; }
     to   { left: 110%; }
 }
 </style>
