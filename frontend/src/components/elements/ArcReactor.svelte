@@ -3,13 +3,20 @@
 
     $: stateClass = {
         'disconnected': 'disconnected',
-        'idle': 'idle',
-        'listening': 'active',
-        'processing': 'active'
+        'idle':         'idle',
+        'listening':    'active s-listening',
+        'processing':   'active s-processing'
     }[$jarvisState] || 'disconnected'
+
+    $: colorClass = {
+        'disconnected': 'arc-white',
+        'idle':         'arc-cyan',
+        'listening':    'arc-cyan',
+        'processing':   'arc-white'
+    }[$jarvisState] || 'arc-white'
 </script>
 
-<div id="arc-reactor" class="reactor-container {stateClass} arc-white">
+<div id="arc-reactor" class="reactor-container {stateClass} {colorClass}">
     <div class="reactor-container-inner circle abs-center">
         <ul class="marks">
             {#each Array(60) as _, i}
@@ -48,19 +55,17 @@
     $arc-container-size: 195%;
     $arc-spacing: 93%;
 
-    // arc thickness per level
     $arc-thickness-1: 1px;
     $arc-thickness-2: 2px;
     $arc-thickness-3: 3px;
     $arc-thickness-4: 4px;
 
-    // marks (lines) settings
     $mark-width: 2.5px;
     $mark-height: 11px;
 
     // [ DEFAULT THEME - CYAN ]
     .reactor-container {
-        --arc-color: 2, 254, 255;           // RGB values for easy rgba()
+        --arc-color: 2, 254, 255;
         --arc-glow: #52fefe;
         --arc-glow-rgb: 82, 254, 254;
         --arc-core-border: #1b4e5f;
@@ -71,7 +76,7 @@
         margin: auto;
         position: relative;
         border-radius: 50%;
-        transition: transform 0.5s ease, opacity 0.5s ease, filter 0.5s ease;
+        transition: transform 0.6s ease, opacity 0.6s ease, filter 0.8s ease;
         transform: scale(0.95);
         opacity: 0.9;
         top: 10px;
@@ -176,27 +181,24 @@
         );
         z-index: -1;
         pointer-events: none;
-        transition: opacity 0.5s ease, transform 0.5s ease;
+        transition: opacity 0.8s ease, transform 0.6s ease;
     }
 
-    // [ CORE ELEMENTS - using CSS vars ]
+    // [ CORE ELEMENTS ]
     .reactor-container-inner {
         height: 238px;
         width: 238px;
         background-color: #161a1b;
-        box-shadow: 0px 0px 50px 15px rgba(var(--arc-color), 0.3), 
+        box-shadow: 0px 0px 50px 15px rgba(var(--arc-color), 0.3),
                     inset 0px 0px 50px 15px rgba(var(--arc-color), 0.3);
-        transition: box-shadow 0.5s ease;
+        transition: box-shadow 0.8s ease;
     }
 
     .circle { border-radius: 50%; }
 
     .abs-center {
         position: absolute;
-        top: 0;
-        right: 0;
-        bottom: 0;
-        left: 0;
+        top: 0; right: 0; bottom: 0; left: 0;
         margin: auto;
     }
 
@@ -205,9 +207,9 @@
         height: 70px;
         border: 5px solid var(--arc-core-border);
         background-color: #ffffff;
-        box-shadow: 0px 0px 7px 5px var(--arc-glow), 
+        box-shadow: 0px 0px 7px 5px var(--arc-glow),
                     0px 0px 10px 10px var(--arc-glow) inset;
-        transition: box-shadow 0.5s ease;
+        transition: box-shadow 0.8s ease;
     }
 
     .core-outer {
@@ -215,27 +217,27 @@
         height: 120px;
         border: 1px solid var(--arc-glow);
         background-color: #ffffff;
-        box-shadow: 0px 0px 2px 1px var(--arc-glow), 
+        box-shadow: 0px 0px 2px 1px var(--arc-glow),
                     0px 0px 10px 5px var(--arc-glow) inset;
-        transition: box-shadow 0.5s ease;
+        transition: box-shadow 0.8s ease, border-color 0.8s ease;
     }
 
     .core-wrapper {
         width: 180px;
         height: 180px;
         background-color: var(--arc-core-bg);
-        box-shadow: 0px 0px 5px 4px var(--arc-glow), 
+        box-shadow: 0px 0px 5px 4px var(--arc-glow),
                     0px 0px 6px 2px var(--arc-glow) inset;
-        transition: box-shadow 0.5s ease;
+        transition: box-shadow 0.8s ease, background-color 0.8s ease;
     }
 
     .tunnel {
         width: 220px;
         height: 220px;
         background-color: #ffffff;
-        box-shadow: 0px 0px 5px 1px var(--arc-glow), 
+        box-shadow: 0px 0px 5px 1px var(--arc-glow),
                     0px 0px 5px 4px var(--arc-glow) inset;
-        transition: box-shadow 0.5s ease;
+        transition: box-shadow 0.8s ease;
     }
 
     .coil-container {
@@ -254,6 +256,7 @@
         transform-origin: 15px 110px;
         background-color: var(--arc-core-bg);
         box-shadow: 0px 0px 5px var(--arc-glow) inset;
+        transition: background-color 0.8s ease, box-shadow 0.8s ease;
     }
 
     @for $i from 1 through 8 {
@@ -278,14 +281,13 @@
         border: 6px solid transparent;
         background: transparent;
         border-radius: 50%;
-        transition: opacity 0.5s ease;
+        transition: opacity 0.8s ease;
         text-align: center;
         opacity: 0.5;
     }
 
     .semi_arc_3 {
         $offset: calc((100% - #{$arc-spacing}) / 2);
-        
         position: absolute;
         width: $arc-spacing;
         height: $arc-spacing;
@@ -297,6 +299,7 @@
         box-sizing: border-box;
         animation: rotate 6s linear infinite;
         overflow: hidden;
+        transition: border-color 0.8s ease;
     }
 
     // [ MAIN ARCS ]
@@ -402,6 +405,7 @@
         margin-left: calc(-#{$mark-width} / 2);
         margin-top: calc(-#{$mark-height} / 2);
         animation: colour_ease2 3s infinite ease-in-out;
+        transition: background-color 0.8s ease;
     }
 
     @keyframes colour_ease2 {
@@ -416,15 +420,17 @@
         }
     }
 
-    // [ DISCONNECTED ]
+    // ========================================================
+    // [ DISCONNECTED ] — grey, slow, dim
+    // ========================================================
     .reactor-container.disconnected {
         transform: scale(0.85);
         opacity: 0.4;
         filter: grayscale(0.7) brightness(0.6);
-        
+
         .coil-container { animation-duration: 20s; }
         .e7 { opacity: 0.3; }
-        
+
         .e5_1 {
             border-top-color: rgba(var(--arc-color), 0.1);
             border-left-color: rgba(var(--arc-color), 0.1);
@@ -443,42 +449,27 @@
             border-bottom-color: rgba(var(--arc-color), 0.25);
             animation: rotate_anti 28s linear infinite;
         }
-
-        .e5_1_ghost {
-            border-top-color: rgba(var(--arc-color), 0.03);
-            border-right-color: rgba(var(--arc-color), 0.03);
-            animation: rotate_anti 50s linear infinite;
-        }
-        .e5_2_ghost {
-            border-top-color: rgba(var(--arc-color), 0.05);
-            border-left-color: rgba(var(--arc-color), 0.05);
-            animation: rotate 45s linear infinite;
-        }
-        .e5_3_ghost {
-            border-right-color: rgba(var(--arc-color), 0.06);
-            border-bottom-color: rgba(var(--arc-color), 0.06);
-            animation: rotate_anti 40s linear infinite;
-        }
-        .e5_4_ghost {
-            border-top-color: rgba(var(--arc-color), 0.08);
-            border-left-color: rgba(var(--arc-color), 0.08);
-            animation: rotate 42s linear infinite;
-        }
+        .e5_1_ghost { animation: rotate_anti 50s linear infinite; }
+        .e5_2_ghost { animation: rotate 45s linear infinite; }
+        .e5_3_ghost { animation: rotate_anti 40s linear infinite; }
+        .e5_4_ghost { animation: rotate 42s linear infinite; }
     }
 
     .reactor-container.disconnected::before {
-        opacity: 0.3;
-        transform: translate(-50%, -50%) scale(0.7);
+        opacity: 0.15;
+        transform: translate(-50%, -50%) scale(0.6);
     }
 
-    // [ IDLE ]
+    // ========================================================
+    // [ IDLE ] — cyan, slow breath pulse (5s)
+    // ========================================================
     .reactor-container.idle {
         transform: scale(0.95);
         opacity: 0.9;
-        
+
         .coil-container { animation-duration: 10s; }
         .e7 { opacity: 0.6; }
-        
+
         .e5_1 {
             border-top-color: rgba(var(--arc-color), 0.2);
             border-left-color: rgba(var(--arc-color), 0.2);
@@ -497,7 +488,6 @@
             border-bottom-color: rgba(var(--arc-color), 0.65);
             animation: rotate_anti 14s linear infinite;
         }
-
         .e5_1_ghost {
             border-top-color: rgba(var(--arc-color), 0.06);
             border-right-color: rgba(var(--arc-color), 0.06);
@@ -523,9 +513,12 @@
     .reactor-container.idle::before {
         opacity: 0.7;
         transform: translate(-50%, -50%) scale(0.9);
+        animation: bg-pulse 5s ease-in-out infinite;
     }
 
-    // [ ACTIVE ]
+    // ========================================================
+    // [ ACTIVE BASE ] — shared active visuals
+    // ========================================================
     .reactor-container.active {
         transform: scale(1.05);
         opacity: 1;
@@ -551,7 +544,6 @@
             border-bottom-color: rgba(var(--arc-color), 0.9);
             animation: rotate_anti 2.5s linear infinite;
         }
-
         .e5_1_ghost {
             border-top-color: rgba(var(--arc-color), 0.1);
             border-right-color: rgba(var(--arc-color), 0.1);
@@ -574,49 +566,63 @@
         }
 
         .reactor-container-inner {
-            box-shadow: 0px 0px 70px 25px rgba(var(--arc-color), 0.3), 
+            box-shadow: 0px 0px 70px 25px rgba(var(--arc-color), 0.3),
                         inset 0px 0px 70px 25px rgba(var(--arc-color), 0.3);
         }
-
         .core-inner {
-            box-shadow: 0px 0px 15px 10px var(--arc-glow), 
+            box-shadow: 0px 0px 15px 10px var(--arc-glow),
                         0px 0px 20px 15px var(--arc-glow) inset;
         }
-
         .core-outer {
-            box-shadow: 0px 0px 5px 3px var(--arc-glow), 
+            box-shadow: 0px 0px 5px 3px var(--arc-glow),
                         0px 0px 15px 10px var(--arc-glow) inset;
         }
-
         .core-wrapper {
-            box-shadow: 0px 0px 10px 8px var(--arc-glow), 
+            box-shadow: 0px 0px 10px 8px var(--arc-glow),
                         0px 0px 10px 5px var(--arc-glow) inset;
         }
-
         .tunnel {
-            box-shadow: 0px 0px 10px 3px var(--arc-glow), 
+            box-shadow: 0px 0px 10px 3px var(--arc-glow),
                         0px 0px 10px 8px var(--arc-glow) inset;
         }
-
         .marks li {
             animation: colour_ease2_active 1s infinite ease-in-out;
         }
     }
 
-    .reactor-container.active::before {
+    // [ LISTENING ] — cyan, нормальный пульс (2.5s)
+    .reactor-container.active.s-listening::before {
         opacity: 1;
         transform: translate(-50%, -50%) scale(1.1);
-        animation: bg-pulse 3s ease-in-out infinite;
+        animation: bg-pulse 2.5s ease-in-out infinite;
+    }
+
+    // [ PROCESSING ] — white, быстрый пульс (0.8s)
+    .reactor-container.active.s-processing::before {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1.1);
+        animation: bg-pulse-fast 0.8s ease-in-out infinite;
     }
 
     @keyframes bg-pulse {
-        0%, 100% { 
+        0%, 100% {
             opacity: 1;
             transform: translate(-50%, -50%) scale(1.1);
         }
-        50% { 
-            opacity: 0.85;
-            transform: translate(-50%, -50%) scale(1.05);
+        50% {
+            opacity: 0.6;
+            transform: translate(-50%, -50%) scale(1.0);
+        }
+    }
+
+    @keyframes bg-pulse-fast {
+        0%, 100% {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1.12);
+        }
+        50% {
+            opacity: 0.4;
+            transform: translate(-50%, -50%) scale(0.98);
         }
     }
 
