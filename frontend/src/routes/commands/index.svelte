@@ -3,7 +3,6 @@
     import { InfoCircled } from "radix-icons-svelte"
 
     import HDivider from "@/components/elements/HDivider.svelte"
-    import Footer from "@/components/Footer.svelte"
     import { appInfo, translations, translate } from "@/stores"
 
     $: t = (key: string) => translate($translations, key)
@@ -30,8 +29,6 @@
     <img src="/media/images/tenor.gif" alt="bruh" width="320px" />
 </div>
 
-<HDivider />
-<Footer />
 
 <style>
     .placeholder-image {

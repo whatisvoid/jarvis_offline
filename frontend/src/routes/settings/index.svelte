@@ -5,11 +5,9 @@
     import { setTimeout } from "worker-timers"
 
     import { showInExplorer } from "@/functions"
-    import { appInfo, assistantVoice, translations, translate } from "@/stores"
+    import { appInfo, assistantVoice, currentLanguage, translations, translate } from "@/stores"
 
     import HDivider from "@/components/elements/HDivider.svelte"
-    import Footer from "@/components/Footer.svelte"
-
     import {
         Notification,
         Button,
@@ -29,6 +27,7 @@
         Cube,
         Code,
         Gear,
+        InfoCircled,
         QuestionMarkCircled,
         CrossCircled
     } from "radix-icons-svelte"
@@ -92,9 +91,18 @@
 
     let feedbackLink = ""
     let logFilePath = ""
+    let tgLink = ""
+    let repoLink = ""
+    let boostyLink = ""
+    let patreonLink = ""
+    let authorName = ""
     appInfo.subscribe(info => {
         feedbackLink = info.feedbackLink
         logFilePath = info.logFilePath
+        tgLink = info.tgOfficialLink
+        repoLink = info.repositoryLink
+        boostyLink = info.boostySupportLink
+        patreonLink = info.patreonSupportLink
     })
 
     // ### FUNCTIONS
@@ -142,6 +150,13 @@
 
     // ### INIT
     onMount(async () => {
+        // load author name
+        try {
+            authorName = await invoke<string>("get_author_name")
+        } catch (err) {
+            console.error("failed to get author name:", err)
+        }
+
         // load voices
         try {
             const voices = await invoke<VoiceConfig[]>("list_voices")
@@ -476,6 +491,40 @@
             />
         </InputWrapper>
     </Tabs.Tab>
+
+    <Tabs.Tab label={t('settings-about')} icon={InfoCircled}>
+        <Space h="lg" />
+        <div class="about-section">
+            <p class="about-copyright">© 2026. {t('footer-author')}: <b>{authorName}</b></p>
+
+            <div class="about-links">
+                {#if $currentLanguage === "ru" || $currentLanguage === "ua"}
+                <a href={tgLink} target="_blank" class="about-link">
+                    <img src="/media/icons/telegram.webp" alt="Telegram" width="18" />
+                    <span>{t('footer-telegram')}</span>
+                </a>
+                {/if}
+                <a href={repoLink} target="_blank" class="about-link">
+                    <img src="/media/icons/github-logo.png" alt="GitHub" width="18" />
+                    <span>{t('footer-github')}</span>
+                </a>
+            </div>
+
+            <div class="about-support">
+                {#if $currentLanguage === "ru"}
+                <p>{t('footer-support')} <a href={boostyLink} target="_blank" class="about-link about-link--inline">
+                    <img src="/media/icons/boosty.webp" alt="Boosty" width="18" />
+                    <span>Boosty</span>
+                </a>.</p>
+                {:else if $currentLanguage === "ua" || $currentLanguage === "en"}
+                <p>{t('footer-support')} <a href={patreonLink} target="_blank" class="about-link about-link--inline">
+                    <img src="/media/icons/patreon.png" alt="Patreon" width="18" />
+                    <span>Patreon</span>
+                </a>.</p>
+                {/if}
+            </div>
+        </div>
+    </Tabs.Tab>
 </Tabs>
 
 <Space h="xl" />
@@ -506,8 +555,6 @@
     {t('settings-back')}
 </Button>
 
-<HDivider />
-<Footer />
 
 <style lang="scss">
 .voice-select {
@@ -615,5 +662,68 @@ $voice-max-visible: 3;
     font-size: 0.8rem;
     color: rgba(255,255,255,0.4);
     font-style: italic;
+}
+
+.about-section {
+    text-align: center;
+    color: #6c6e71;
+    font-size: 13px;
+    line-height: 1.8em;
+
+    .about-copyright {
+        margin: 0 0 1rem;
+        color: #6c6e71;
+
+        b {
+            color: #888;
+        }
+    }
+
+    .about-links {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .about-support {
+        p {
+            margin: 0;
+        }
+    }
+
+    .about-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        color: #555759;
+        text-decoration: none;
+        transition: 0.3s;
+
+        img {
+            opacity: 0.5;
+            transition: opacity 0.3s;
+            margin-top: -2px;
+        }
+
+        span {
+            color: #185876;
+            border-bottom: 1px solid #185876;
+            transition: color 0.3s, border-color 0.3s;
+        }
+
+        &:hover {
+            img { opacity: 1; }
+            span {
+                color: #2A9CD0;
+                border-color: #2A9CD0;
+            }
+        }
+
+        &--inline {
+            vertical-align: middle;
+        }
+    }
 }
 </style>
