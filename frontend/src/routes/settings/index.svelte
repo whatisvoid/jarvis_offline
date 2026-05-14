@@ -448,16 +448,16 @@
                 </div>
                 <p class="beta-panel-body">{t('settings-beta-desc')}</p>
                 <p class="beta-panel-body">{t('settings-beta-feedback')} <a href={feedbackLink} target="_blank" class="beta-panel-link">{t('settings-beta-bot')}</a>.</p>
-                <button class="btn-secondary btn-sm" style="margin-top: 12px;" on:click={() => showInExplorer(logFilePath)}>
+                <button class="btn-secondary btn-sm btn-logs" on:click={() => showInExplorer(logFilePath)}>
                     {t('settings-open-logs')}
                 </button>
             </div>
 
-            <div class="settings-section">
+            <div class="settings-section about-section">
                 <span class="section-label">{t('settings-about')}</span>
                 <div class="about-card">
-                    <span class="about-card-name">JARVIS</span>
-                    <div class="about-card-version">
+                    <div class="about-version-row">
+                        <span class="about-card-name">JARVIS</span>
                         <span class="about-card-ver">v{appVersion}</span>
                         <span class="ver-badge">BETA</span>
                     </div>
@@ -465,7 +465,7 @@
                 </div>
             </div>
 
-            <div class="settings-section">
+            <div class="settings-section about-section">
                 <span class="section-label">LINKS</span>
                 <div class="link-rows">
                     {#if $currentLanguage === "ru" || $currentLanguage === "ua"}
@@ -494,15 +494,15 @@
 
         {/if}
     </div>
-</div>
 
-<div class="settings-actions">
-    <button class="btn-save" on:click={saveSettings} disabled={saveButtonDisabled}>
-        {t('settings-save')}
-    </button>
-    <button class="btn-back" on:click={() => $goto("/")}>
-        {t('settings-back')}
-    </button>
+    <div class="settings-actions">
+        <button class="btn-save" on:click={saveSettings} disabled={saveButtonDisabled}>
+            {t('settings-save')}
+        </button>
+        <button class="btn-back" on:click={() => $goto("/")}>
+            {t('settings-back')}
+        </button>
+    </div>
 </div>
 
 <style lang="scss">
@@ -512,6 +512,8 @@
     flex-direction: column;
     gap: 0;
     padding-top: 16px;
+    height: calc(100vh - var(--header-h));
+    overflow: hidden;
     position: relative;
 
     &::before, &::after {
@@ -600,15 +602,9 @@
 /* ===== CONTENT AREA ===== */
 .settings-content {
     flex: 1;
+    min-height: 0;
     overflow-y: auto;
-    max-height: calc(100vh - var(--header-h) - 148px);
-
-    &::-webkit-scrollbar { width: 3px; }
-    &::-webkit-scrollbar-track { background: transparent; }
-    &::-webkit-scrollbar-thumb {
-        background: rgba(255,255,255,0.08);
-        border-radius: 2px;
-    }
+    padding-bottom: 8px;
 }
 
 /* ===== SECTION PANEL ===== */
@@ -817,7 +813,7 @@
 
 /* ===== BETA PANEL ===== */
 .beta-panel {
-    padding: 16px;
+    padding: 12px;
     border-radius: 10px;
     background: rgba(255,190,90,0.045);
     border: 1px solid rgba(255,190,90,0.14);
@@ -828,7 +824,7 @@
     display: flex;
     align-items: center;
     gap: 8px;
-    margin-bottom: 10px;
+    margin-bottom: 8px;
 }
 
 .beta-panel-dot {
@@ -851,8 +847,12 @@
 .beta-panel-body {
     font-size: 0.72rem;
     color: rgba(255,190,90,0.7);
-    line-height: 1.5;
-    margin: 0 0 4px;
+    line-height: 1.45;
+    margin: 0 0 3px;
+}
+
+.btn-logs {
+    margin-top: 8px;
 }
 
 .beta-panel-link {
@@ -862,28 +862,33 @@
 }
 
 /* ===== ABOUT CARD ===== */
+.about-section {
+    padding: 14px 16px;
+}
+
 .about-card {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 3px;
+}
+
+.about-version-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: nowrap;
 }
 
 .about-card-name {
-    font-size: 1.1rem;
+    font-size: 1rem;
     font-weight: 800;
-    letter-spacing: 0.2em;
+    letter-spacing: 0.18em;
     color: rgba(255,255,255,0.82);
     font-family: var(--font-mono);
 }
 
-.about-card-version {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
 .about-card-ver {
-    font-size: 0.82rem;
+    font-size: 0.75rem;
     font-family: var(--font-mono);
     color: rgba(0,229,255,0.6);
 }
@@ -910,14 +915,14 @@
 .link-rows {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 6px;
 }
 
 .link-row {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    height: 36px;
+    height: 34px;
     padding: 0 12px;
     border-radius: 8px;
     background: rgba(255,255,255,0.02);
@@ -952,8 +957,10 @@
     display: flex;
     flex-direction: column;
     gap: 6px;
-    padding: 12px 0 6px;
+    padding: 12px 0 8px;
     flex-shrink: 0;
+    border-top: 1px solid rgba(255,255,255,0.05);
+    background: transparent;
 }
 
 .btn-save {
@@ -1004,13 +1011,18 @@
     cursor: pointer;
     transition: var(--ease);
     opacity: 0.55;
+    box-shadow: none;
+    outline: none;
 
     &:hover {
         opacity: 1;
-        border-color: rgba(255,255,255,0.14);
-        color: rgba(255,255,255,0.6);
-        background: rgba(255,255,255,0.03);
+        border-color: rgba(255,255,255,0.08);
+        color: rgba(255,255,255,0.55);
+        background: rgba(255,255,255,0.025);
+        box-shadow: none;
     }
+
+    &::before, &::after { display: none; content: none; }
 }
 
 .btn-secondary {

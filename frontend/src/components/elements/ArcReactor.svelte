@@ -12,7 +12,7 @@
         'disconnected': 'arc-white',
         'idle':         'arc-cyan',
         'listening':    'arc-cyan',
-        'processing':   'arc-white'
+        'processing':   'arc-cyan'
     }[$jarvisState] || 'arc-white'
 </script>
 
@@ -464,14 +464,15 @@
     // ========================================================
     .reactor-container.idle {
         transform: scale(0.95);
-        opacity: 0.85;
+        opacity: 0.92;
+        filter: drop-shadow(0 0 12px rgba(var(--arc-color), 0.14));
 
         .coil-container { animation-duration: 10s; }
-        .e7 { opacity: 0.5; }
+        .e7 { opacity: 0.38; }
 
         .e5_1 {
-            border-top-color: rgba(var(--arc-color), 0.15);
-            border-left-color: rgba(var(--arc-color), 0.15);
+            border-top-color: rgba(var(--arc-color), 0.12);
+            border-left-color: rgba(var(--arc-color), 0.12);
             animation: rotate 9s linear infinite;
         }
         .e5_2 {
@@ -510,8 +511,8 @@
     }
 
     .reactor-container.idle::before {
-        opacity: 0.42;
-        transform: translate(-50%, -50%) scale(0.9);
+        opacity: 0.30;
+        transform: translate(-50%, -50%) scale(0.88);
         animation: bg-pulse 5s ease-in-out infinite;
     }
 
@@ -521,6 +522,7 @@
     .reactor-container.active {
         transform: scale(1.05);
         opacity: 1;
+        filter: drop-shadow(0 0 18px rgba(var(--arc-color), 0.22));
 
         .coil-container { animation-duration: 3s; }
         .e7 { opacity: 1; }

@@ -244,15 +244,6 @@
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
 
-    &::-webkit-scrollbar { width: 4px; }
-    &::-webkit-scrollbar-track { background: transparent; }
-    &::-webkit-scrollbar-thumb {
-        background: rgba(255,255,255,0.12);
-        border-radius: 2px;
-    }
-    &::-webkit-scrollbar-thumb:hover {
-        background: rgba(0,229,255,0.24);
-    }
 }
 
 .select-item {

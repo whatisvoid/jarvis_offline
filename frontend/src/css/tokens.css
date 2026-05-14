@@ -48,4 +48,7 @@
     /* Glows */
     --glow-sm: 0 0 12px rgba(0,229,255,0.06);
     --glow-md: 0 0 24px rgba(0,229,255,0.08);
+
+    /* Shell separators — unified geometry */
+    --shell-separator: linear-gradient(90deg, transparent 0%, rgba(0,229,255,0.22) 30%, rgba(0,229,255,0.22) 70%, transparent 100%);
 }

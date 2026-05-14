@@ -60,24 +60,26 @@
     </div>
 
     <div class="reactor-section">
-        <div class="reactor-wrapper">
-            <ArcReactor />
-        </div>
-
-        {#if !processRunning}
-            <div class="offline-badge">
-                <span class="offline-icon">⚠</span>
-                <span class="offline-text">{t('assistant-not-running')}</span>
-                <small>{t('assistant-offline-hint')}</small>
+        <div class="reactor-group">
+            <div class="reactor-wrapper">
+                <ArcReactor />
             </div>
-            <button
-                class="start-button"
-                on:click={runAssistant}
-                disabled={launching}
-            >
-                {launching ? t('btn-starting') : t('btn-start')}
-            </button>
-        {/if}
+
+            {#if !processRunning}
+                <div class="offline-badge">
+                    <span class="offline-icon">⚠</span>
+                    <span class="offline-text">{t('assistant-not-running')}</span>
+                    <small>{t('assistant-offline-hint')}</small>
+                </div>
+                <button
+                    class="start-button"
+                    on:click={runAssistant}
+                    disabled={launching}
+                >
+                    {launching ? t('btn-starting') : t('btn-start')}
+                </button>
+            {/if}
+        </div>
     </div>
 
     <footer class="stats-footer">
@@ -101,13 +103,21 @@
 
 .reactor-section {
     flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
     overflow: hidden;
     position: relative;
+}
+
+.reactor-group {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     padding-bottom: 96px;
+    transform: translateY(36px);
 }
 
 .stats-footer {

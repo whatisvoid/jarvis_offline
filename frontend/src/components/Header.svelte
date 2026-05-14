@@ -92,7 +92,7 @@
         left: 0;
         right: 0;
         height: 1px;
-        background: linear-gradient(90deg, transparent 0%, rgba(0,229,255,0.25) 35%, rgba(0,229,255,0.25) 65%, transparent 100%);
+        background: var(--shell-separator);
         pointer-events: none;
     }
 }
@@ -167,7 +167,7 @@
         left: 0;
         right: 0;
         height: 1px;
-        background: linear-gradient(90deg, transparent 0%, rgba(0,229,255,0.22) 30%, rgba(0,229,255,0.22) 70%, transparent 100%);
+        background: var(--shell-separator);
         pointer-events: none;
     }
 }
