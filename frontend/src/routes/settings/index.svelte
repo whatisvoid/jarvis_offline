@@ -2,8 +2,6 @@
     import { onMount } from "svelte"
     import { invoke } from "@tauri-apps/api/core"
     import { goto } from "@roxi/routify"
-    import { setTimeout } from "worker-timers"
-
     import { showInExplorer } from "@/functions"
     import { appInfo, assistantVoice, currentLanguage, setLanguage, translations, translate } from "@/stores"
 
