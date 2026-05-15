@@ -12,15 +12,12 @@
     const dispatch = createEventDispatcher<{ change: string }>()
 
     let open = false
+    let dropUp = false
     let triggerEl: HTMLButtonElement
     let listEl: HTMLUListElement | null = null
-    let dropdownTop = 0
-    let dropdownLeft = 0
-    let dropdownWidth = 0
     let focusedIndex = 0
 
     $: selectedLabel = data.find(d => d.value === value)?.label ?? data[0]?.label ?? "—"
-
 
     $: if (open && listEl && focusedIndex >= 0) {
         const item = listEl.children[focusedIndex] as HTMLElement | undefined
@@ -28,24 +25,36 @@
     }
 
     async function openDropdown() {
-        if (!triggerEl) return
-        const rect = triggerEl.getBoundingClientRect()
-        dropdownTop = rect.bottom + 2
-        dropdownLeft = rect.left
-        dropdownWidth = rect.width
+        dropUp = false
         focusedIndex = Math.max(0, visibleData.findIndex(d => d.value === value))
         open = true
         await tick()
+
+        // Flip upward if dropdown clips below the scroll container's visible area
+        if (listEl && triggerEl) {
+            const listRect    = listEl.getBoundingClientRect()
+            const triggerRect = triggerEl.getBoundingClientRect()
+            const scrollParent = getScrollParent(triggerEl)
+            const containerBottom = scrollParent instanceof Window
+                ? scrollParent.innerHeight
+                : scrollParent.getBoundingClientRect().bottom
+
+            if (listRect.bottom > containerBottom && triggerRect.top >= listRect.height + 8) {
+                dropUp = true
+            }
+        }
+
         listEl?.focus()
     }
 
     function closeDropdown() {
         open = false
+        dropUp = false
     }
 
     function selectItem(val: string) {
         value = val
-        open = false
+        closeDropdown()
         triggerEl?.focus()
         dispatch('change', val)
     }
@@ -85,12 +94,18 @@
         }
     }
 
-    function handleWindowScroll() {
-        if (open) closeDropdown()
+    function getScrollParent(el: Element): Element | Window {
+        let node: Element | null = el.parentElement
+        while (node) {
+            const { overflowY } = getComputedStyle(node)
+            if (overflowY === 'auto' || overflowY === 'scroll') return node
+            node = node.parentElement
+        }
+        return window
     }
 </script>
 
-<svelte:window on:click={handleWindowClick} on:scroll|passive={handleWindowScroll} />
+<svelte:window on:click={handleWindowClick} />
 
 <div class="select-root">
     {#if label}
@@ -116,40 +131,40 @@
             <path d="M2 3.5L5 6.5L8 3.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
     </button>
-</div>
 
-{#if open}
-    <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
-    <ul
-        id="select-dropdown-{label}"
-        class="select-dropdown"
-        style="top: {dropdownTop}px; left: {dropdownLeft}px; width: {dropdownWidth}px;"
-        bind:this={listEl}
-        role="listbox"
-        tabindex="-1"
-        on:keydown={handleListKeydown}
-    >
-        {#each visibleData as item, i}
-            <!-- svelte-ignore a11y-click-events-have-key-events -->
-            <li
-                class="select-item"
-                class:focused={i === focusedIndex}
-                class:selected={item.value === value}
-                role="option"
-                aria-selected={item.value === value}
-                on:click={() => selectItem(item.value)}
-                on:mouseenter={() => { focusedIndex = i }}
-            >
-                <span>{item.label}</span>
-                {#if item.value === value}
-                    <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
-                        <path d="M1.5 5L4 7.5L8.5 2.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                {/if}
-            </li>
-        {/each}
-    </ul>
-{/if}
+    {#if open}
+        <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
+        <ul
+            id="select-dropdown-{label}"
+            class="select-dropdown"
+            class:drop-up={dropUp}
+            bind:this={listEl}
+            role="listbox"
+            tabindex="-1"
+            on:keydown={handleListKeydown}
+        >
+            {#each visibleData as item, i}
+                <!-- svelte-ignore a11y-click-events-have-key-events -->
+                <li
+                    class="select-item"
+                    class:focused={i === focusedIndex}
+                    class:selected={item.value === value}
+                    role="option"
+                    aria-selected={item.value === value}
+                    on:click={() => selectItem(item.value)}
+                    on:mouseenter={() => { focusedIndex = i }}
+                >
+                    <span>{item.label}</span>
+                    {#if item.value === value}
+                        <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
+                            <path d="M1.5 5L4 7.5L8.5 2.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    {/if}
+                </li>
+            {/each}
+        </ul>
+    {/if}
+</div>
 
 <style lang="scss">
 .select-root {
@@ -157,6 +172,7 @@
     display: flex;
     flex-direction: column;
     gap: 0;
+    position: relative;
 }
 
 .select-label {
@@ -232,8 +248,11 @@
 }
 
 .select-dropdown {
-    position: fixed;
-    z-index: 9999;
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    right: 0;
+    z-index: 40;
     background: rgba(8,12,18,0.98);
     border: 1px solid rgba(0,229,255,0.18);
     border-radius: var(--r-md);
@@ -247,6 +266,11 @@
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
 
+    &.drop-up {
+        top: auto;
+        bottom: calc(100% + 4px);
+        box-shadow: 0 -12px 32px rgba(0,0,0,0.35), 0 0 0 1px rgba(0,229,255,0.06);
+    }
 }
 
 .select-item {
