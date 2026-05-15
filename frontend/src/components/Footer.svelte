@@ -27,7 +27,7 @@
     onMount(async () => {
         try {
             authorName = await invoke<string>("get_author_name")
-        } catch (err) {
+        } catch (err: unknown) {
             console.error("failed to get author name:", err)
         }
     })
@@ -37,26 +37,26 @@
     <p>© {currentYear}. {t('footer-author')}: <b>{authorName}</b></p>
     <p class="links">
         {#if $currentLanguage === "ru" || $currentLanguage === "ua"}
-        <a href={tgLink} target="_blank" class="telegram-link">
+        <a href={tgLink} target="_blank" rel="noopener noreferrer" class="telegram-link">
             <img src="/media/icons/telegram.webp" alt="Telegram" width="18px" />
             &nbsp;<span>{t('footer-telegram')}</span>
         </a>
         &nbsp;
         {/if}
-        <a href={repoLink} target="_blank">
+        <a href={repoLink} target="_blank" rel="noopener noreferrer">
             <img src="/media/icons/github-logo.png" alt="GitHub" width="18px" />
             &nbsp;<span>{t('footer-github')}</span>
         </a>
     </p>
     <p class="links last">
         {#if $currentLanguage === "ru"}
-        {t('footer-support')} <a href={boostyLink} target="_blank" class="telegram-link">
+        {t('footer-support')} <a href={boostyLink} target="_blank" rel="noopener noreferrer" class="telegram-link">
             <img src="/media/icons/boosty.webp" alt="Boosty" width="18px" />
             <span>Boosty</span>
         </a>.
         {/if}
         {#if $currentLanguage === "ua" || $currentLanguage === "en"}
-        {t('footer-support')} <a href={patreonLink} target="_blank" class="telegram-link">
+        {t('footer-support')} <a href={patreonLink} target="_blank" rel="noopener noreferrer" class="telegram-link">
             <img src="/media/icons/patreon.png" alt="Patreon" width="18px" />
             <span>Patreon</span>
         </a>.
@@ -93,8 +93,8 @@
             transition: var(--ease);
 
             & > span {
-                color: rgba(0,229,255,0.52);
-                border-bottom: 1px solid rgba(0,229,255,0.22);
+                color: rgba(var(--accent-rgb),0.52);
+                border-bottom: 1px solid var(--border-hover);
                 transition: var(--ease);
             }
 
@@ -109,7 +109,7 @@
 
                 & > span {
                     color: var(--accent);
-                    border-bottom-color: rgba(0,229,255,0.45);
+                    border-bottom-color: rgba(var(--accent-rgb),0.45);
                 }
 
                 img {
@@ -118,7 +118,7 @@
             }
 
             &.telegram-link {
-                color: rgba(0,229,255,0.52);
+                color: rgba(var(--accent-rgb),0.52);
                 display: inline-block;
 
                 &:hover {

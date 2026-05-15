@@ -9,6 +9,8 @@
     import {
         isJarvisRunning,
         updateJarvisStats,
+        startStatsPolling,
+        stopStatsPolling,
         enableIpc,
         disableIpc,
         translate,
@@ -33,10 +35,11 @@
     })
 
     onMount(() => {
-        updateJarvisStats()
+        startStatsPolling(5000)
     })
 
     onDestroy(() => {
+        stopStatsPolling()
         unsubRunning()
         disableIpc()
     })
@@ -54,7 +57,7 @@
                 }
             }
             setTimeout(() => poll(12), 500)
-        } catch (err) {
+        } catch (err: unknown) {
             console.error("Failed to run jarvis-app:", err)
             launching = false
         }

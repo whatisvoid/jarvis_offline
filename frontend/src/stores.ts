@@ -1,5 +1,7 @@
 import { writable } from "svelte/store"
 import { invoke } from "@tauri-apps/api/core"
+import type { JarvisStats, AppInfo } from "./types"
+import { DB_KEYS } from "./lib/db-keys"
 
 // ### RE-EXPORT IPC STORES
 export {
@@ -12,7 +14,6 @@ export {
     enableIpc,
     disableIpc,
     disconnectIpc,
-    sendAction,
     sendIpcMessage,
     sendTextCommand,
     stopJarvisApp,
@@ -39,7 +40,7 @@ export const jarvisCpuUsage = writable(0)
 export const assistantVoice = writable("")
 
 // ### APP INFO
-export const appInfo = writable({
+export const appInfo = writable<AppInfo>({
     tgOfficialLink: "",
     feedbackLink: "",
     repositoryLink: "",
@@ -51,9 +52,9 @@ export const appInfo = writable({
 // ### INIT FUNCTIONS (call these from a component)
 export async function loadVoiceSetting() {
     try {
-        const voice = await invoke<string>("db_read", { key: "assistant_voice" })
+        const voice = await invoke<string>("db_read", { key: DB_KEYS.voice })
         assistantVoice.set(voice)
-    } catch (err) {
+    } catch (err: unknown) {
         console.error("failed to load voice setting:", err)
     }
 }
@@ -77,18 +78,18 @@ export async function loadAppInfo() {
             patreonSupportLink: patreon,
             logFilePath: logPath
         })
-    } catch (err) {
+    } catch (err: unknown) {
         console.error("failed to load app info:", err)
     }
 }
 
 export async function updateJarvisStats() {
     try {
-        const stats = await invoke<{running: boolean, ram_mb: number, cpu_usage: number}>("get_jarvis_app_stats")
+        const stats = await invoke<JarvisStats>("get_jarvis_app_stats")
         isJarvisRunning.set(stats.running)
         jarvisRamUsage.set(stats.ram_mb)
         jarvisCpuUsage.set(stats.cpu_usage)
-    } catch (err) {
+    } catch (err: unknown) {
         console.error("failed to get jarvis stats:", err)
     }
 }

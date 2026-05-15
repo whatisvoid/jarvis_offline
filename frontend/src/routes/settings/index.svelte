@@ -3,6 +3,8 @@
     import { invoke } from "@tauri-apps/api/core"
     import { goto } from "@roxi/routify"
     import { appInfo, assistantVoice, currentLanguage, setLanguage, translations, translate } from "@/stores"
+    import { DB_KEYS } from "@/lib/db-keys"
+    import type { VoiceMeta, VoiceConfig, SelectOption } from "@/types"
 
     import { Notification } from "@svelteuidev/core"
     import { Check } from "radix-icons-svelte"
@@ -16,21 +18,10 @@
 
     let activeTab = "general"
 
-    interface VoiceMeta {
-        id: string
-        name: string
-        author: string
-        languages: string[]
-    }
-
-    interface VoiceConfig {
-        voice: VoiceMeta
-    }
-
     let availableVoices: VoiceMeta[] = []
-    let availableMicrophones: { label: string; value: string }[] = []
-    let availableVoskModels: { label: string; value: string }[] = []
-    let availableGlinerModels: { label: string; value: string }[] = []
+    let availableMicrophones: SelectOption[] = []
+    let availableVoskModels: SelectOption[] = []
+    let availableGlinerModels: SelectOption[] = []
     let settingsSaved = false
     let saveError = false
     let saveButtonDisabled = false
@@ -48,7 +39,7 @@
     let apiKeyPicovoice = ""
     let ollamaUrl = "http://localhost:11434"
     let ollamaModel = ""
-    let availableOllamaModels: { label: string; value: string }[] = []
+    let availableOllamaModels: SelectOption[] = []
     let ollamaLoading = false
     let ollamaError = ""
     let ollamaModelsLoaded = false
@@ -109,25 +100,25 @@
 
         try {
             await Promise.all([
-                invoke("db_write", { key: "assistant_voice", val: voiceVal }),
-                invoke("db_write", { key: "selected_microphone", val: selectedMicrophone }),
-                invoke("db_write", { key: "selected_wake_word_engine", val: selectedWakeWordEngine }),
-                invoke("db_write", { key: "selected_intent_recognition_engine", val: selectedIntentRecognitionEngine }),
-                invoke("db_write", { key: "selected_slot_extraction_engine", val: selectedSlotExtractionEngine }),
-                invoke("db_write", { key: "selected_gliner_model", val: selectedGlinerModel }),
-                invoke("db_write", { key: "selected_vosk_model", val: selectedVoskModel }),
-                invoke("db_write", { key: "noise_suppression", val: selectedNoiseSuppression }),
-                invoke("db_write", { key: "vad", val: selectedVad }),
-                invoke("db_write", { key: "gain_normalizer", val: gainNormalizerEnabled.toString() }),
-                invoke("db_write", { key: "api_key__picovoice", val: apiKeyPicovoice }),
-                invoke("db_write", { key: "ollama_url", val: ollamaUrl }),
-                invoke("db_write", { key: "ollama_model", val: ollamaModel })
+                invoke("db_write", { key: DB_KEYS.voice, val: voiceVal }),
+                invoke("db_write", { key: DB_KEYS.microphone, val: selectedMicrophone }),
+                invoke("db_write", { key: DB_KEYS.wakeWordEngine, val: selectedWakeWordEngine }),
+                invoke("db_write", { key: DB_KEYS.intentEngine, val: selectedIntentRecognitionEngine }),
+                invoke("db_write", { key: DB_KEYS.slotEngine, val: selectedSlotExtractionEngine }),
+                invoke("db_write", { key: DB_KEYS.glinerModel, val: selectedGlinerModel }),
+                invoke("db_write", { key: DB_KEYS.voskModel, val: selectedVoskModel }),
+                invoke("db_write", { key: DB_KEYS.noiseSuppression, val: selectedNoiseSuppression }),
+                invoke("db_write", { key: DB_KEYS.vad, val: selectedVad }),
+                invoke("db_write", { key: DB_KEYS.gainNormalizer, val: gainNormalizerEnabled.toString() }),
+                invoke("db_write", { key: DB_KEYS.picovoiceApiKey, val: apiKeyPicovoice }),
+                invoke("db_write", { key: DB_KEYS.ollamaUrl, val: ollamaUrl }),
+                invoke("db_write", { key: DB_KEYS.ollamaModel, val: ollamaModel })
             ])
 
             assistantVoice.set(voiceVal)
             settingsSaved = true
             setTimeout(() => { settingsSaved = false }, 5000)
-        } catch (err) {
+        } catch (err: unknown) {
             console.error("failed to save settings:", err)
             saveError = true
             setTimeout(() => { saveError = false }, 5000)
@@ -145,14 +136,14 @@
         try {
             authorName = await invoke<string>("get_author_name")
             appVersion = await invoke<string>("get_app_version")
-        } catch (err) {
+        } catch (err: unknown) {
             console.error("failed to get author name:", err)
         }
 
         try {
             const voices = await invoke<VoiceConfig[]>("list_voices")
             availableVoices = voices.map(v => v.voice)
-        } catch (err) {
+        } catch (err: unknown) {
             console.error("Failed to load voices:", err)
             availableVoices = []
         }
@@ -177,35 +168,36 @@
             const glinerModels = await invoke<{ display_name: string; value: string }[]>("list_gliner_models")
             availableGlinerModels = glinerModels.map(m => ({ label: m.display_name, value: m.value }))
 
-            const [mic, wakeWord, intentReco, slotEngine, glinerModel, voskModel,
-                   noiseSuppression, vad, gainNormalizer, pico, savedOllamaUrl, savedOllamaModel] = await Promise.all([
-                invoke<string>("db_read", { key: "selected_microphone" }),
-                invoke<string>("db_read", { key: "selected_wake_word_engine" }),
-                invoke<string>("db_read", { key: "selected_intent_recognition_engine" }),
-                invoke<string>("db_read", { key: "selected_slot_extraction_engine" }),
-                invoke<string>("db_read", { key: "selected_gliner_model" }),
-                invoke<string>("db_read", { key: "selected_vosk_model" }),
-                invoke<string>("db_read", { key: "noise_suppression" }),
-                invoke<string>("db_read", { key: "vad" }),
-                invoke<string>("db_read", { key: "gain_normalizer" }),
-                invoke<string>("db_read", { key: "api_key__picovoice" }),
-                invoke<string>("db_read", { key: "ollama_url" }),
-                invoke<string>("db_read", { key: "ollama_model" })
+            const settled = await Promise.allSettled([
+                invoke<string>("db_read", { key: DB_KEYS.microphone }),
+                invoke<string>("db_read", { key: DB_KEYS.wakeWordEngine }),
+                invoke<string>("db_read", { key: DB_KEYS.intentEngine }),
+                invoke<string>("db_read", { key: DB_KEYS.slotEngine }),
+                invoke<string>("db_read", { key: DB_KEYS.glinerModel }),
+                invoke<string>("db_read", { key: DB_KEYS.voskModel }),
+                invoke<string>("db_read", { key: DB_KEYS.noiseSuppression }),
+                invoke<string>("db_read", { key: DB_KEYS.vad }),
+                invoke<string>("db_read", { key: DB_KEYS.gainNormalizer }),
+                invoke<string>("db_read", { key: DB_KEYS.picovoiceApiKey }),
+                invoke<string>("db_read", { key: DB_KEYS.ollamaUrl }),
+                invoke<string>("db_read", { key: DB_KEYS.ollamaModel })
             ])
 
-            selectedMicrophone = mic
-            selectedWakeWordEngine = wakeWord
-            selectedIntentRecognitionEngine = intentReco
-            selectedSlotExtractionEngine = slotEngine
-            selectedVoskModel = voskModel
-            selectedGlinerModel = glinerModel
-            selectedNoiseSuppression = noiseSuppression
-            selectedVad = vad
-            gainNormalizerEnabled = gainNormalizer === "true"
-            apiKeyPicovoice = pico
-            if (savedOllamaUrl) ollamaUrl = savedOllamaUrl
-            ollamaModel = savedOllamaModel
-        } catch (err) {
+            const val = (i: number): string => settled[i].status === 'fulfilled' ? (settled[i] as PromiseFulfilledResult<string>).value : ""
+
+            selectedMicrophone               = val(0)
+            selectedWakeWordEngine           = val(1)
+            selectedIntentRecognitionEngine  = val(2)
+            selectedSlotExtractionEngine     = val(3)
+            selectedGlinerModel              = val(4)
+            selectedVoskModel                = val(5)
+            selectedNoiseSuppression         = val(6)
+            selectedVad                      = val(7)
+            gainNormalizerEnabled            = val(8) === "true"
+            apiKeyPicovoice                  = val(9)
+            if (val(10)) ollamaUrl           = val(10)
+            ollamaModel                      = val(11)
+        } catch (err: unknown) {
             console.error("failed to load settings:", err)
         }
     })
@@ -643,6 +635,11 @@
         background: rgba(0,229,255,0.02);
         box-shadow: var(--glow-sm);
     }
+}
+
+:global(.picovoice-key-input) {
+    margin-top: 10px;
+    width: 100%;
 }
 
 :global(.btn-secondary) {

@@ -14,10 +14,17 @@
         translations,
         translate
     } from "@/stores"
+    import { DB_KEYS } from "@/lib/db-keys"
+    import type { RuntimeEvent } from "@/types"
 
     $: t = (key: string) => translate($translations, key)
 
     // ── Models ──────────────────────────────────────────────────────────────
+    const DEFAULT_WAKE_ENGINE   = "Rustpotter"
+    const DEFAULT_STT_ENGINE    = "Vosk"
+    const DEFAULT_STT_MODEL     = "Auto-detect"
+    const DEFAULT_INTENT_ENGINE = "Intent Classifier"
+
     let wakeEngine = ""
     let sttEngine = ""
     let sttModel = ""
@@ -53,6 +60,8 @@
         { id: 'RESPONSE', label: 'RESP' },
     ]
 
+    const RESPONSE_ACTIVE_MS = 2000
+
     let responseActive = false
     let responseTimer: ReturnType<typeof setTimeout> | null = null
 
@@ -64,7 +73,6 @@
     )
 
     // ── Events ───────────────────────────────────────────────────────────────
-    interface RuntimeEvent { id: number; title: string; detail: string; time: string }
     const EVENTS_MAX = 15
     let events: RuntimeEvent[] = []
     let nextId = 0
@@ -83,18 +91,18 @@
     onMount(async () => {
         try {
             const [wake, stt, vosk, intent, llm] = await Promise.all([
-                invoke<string>("db_read", { key: "selected_wake_word_engine" }),
-                invoke<string>("db_read", { key: "selected_stt_engine" }),
-                invoke<string>("db_read", { key: "selected_vosk_model" }),
-                invoke<string>("db_read", { key: "selected_intent_recognition_engine" }),
-                invoke<string>("db_read", { key: "ollama_model" }),
+                invoke<string>("db_read", { key: DB_KEYS.wakeWordEngine }),
+                invoke<string>("db_read", { key: DB_KEYS.sttEngine }),
+                invoke<string>("db_read", { key: DB_KEYS.voskModel }),
+                invoke<string>("db_read", { key: DB_KEYS.intentEngine }),
+                invoke<string>("db_read", { key: DB_KEYS.ollamaModel }),
             ])
-            wakeEngine   = wake   || "Rustpotter"
-            sttEngine    = stt    || "Vosk"
-            sttModel     = vosk   || "Auto-detect"
-            intentEngine = intent || "Intent Classifier"
+            wakeEngine   = wake   || DEFAULT_WAKE_ENGINE
+            sttEngine    = stt    || DEFAULT_STT_ENGINE
+            sttModel     = vosk   || DEFAULT_STT_MODEL
+            intentEngine = intent || DEFAULT_INTENT_ENGINE
             llmModel     = llm    || ""
-        } catch (err) {
+        } catch (err: unknown) {
             console.error("System: failed to load models", err)
         }
 
@@ -118,7 +126,7 @@
                 addEvent('COMMAND EXECUTED', cmd)
                 responseActive = true
                 if (responseTimer) clearTimeout(responseTimer)
-                responseTimer = setTimeout(() => { responseActive = false }, 2000)
+                responseTimer = setTimeout(() => { responseActive = false }, RESPONSE_ACTIVE_MS)
             }
         })))
 

@@ -1,6 +1,7 @@
 <script lang="ts">
     import { createEventDispatcher } from "svelte"
     import Select from "@/components/ui/Select.svelte"
+    import type { SelectOption } from "@/types"
 
     export let t: (key: string) => string
     export let selectedWakeWordEngine: string
@@ -14,9 +15,9 @@
     export let apiKeyPicovoice: string
     export let ollamaUrl: string
     export let ollamaModel: string
-    export let availableVoskModels: { label: string; value: string }[]
-    export let availableGlinerModels: { label: string; value: string }[]
-    export let availableOllamaModels: { label: string; value: string }[]
+    export let availableVoskModels: SelectOption[]
+    export let availableGlinerModels: SelectOption[]
+    export let availableOllamaModels: SelectOption[]
     export let ollamaLoading: boolean
     export let ollamaError: string
     export let ollamaModelsLoaded: boolean
@@ -38,13 +39,13 @@
     {#if selectedWakeWordEngine === "Picovoice"}
         <div class="warn-panel">
             <p class="warn-panel-text">{t('settings-picovoice-warning')}</p>
-            <p class="warn-panel-text">{t('settings-picovoice-key-desc')} <a href="https://console.picovoice.ai/" target="_blank" class="warn-link">Picovoice Console</a>.</p>
+            <p class="warn-panel-text">{t('settings-picovoice-key-desc')} <a href="https://console.picovoice.ai/" target="_blank" rel="noopener noreferrer" class="warn-link">Picovoice Console</a>.</p>
             <input
-                class="field-input"
+                class="field-input picovoice-key-input"
                 type="password"
-                style="margin-top: 10px; width: 100%;"
                 placeholder={t('settings-picovoice-key')}
                 autocomplete="new-password"
+                maxlength="256"
                 bind:value={apiKeyPicovoice}
             />
         </div>

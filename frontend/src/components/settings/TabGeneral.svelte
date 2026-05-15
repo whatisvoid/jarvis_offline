@@ -2,11 +2,12 @@
     import { createEventDispatcher } from "svelte"
     import { invoke } from "@tauri-apps/api/core"
     import Select from "@/components/ui/Select.svelte"
+    import type { VoiceMeta } from "@/types"
 
     export let t: (key: string) => string
     export let languages: { code: string; name: string }[]
     export let currentLanguage: string
-    export let availableVoices: { id: string; name: string; author: string; languages: string[] }[]
+    export let availableVoices: VoiceMeta[]
     export let voiceVal: string
 
     const dispatch = createEventDispatcher<{ languageChange: string }>()

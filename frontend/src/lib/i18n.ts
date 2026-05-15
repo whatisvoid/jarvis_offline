@@ -1,5 +1,6 @@
-import { writable, derived } from "svelte/store"
+import { writable } from "svelte/store"
 import { invoke } from "@tauri-apps/api/core"
+import { DB_KEYS } from "./db-keys"
 
 // stores
 export const translations = writable<Record<string, string>>({})
@@ -19,7 +20,7 @@ export async function loadTranslations() {
         ])
         translations.set(trans)
         currentLanguage.set(lang)
-    } catch (err) {
+    } catch (err: unknown) {
         console.error("Failed to load translations:", err)
     }
 }
@@ -30,18 +31,18 @@ export async function setLanguage(lang: string) {
         const newTranslations = await invoke<Record<string, string>>("set_language", { lang })
         translations.set(newTranslations)
         currentLanguage.set(lang)
-    } catch (err) {
+    } catch (err: unknown) {
         console.error("Failed to set language:", err)
     }
 }
 
 export async function loadLanguage() {
     try {
-        const lang = await invoke<string>("db_read", { key: "language" })
+        const lang = await invoke<string>("db_read", { key: DB_KEYS.language })
         if (lang) {
             currentLanguage.set(lang)
         }
-    } catch (err) {
+    } catch (err: unknown) {
         console.error("Failed to load language:", err)
     }
 }
@@ -49,7 +50,8 @@ export async function loadLanguage() {
 export async function getSupportedLanguages(): Promise<string[]> {
     try {
         return await invoke<string[]>("get_supported_languages")
-    } catch {
+    } catch (err: unknown) {
+        console.error("Failed to get supported languages:", err)
         return ["ru", "en", "ua"]
     }
 }

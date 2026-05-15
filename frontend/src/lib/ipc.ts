@@ -69,7 +69,7 @@ export function connectIpc(port: number = 9712) {
             if (typeof raw?.event === "string") {
                 handleEvent(raw as IpcMessage)
             }
-        } catch (err) {
+        } catch (err: unknown) {
             console.error("[IPC] failed to parse message:", err)
         }
     }
@@ -192,21 +192,23 @@ function handleEvent(data: IpcMessage) {
 
 // ### ACTIONS ###
 
-export function sendAction(action: string, payload: Record<string, any> = {}) {
-    if (ws?.readyState !== WebSocket.OPEN) {
-        return false
-    }
+type IpcOutgoing =
+    | { action: "stop" }
+    | { action: "reload_commands" }
+    | { action: "text_command"; text: string }
 
-    ws.send(JSON.stringify({ action, ...payload }))
+function sendAction(msg: IpcOutgoing): boolean {
+    if (ws?.readyState !== WebSocket.OPEN) return false
+    ws.send(JSON.stringify(msg))
     return true
 }
 
 export function stopJarvisApp() {
-    return sendAction("stop")
+    return sendAction({ action: "stop" })
 }
 
 export function reloadCommands() {
-    return sendAction("reload_commands")
+    return sendAction({ action: "reload_commands" })
 }
 
 export function sendIpcMessage(message: object): Promise<void> {
@@ -219,14 +221,14 @@ export function sendIpcMessage(message: object): Promise<void> {
         try {
             ws.send(JSON.stringify(message))
             resolve()
-        } catch (err) {
+        } catch (err: unknown) {
             reject(err)
         }
     })
 }
 
 export function sendTextCommand(text: string): boolean {
-    return sendAction("text_command", { text })
+    return sendAction({ action: "text_command", text })
 }
 
 async function revealWindow() {
@@ -235,7 +237,7 @@ async function revealWindow() {
         await window.show()
         await window.unminimize()
         await window.setFocus()
-    } catch (err) {
+    } catch (err: unknown) {
         console.error("[IPC] Failed to reveal window:", err)
     }
 }

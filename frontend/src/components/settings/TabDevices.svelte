@@ -1,8 +1,9 @@
 <script lang="ts">
     import Select from "@/components/ui/Select.svelte"
+    import type { SelectOption } from "@/types"
 
     export let t: (key: string) => string
-    export let availableMicrophones: { label: string; value: string }[]
+    export let availableMicrophones: SelectOption[]
     export let selectedMicrophone: string
 </script>
 

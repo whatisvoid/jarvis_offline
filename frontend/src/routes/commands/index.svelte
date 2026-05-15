@@ -4,21 +4,9 @@
     import { Space } from "@svelteuidev/core"
 
     import { currentLanguage, translations, translate } from "@/stores"
+    import type { JCommand } from "@/types"
 
     $: t = (key: string) => translate($translations, key)
-
-    interface SlotDefinition {
-        entity: string
-        context: string[]
-    }
-
-    interface JCommand {
-        id: string
-        type: string
-        description: string
-        phrases: Record<string, string[]>
-        slots: Record<string, SlotDefinition>
-    }
 
     let commands: JCommand[] = []
     let searchQuery = ""
@@ -40,29 +28,20 @@
         )
     })
 
-    const TYPE_COLORS: Record<string, string> = {
-        lua:           "#00FFC6",
-        ahk:           "#3b82f6",
-        cli:           "#f97316",
-        voice:         "#a855f7",
-        terminate:     "#ef4444",
-        stop_chaining: "#6b7280",
-    }
-
-    function typeColor(type: string): string {
-        return TYPE_COLORS[type.toLowerCase()] ?? "#6b7280"
-    }
-
-    onMount(async () => {
+    async function loadCommands() {
+        loading = true
+        loadError = false
         try {
             commands = await invoke<JCommand[]>("get_commands_list")
-        } catch (err) {
+        } catch (err: unknown) {
             console.error("Failed to load commands:", err)
             loadError = true
         } finally {
             loading = false
         }
-    })
+    }
+
+    onMount(loadCommands)
 </script>
 
 <Space h="md" />
@@ -79,7 +58,10 @@
 {#if loading}
     <div class="empty-state">{t('stats-loading')}</div>
 {:else if loadError}
-    <div class="empty-state error-state">{t('commands-load-error')}</div>
+    <div class="empty-state error-state">
+        <span>{t('commands-load-error')}</span>
+        <button class="retry-btn" on:click={loadCommands}>{t('commands-retry')}</button>
+    </div>
 {:else if commands.length === 0}
     <div class="empty-state">{t('commands-no-commands')}</div>
 {:else if filtered.length === 0}
@@ -91,7 +73,7 @@
             <div class="command-card">
                 <div class="card-header">
                     <span class="cmd-id">{cmd.id}</span>
-                    <span class="cmd-type-badge" style="--type-color: {typeColor(cmd.type)}">
+                    <span class="cmd-type-badge" data-type={cmd.type.toLowerCase()}>
                         {cmd.type}
                     </span>
                 </div>
@@ -132,6 +114,9 @@
 }
 
 .empty-state {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     text-align: center;
     color: var(--text-muted);
     font-size: 0.82rem;
@@ -141,6 +126,28 @@
     &.error-state {
         color: rgba(255, 90, 90, 0.75);
         font-style: normal;
+        gap: 12px;
+        flex-direction: column;
+    }
+}
+
+.retry-btn {
+    margin-top: 4px;
+    padding: 6px 16px;
+    background: transparent;
+    border: 1px solid rgba(255, 90, 90, 0.4);
+    border-radius: 6px;
+    color: rgba(255, 90, 90, 0.75);
+    font-family: var(--font);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    cursor: pointer;
+    transition: border-color 140ms ease, color 140ms ease;
+
+    &:hover {
+        border-color: rgba(255, 90, 90, 0.7);
+        color: rgba(255, 90, 90, 1);
     }
 }
 
@@ -183,6 +190,7 @@
 }
 
 .cmd-type-badge {
+    --type-color: #6b7280;
     font-size: 0.6rem;
     font-weight: 700;
     text-transform: uppercase;
@@ -192,6 +200,13 @@
     border-radius: var(--r-sm);
     padding: 1px 5px;
     opacity: 0.82;
+
+    &[data-type="lua"]           { --type-color: #00FFC6; }
+    &[data-type="ahk"]           { --type-color: #3b82f6; }
+    &[data-type="cli"]           { --type-color: #f97316; }
+    &[data-type="voice"]         { --type-color: #a855f7; }
+    &[data-type="terminate"]     { --type-color: #ef4444; }
+    &[data-type="stop_chaining"] { --type-color: #6b7280; }
 }
 
 .cmd-description {

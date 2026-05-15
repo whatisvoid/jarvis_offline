@@ -1,6 +1,9 @@
 <script lang="ts">
     import { jarvisState } from "@/stores"
 
+    const TICK_COUNT = 60
+    const COIL_COUNT = 8
+
     $: stateClass = {
         'disconnected': 'disconnected',
         'idle':         'idle',
@@ -19,7 +22,7 @@
 <div id="arc-reactor" class="reactor-container {stateClass} {colorClass}">
     <div class="reactor-container-inner circle abs-center">
         <ul class="marks">
-            {#each Array(60) as _, i}
+            {#each Array(TICK_COUNT) as _, i}
                 <li></li>
             {/each}
         </ul>
@@ -43,7 +46,7 @@
     <div class="core-outer circle abs-center"></div>
     <div class="core-inner circle abs-center"></div>
     <div class="coil-container">
-        {#each Array(8) as _, i}
+        {#each Array(COIL_COUNT) as _, i}
             <div class="coil coil-{i + 1}"></div>
         {/each}
     </div>

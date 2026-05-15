@@ -27,7 +27,7 @@
 
             try {
                 await invoke("play_sound", { filename, sleep: true })
-            } catch (err) {
+            } catch (err: unknown) {
                 console.error("failed to play sound:", err)
             }
         })
