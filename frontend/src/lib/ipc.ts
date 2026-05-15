@@ -56,8 +56,8 @@ export function connectIpc(port: number = 9712) {
         try {
             const msg = JSON.parse(event.data)
             handleEvent(msg)
-        } catch (e) {
-            console.error("[IPC] failed to parse message:", e)
+        } catch (err) {
+            console.error("[IPC] failed to parse message:", err)
         }
     }
 }
@@ -181,7 +181,7 @@ async function revealWindow() {
         await window.show()
         await window.unminimize()
         await window.setFocus()
-    } catch (e) {
-        console.error("[IPC] Failed to reveal window:", e)
+    } catch (err) {
+        console.error("[IPC] Failed to reveal window:", err)
     }
 }

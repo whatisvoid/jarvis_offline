@@ -94,8 +94,8 @@
             sttModel     = vosk   || "Auto-detect"
             intentEngine = intent || "Intent Classifier"
             llmModel     = llm    || ""
-        } catch (e) {
-            console.error("System: failed to load models", e)
+        } catch (err) {
+            console.error("System: failed to load models", err)
         }
 
         function skipFirst<T>(cb: (v: T) => void) {

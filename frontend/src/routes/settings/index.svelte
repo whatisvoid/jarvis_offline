@@ -35,6 +35,7 @@
     let availableVoskModels: { label: string; value: string }[] = []
     let availableGlinerModels: { label: string; value: string }[] = []
     let settingsSaved = false
+    let saveError = false
     let saveButtonDisabled = false
 
     let voiceVal = ""
@@ -78,8 +79,8 @@
             if (models.length > 0 && !ollamaModel) {
                 ollamaModel = models[0]
             }
-        } catch (err: any) {
-            ollamaError = err?.toString() ?? t('settings-ollama-error')
+        } catch (err: unknown) {
+            ollamaError = err instanceof Error ? err.message : t('settings-ollama-error')
             availableOllamaModels = []
         } finally {
             ollamaLoading = false
@@ -133,6 +134,8 @@
             setTimeout(() => { settingsSaved = false }, 5000)
         } catch (err) {
             console.error("failed to save settings:", err)
+            saveError = true
+            setTimeout(() => { saveError = false }, 5000)
         }
 
         setTimeout(() => { saveButtonDisabled = false }, 1000)
@@ -214,6 +217,13 @@
         icon={Check}
         color="teal"
         on:close={() => { settingsSaved = false }}
+    />
+{/if}
+{#if saveError}
+    <Notification
+        title={t('notification-error')}
+        color="red"
+        on:close={() => { saveError = false }}
     />
 {/if}
 
