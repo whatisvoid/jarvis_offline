@@ -206,6 +206,12 @@
 
     &:hover { color: rgba(255,255,255,0.88); }
 
+    &:focus-visible {
+        outline: 2px solid rgba(0,229,255,0.55);
+        outline-offset: -2px;
+        border-radius: 2px;
+    }
+
     &.active {
         color: var(--text);
         font-weight: 700;
@@ -229,5 +235,11 @@
 @keyframes scan-sweep {
     from { left: -30%; }
     to   { left: 110%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .logo-spin { animation: none; }
+    .scan-line { display: none; }
+    .nav-tab   { transition: none; }
 }
 </style>

@@ -14,8 +14,9 @@ export const lastError = writable("")
 
 // ### CONNECTION ###
 
-const RECONNECT_BASE_MS    = 1000
-const RECONNECT_MAX_MS     = 30000
+const IPC_PORT              = 9712
+const RECONNECT_BASE_MS     = 1000
+const RECONNECT_MAX_MS      = 30000
 const HEARTBEAT_INTERVAL_MS = 30000
 const HEARTBEAT_TIMEOUT_MS  = 5000
 
@@ -26,6 +27,7 @@ let heartbeatTimeoutTimer: ReturnType<typeof setTimeout> | null = null
 let reconnectAttempt = 0
 let manualDisconnect = false
 let enabled = false  // only connect when enabled
+let pendingTextCommands: string[] = []
 
 export function enableIpc() {
     enabled = true
@@ -37,7 +39,7 @@ export function disableIpc() {
     disconnectIpc()
 }
 
-export function connectIpc(port: number = 9712) {
+export function connectIpc(port: number = IPC_PORT) {
     if (ws?.readyState === WebSocket.OPEN) return
     manualDisconnect = false
 
@@ -48,6 +50,7 @@ export function connectIpc(port: number = 9712) {
         jarvisState.set("idle")
         reconnectAttempt = 0
         startHeartbeat()
+        flushPendingCommands()
         console.log("[IPC] connected")
     }
 
@@ -90,6 +93,7 @@ function scheduleReconnect() {
 export function disconnectIpc() {
     manualDisconnect = true
     reconnectAttempt = 0
+    pendingTextCommands = []
     stopHeartbeat()
 
     if (reconnectTimer) {
@@ -211,24 +215,17 @@ export function reloadCommands() {
     return sendAction({ action: "reload_commands" })
 }
 
-export function sendIpcMessage(message: object): Promise<void> {
-    return new Promise((resolve, reject) => {
-        if (!ws || ws.readyState !== WebSocket.OPEN) {
-            reject(new Error("IPC not connected"))
-            return
-        }
-
-        try {
-            ws.send(JSON.stringify(message))
-            resolve()
-        } catch (err: unknown) {
-            reject(err)
-        }
-    })
+export function sendTextCommand(text: string): boolean {
+    if (sendAction({ action: "text_command", text })) return true
+    pendingTextCommands.push(text)
+    return false
 }
 
-export function sendTextCommand(text: string): boolean {
-    return sendAction({ action: "text_command", text })
+function flushPendingCommands() {
+    while (pendingTextCommands.length > 0) {
+        const text = pendingTextCommands.shift()!
+        sendAction({ action: "text_command", text })
+    }
 }
 
 async function revealWindow() {

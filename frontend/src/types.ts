@@ -46,11 +46,6 @@ export interface RuntimeEvent {
     time: string
 }
 
-export interface MicrophoneOption {
-    label: string
-    value: string
-}
-
 export interface SelectOption {
     label: string
     value: string

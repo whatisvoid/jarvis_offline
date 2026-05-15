@@ -172,3 +172,103 @@
         <p class="info-hint">{t('settings-ollama-no-models')}</p>
     {/if}
 </div>
+
+<style lang="scss">
+.warn-panel {
+    margin-top: 12px;
+    padding: 14px;
+    border-radius: 8px;
+    background: rgba(255,190,90,0.04);
+    border: 1px solid rgba(255,190,90,0.14);
+}
+
+.warn-panel-text {
+    font-size: 0.72rem;
+    color: rgba(255,190,90,0.82);
+    line-height: 1.5;
+    margin: 0 0 4px;
+}
+
+.warn-link {
+    color: rgba(255,190,90,0.9);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+
+.toggle-row {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 2px;
+}
+
+.toggle-state {
+    font-size: 13px;
+    color: rgba(210,230,245,0.78);
+}
+
+.toggle-btn {
+    position: relative;
+    width: 38px;
+    height: 22px;
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,0.12);
+    background: rgba(255,255,255,0.06);
+    cursor: pointer;
+    transition: background 200ms ease, border-color 200ms ease;
+    flex-shrink: 0;
+
+    &.on {
+        background: rgba(var(--accent-rgb), 0.22);
+        border-color: rgba(var(--accent-rgb), 0.4);
+    }
+}
+
+.toggle-thumb {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.4);
+    transition: transform 200ms ease, background 200ms ease;
+}
+
+.toggle-btn.on .toggle-thumb {
+    transform: translateX(16px);
+    background: var(--accent);
+}
+
+.ollama-url-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.field-input {
+    flex: 1;
+    height: 40px;
+    background: rgba(255,255,255,0.025);
+    border: 1px solid var(--border);
+    border-radius: var(--r-md);
+    color: rgba(230,245,255,0.92);
+    font-family: var(--font);
+    font-size: 0.82rem;
+    padding: 0 14px;
+    transition: border-color 140ms ease, background 140ms ease, box-shadow 140ms ease;
+    outline: none;
+
+    &::placeholder { color: var(--text-muted); opacity: 0.5; }
+    &:focus {
+        border-color: var(--border-focus);
+        background: var(--accent-glow-xs);
+        box-shadow: var(--glow-sm);
+    }
+}
+
+.picovoice-key-input {
+    margin-top: 10px;
+    width: 100%;
+}
+</style>

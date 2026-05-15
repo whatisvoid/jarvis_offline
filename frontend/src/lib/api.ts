@@ -38,3 +38,6 @@ export const getCommandsList = () => invoke<JCommand[]>("get_commands_list")
 // ── Audio playback ───────────────────────────────────────────────────────────
 export const playSound    = (filename: string) => invoke<void>("play_sound", { filename, sleep: true })
 export const previewVoice = (voiceId: string)  => invoke<void>("preview_voice", { voiceId })
+
+// ── Shell ────────────────────────────────────────────────────────────────────
+export const showInFolder = (path: string) => invoke<void>("show_in_folder", { path })

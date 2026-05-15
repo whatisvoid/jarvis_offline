@@ -3,7 +3,7 @@
     import { Space } from "@svelteuidev/core"
     import { getCommandsList } from "@/lib/api"
 
-    import { currentLanguage, tStore } from "@/stores"
+    import { currentLanguage, tStore, reloadCommands } from "@/stores"
     import type { JCommand } from "@/types"
 
     $: t = $tStore
@@ -41,6 +41,11 @@
         }
     }
 
+    function handleReload() {
+        reloadCommands()
+        loadCommands()
+    }
+
     onMount(loadCommands)
 </script>
 
@@ -53,6 +58,12 @@
         placeholder={t('commands-search')}
         bind:value={searchQuery}
     />
+    <button class="reload-btn" on:click={handleReload} title="Reload commands" aria-label="Reload commands">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+            <path d="M12 7A5 5 0 1 1 7 2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+            <polyline points="7,1 9,3 7,5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+    </button>
 </div>
 
 {#if loading}
@@ -111,6 +122,27 @@
     gap: 0.75rem;
     padding-right: 12px;
     margin-bottom: 10px;
+}
+
+.reload-btn {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: var(--r-md);
+    color: rgba(255,255,255,0.35);
+    cursor: pointer;
+    transition: var(--ease);
+
+    &:hover {
+        background: rgba(var(--accent-rgb),0.06);
+        border-color: rgba(var(--accent-rgb),0.2);
+        color: var(--accent);
+    }
 }
 
 .empty-state {

@@ -3,6 +3,14 @@ $arc-radius: 133px;
 $arc-container-size: 195%;
 $arc-spacing: 93%;
 
+// [ STRUCTURAL COLOR TOKENS ]
+// These are reactor-specific values, not theme colors.
+// Theme colors (cyan, red, etc.) are set per .arc-* class via --arc-color / --arc-glow.
+$arc-shell-bg:        #161a1b;   // dark shell around the core
+$arc-core-inner-fill: rgba(200,235,248,0.52);
+$arc-core-outer-fill: rgba(180,225,245,0.28);
+$arc-tunnel-fill:     rgba(160,215,240,0.16);
+
 $arc-thickness-1: 1px;
 $arc-thickness-2: 2px;
 $arc-thickness-3: 3px;
@@ -135,7 +143,7 @@ $mark-height: 11px;
 .reactor-container-inner {
     height: 238px;
     width: 238px;
-    background-color: #161a1b;
+    background-color: $arc-shell-bg;
     box-shadow: 0px 0px 50px 15px rgba(var(--arc-color), 0.16),
                 inset 0px 0px 50px 15px rgba(var(--arc-color), 0.16);
     transition: box-shadow 0.8s ease;
@@ -153,7 +161,7 @@ $mark-height: 11px;
     width: 70px;
     height: 70px;
     border: 5px solid var(--arc-core-border);
-    background-color: rgba(200,235,248,0.52);
+    background-color: $arc-core-inner-fill;
     box-shadow: 0px 0px 5px 3px var(--arc-glow),
                 0px 0px 7px 6px var(--arc-glow) inset;
     transition: box-shadow 0.8s ease;
@@ -163,7 +171,7 @@ $mark-height: 11px;
     width: 120px;
     height: 120px;
     border: 1px solid var(--arc-glow);
-    background-color: rgba(180,225,245,0.28);
+    background-color: $arc-core-outer-fill;
     box-shadow: 0px 0px 1px 1px var(--arc-glow),
                 0px 0px 7px 3px var(--arc-glow) inset;
     transition: box-shadow 0.8s ease, border-color 0.8s ease;
@@ -181,7 +189,7 @@ $mark-height: 11px;
 .tunnel {
     width: 220px;
     height: 220px;
-    background-color: rgba(160,215,240,0.16);
+    background-color: $arc-tunnel-fill;
     box-shadow: 0px 0px 3px 1px var(--arc-glow),
                 0px 0px 3px 2px var(--arc-glow) inset;
     transition: box-shadow 0.8s ease;
@@ -579,4 +587,13 @@ $mark-height: 11px;
     0% { background: rgba(var(--arc-color), 1); box-shadow: 0 0 5px rgba(var(--arc-color), 1); }
     50% { background: rgba(var(--arc-color), 0.3); box-shadow: none; }
     100% { background: rgba(var(--arc-color), 1); box-shadow: 0 0 5px rgba(var(--arc-color), 1); }
+}
+
+// [ REDUCED MOTION ]
+@media (prefers-reduced-motion: reduce) {
+    .reactor-container,
+    .reactor-container * {
+        animation: none !important;
+        transition: opacity 0.3s ease, filter 0.3s ease !important;
+    }
 }

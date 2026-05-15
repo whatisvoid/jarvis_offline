@@ -38,7 +38,7 @@
     --r-lg: 8px;
 
     /* Animation */
-    --ease: all 140ms ease;
+    --ease: color 140ms ease, background 140ms ease, border-color 140ms ease, opacity 140ms ease, box-shadow 140ms ease, transform 140ms ease;
 
     /* Header — shell bar (48px) + nav bar (44px) */
     --header-h:         92px;

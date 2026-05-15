@@ -10,7 +10,8 @@ import {
     getRepositoryLink,
     getBoostyLink,
     getPatreonLink,
-    getLogFilePath
+    getLogFilePath,
+    getAudioDevices
 } from "./lib/api"
 
 // ### RE-EXPORT IPC STORES
@@ -24,7 +25,6 @@ export {
     enableIpc,
     disableIpc,
     disconnectIpc,
-    sendIpcMessage,
     sendTextCommand,
     stopJarvisApp,
     reloadCommands
@@ -46,6 +46,21 @@ export {
 export const isJarvisRunning = writable(false)
 export const jarvisRamUsage = writable(0)
 export const jarvisCpuUsage = writable(0)
+
+// ### AUDIO DEVICES (cached — loaded once, reused across components)
+export const audioDevices = writable<string[]>([])
+let _audioDevicesLoaded = false
+
+export async function loadAudioDevices() {
+    if (_audioDevicesLoaded) return
+    try {
+        const devices = await getAudioDevices()
+        audioDevices.set(devices)
+        _audioDevicesLoaded = true
+    } catch (err: unknown) {
+        console.error("failed to load audio devices:", err)
+    }
+}
 
 // ### ASSISTANT VOICE
 export const assistantVoice = writable("")

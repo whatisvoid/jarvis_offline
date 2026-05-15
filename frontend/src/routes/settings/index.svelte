@@ -3,13 +3,13 @@
     import { goto } from "@roxi/routify"
     import {
         getAuthorName, getAppVersion,
-        listVoices, getAudioDevices,
+        listVoices,
         listVoskModels, listGlinerModels, listOllamaModels
     } from "@/lib/api"
-    import { appInfo, assistantVoice, currentLanguage, setLanguage, tStore } from "@/stores"
+    import { appInfo, assistantVoice, currentLanguage, setLanguage, tStore, audioDevices, loadAudioDevices } from "@/stores"
     import { addToast } from "@/lib/toast"
     import { loadSettingsValues, saveSettingsValues } from "@/lib/settings"
-    import type { VoiceMeta, VoiceConfig, SelectOption } from "@/types"
+    import type { VoiceMeta, SelectOption } from "@/types"
 
     import TabGeneral from "@/components/settings/TabGeneral.svelte"
     import TabDevices from "@/components/settings/TabDevices.svelte"
@@ -20,6 +20,7 @@
     $: t = $tStore
 
     let activeTab = "general"
+    let loading = true
 
     let availableVoices: VoiceMeta[] = []
     let availableMicrophones: SelectOption[] = []
@@ -30,6 +31,7 @@
     let voiceVal = ""
     let selectedMicrophone = ""
     let selectedWakeWordEngine = ""
+    let selectedSttEngine = ""
     let selectedIntentRecognitionEngine = ""
     let selectedSlotExtractionEngine = ""
     let selectedGlinerModel = ""
@@ -103,6 +105,7 @@
                 voiceVal,
                 microphone:            selectedMicrophone,
                 wakeWordEngine:        selectedWakeWordEngine,
+                sttEngine:             selectedSttEngine,
                 intentEngine:          selectedIntentRecognitionEngine,
                 slotEngine:            selectedSlotExtractionEngine,
                 glinerModel:           selectedGlinerModel,
@@ -136,10 +139,11 @@
             de: 'German', fr: 'French', es: 'Spanish',
         }
 
-        const [meta, voices, mics, vosk, gliner, settings] = await Promise.allSettled([
+        await loadAudioDevices()
+
+        const [meta, voices, vosk, gliner, settingsResult] = await Promise.allSettled([
             Promise.all([getAuthorName(), getAppVersion()]),
             listVoices(),
-            getAudioDevices(),
             listVoskModels(),
             listGlinerModels(),
             loadSettingsValues(),
@@ -158,15 +162,10 @@
             addToast(t('error-load-voices') || "Failed to load voices", "error")
         }
 
-        if (mics.status === 'fulfilled') {
-            availableMicrophones = [
-                { label: t('settings-mic-default'), value: "-1" },
-                ...mics.value.map((name, idx) => ({ label: name, value: String(idx) }))
-            ]
-        } else {
-            console.error("Failed to load microphones:", mics.reason)
-            addToast(t('error-load-microphones') || "Failed to load microphones", "error")
-        }
+        availableMicrophones = [
+            { label: t('settings-mic-default'), value: "-1" },
+            ...$audioDevices.map((name, idx) => ({ label: name, value: String(idx) }))
+        ]
 
         if (vosk.status === 'fulfilled') {
             availableVoskModels = vosk.value.map(m => ({
@@ -183,10 +182,11 @@
             console.error("Failed to load gliner models:", gliner.reason)
         }
 
-        if (settings.status === 'fulfilled') {
-            const s = settings.value
+        if (settingsResult.status === 'fulfilled') {
+            const s = settingsResult.value
             selectedMicrophone               = s.microphone
             selectedWakeWordEngine           = s.wakeWordEngine
+            selectedSttEngine                = s.sttEngine
             selectedIntentRecognitionEngine  = s.intentEngine
             selectedSlotExtractionEngine     = s.slotEngine
             selectedGlinerModel              = s.glinerModel
@@ -198,12 +198,22 @@
             ollamaUrl                        = s.ollamaUrl
             ollamaModel                      = s.ollamaModel
         } else {
-            console.error("failed to load settings:", settings.reason)
+            console.error("failed to load settings:", settingsResult.reason)
             addToast(t('error-load-settings') || "Failed to load settings", "error")
         }
+
+        loading = false
     })
 </script>
 
+{#if loading}
+    <div class="settings-loading" aria-busy="true">
+        <div class="settings-skeleton"></div>
+        <div class="settings-skeleton settings-skeleton--short"></div>
+        <div class="settings-skeleton"></div>
+        <div class="settings-skeleton settings-skeleton--short"></div>
+    </div>
+{:else}
 <div class="settings-layout">
     <nav class="settings-nav">
         <button class="nav-item" class:active={activeTab === 'general'} on:click={() => activeTab = 'general'}>
@@ -283,8 +293,35 @@
         </Button>
     </div>
 </div>
+{/if}
 
 <style lang="scss">
+.settings-loading {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding-top: 16px;
+}
+
+.settings-skeleton {
+    height: 80px;
+    border-radius: 10px;
+    background: linear-gradient(90deg,
+        rgba(255,255,255,0.03) 0%,
+        rgba(255,255,255,0.06) 50%,
+        rgba(255,255,255,0.03) 100%
+    );
+    background-size: 200% 100%;
+    animation: skeleton-sweep 1.6s ease-in-out infinite;
+
+    &--short { height: 56px; }
+}
+
+@keyframes skeleton-sweep {
+    0%   { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
 .settings-layout {
     display: flex;
     flex-direction: column;

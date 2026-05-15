@@ -47,7 +47,7 @@
 </script>
 
 <div id="search-form" class="search" class:active={searchQuery !== ""} class:processing={isProcessing}>
-    <form on:submit={handleSubmit}>
+    <form on:submit={handleSubmit} aria-busy={isProcessing}>
         <input
             bind:value={searchQuery}
             on:keydown={handleKeydown}

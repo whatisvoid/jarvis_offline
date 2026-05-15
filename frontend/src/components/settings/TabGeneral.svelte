@@ -1,6 +1,6 @@
 <script lang="ts">
     import { createEventDispatcher } from "svelte"
-    import { invoke } from "@tauri-apps/api/core"
+    import { previewVoice } from "@/lib/api"
     import Select from "@/components/ui/Select.svelte"
     import type { VoiceMeta } from "@/types"
 
@@ -31,7 +31,7 @@
         <Select
             data={availableVoices.map(v => ({ value: v.id, label: v.name }))}
             bind:value={voiceVal}
-            on:change={(e) => invoke("preview_voice", { voiceId: e.detail }).catch(err => console.error("Failed to preview voice:", err))}
+            on:change={(e) => previewVoice(e.detail).catch(err => console.error("Failed to preview voice:", err))}
         />
         {#if selectedVoiceMeta}
             <div class="voice-meta">

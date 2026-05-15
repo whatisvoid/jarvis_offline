@@ -41,7 +41,9 @@
     onDestroy(() => {
         stopStatsPolling()
         unsubRunning()
-        disableIpc()
+        // disableIpc already called via unsubRunning → isJarvisRunning handler when process stops.
+        // Call unconditionally here only if we never got a "stopped" event (e.g. user navigates away while running).
+        if (wasRunning) disableIpc()
     })
 
     async function runAssistant() {

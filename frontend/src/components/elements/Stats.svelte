@@ -1,8 +1,8 @@
 <script lang="ts">
     import { onMount } from "svelte"
-    import { jarvisRamUsage, tStore } from "@/stores"
+    import { jarvisRamUsage, tStore, audioDevices, loadAudioDevices } from "@/stores"
     import { DB_KEYS } from "@/lib/db-keys"
-    import { dbRead, getAudioDevices } from "@/lib/api"
+    import { dbRead } from "@/lib/api"
 
     $: t = $tStore
 
@@ -19,9 +19,11 @@
         microphoneName = t('stats-loading')
 
         try {
+            await loadAudioDevices()
+            const devices = $audioDevices
+
             const micIndex = await dbRead(DB_KEYS.microphone)
             if (micIndex && micIndex !== "-1") {
-                const devices = await getAudioDevices()
                 const idx = parseInt(micIndex)
                 if (!isNaN(idx) && devices[idx]) microphoneName = devices[idx]
             } else {

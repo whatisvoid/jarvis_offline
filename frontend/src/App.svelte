@@ -9,7 +9,7 @@
     import {
         loadVoiceSetting,
         loadAppInfo,
-        connectIpc,
+        enableIpc,
         disconnectIpc,
         loadTranslations
     } from "@/stores"
@@ -17,7 +17,7 @@
     onMount(() => {
         loadVoiceSetting()
         loadAppInfo()
-        connectIpc()
+        enableIpc()
         loadTranslations()
     })
 

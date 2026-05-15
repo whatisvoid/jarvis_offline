@@ -4,6 +4,7 @@ import { DB_KEYS } from "./db-keys"
 export interface SettingsValues {
     microphone:            string
     wakeWordEngine:        string
+    sttEngine:             string
     intentEngine:          string
     slotEngine:            string
     glinerModel:           string
@@ -20,6 +21,7 @@ export async function loadSettingsValues(): Promise<SettingsValues> {
     const settled = await Promise.allSettled([
         dbRead(DB_KEYS.microphone),
         dbRead(DB_KEYS.wakeWordEngine),
+        dbRead(DB_KEYS.sttEngine),
         dbRead(DB_KEYS.intentEngine),
         dbRead(DB_KEYS.slotEngine),
         dbRead(DB_KEYS.glinerModel),
@@ -38,16 +40,17 @@ export async function loadSettingsValues(): Promise<SettingsValues> {
     return {
         microphone:            val(0),
         wakeWordEngine:        val(1),
-        intentEngine:          val(2),
-        slotEngine:            val(3),
-        glinerModel:           val(4),
-        voskModel:             val(5),
-        noiseSuppression:      val(6),
-        vad:                   val(7),
-        gainNormalizerEnabled: val(8) === "true",
-        apiKeyPicovoice:       val(9),
-        ollamaUrl:             val(10) || "http://localhost:11434",
-        ollamaModel:           val(11),
+        sttEngine:             val(2),
+        intentEngine:          val(3),
+        slotEngine:            val(4),
+        glinerModel:           val(5),
+        voskModel:             val(6),
+        noiseSuppression:      val(7),
+        vad:                   val(8),
+        gainNormalizerEnabled: val(9) === "true",
+        apiKeyPicovoice:       val(10),
+        ollamaUrl:             val(11) || "http://localhost:11434",
+        ollamaModel:           val(12),
     }
 }
 
@@ -56,6 +59,7 @@ export async function saveSettingsValues(s: SettingsValues & { voiceVal: string 
         dbWrite(DB_KEYS.voice,           s.voiceVal),
         dbWrite(DB_KEYS.microphone,      s.microphone),
         dbWrite(DB_KEYS.wakeWordEngine,  s.wakeWordEngine),
+        dbWrite(DB_KEYS.sttEngine,       s.sttEngine),
         dbWrite(DB_KEYS.intentEngine,    s.intentEngine),
         dbWrite(DB_KEYS.slotEngine,      s.slotEngine),
         dbWrite(DB_KEYS.glinerModel,     s.glinerModel),

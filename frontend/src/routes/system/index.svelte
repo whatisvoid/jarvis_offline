@@ -47,6 +47,15 @@
         offline:   'INACTIVE',
     }
 
+    const STATUS_ICON: Record<string, string> = {
+        online:    '●',
+        ready:     '●',
+        loading:   '◌',
+        connected: '●',
+        active:    '▶',
+        offline:   '○',
+    }
+
     // ── Telemetry display ────────────────────────────────────────────────────
     $: cpuDisplay = $jarvisCpuUsage ? `${Math.round($jarvisCpuUsage * 10) / 10}%` : null
     $: ramDisplay = $jarvisRamUsage ? `${$jarvisRamUsage} MB` : null
@@ -140,23 +149,23 @@
             <div class="sys-card sys-card--primary">
                 <div class="sys-status-row">
                     <span class="sys-row-name">WAKE ENGINE</span>
-                    <span class="sys-row-status st-{wakeStatus}">{STATUS_LABEL[wakeStatus]}</span>
+                    <span class="sys-row-status st-{wakeStatus}" aria-label={STATUS_LABEL[wakeStatus]}><span class="status-icon" aria-hidden="true">{STATUS_ICON[wakeStatus]}</span>{STATUS_LABEL[wakeStatus]}</span>
                 </div>
                 <div class="sys-status-row">
                     <span class="sys-row-name">STT</span>
-                    <span class="sys-row-status st-{sttStatus}">{STATUS_LABEL[sttStatus]}</span>
+                    <span class="sys-row-status st-{sttStatus}" aria-label={STATUS_LABEL[sttStatus]}><span class="status-icon" aria-hidden="true">{STATUS_ICON[sttStatus]}</span>{STATUS_LABEL[sttStatus]}</span>
                 </div>
                 <div class="sys-status-row">
                     <span class="sys-row-name">TTS</span>
-                    <span class="sys-row-status st-{ttsStatus}">{STATUS_LABEL[ttsStatus]}</span>
+                    <span class="sys-row-status st-{ttsStatus}" aria-label={STATUS_LABEL[ttsStatus]}><span class="status-icon" aria-hidden="true">{STATUS_ICON[ttsStatus]}</span>{STATUS_LABEL[ttsStatus]}</span>
                 </div>
                 <div class="sys-status-row">
                     <span class="sys-row-name">OLLAMA</span>
-                    <span class="sys-row-status st-{ollamaStatus}">{STATUS_LABEL[ollamaStatus]}</span>
+                    <span class="sys-row-status st-{ollamaStatus}" aria-label={STATUS_LABEL[ollamaStatus]}><span class="status-icon" aria-hidden="true">{STATUS_ICON[ollamaStatus]}</span>{STATUS_LABEL[ollamaStatus]}</span>
                 </div>
                 <div class="sys-status-row">
                     <span class="sys-row-name">VOICE PIPELINE</span>
-                    <span class="sys-row-status st-{pipelineStatus}">{STATUS_LABEL[pipelineStatus]}</span>
+                    <span class="sys-row-status st-{pipelineStatus}" aria-label={STATUS_LABEL[pipelineStatus]}><span class="status-icon" aria-hidden="true">{STATUS_ICON[pipelineStatus]}</span>{STATUS_LABEL[pipelineStatus]}</span>
                 </div>
             </div>
         </div>
@@ -366,12 +375,22 @@
     letter-spacing: 0.14em;
     text-transform: uppercase;
 
+    display: flex;
+    align-items: center;
+    gap: 5px;
+
     &.st-online    { color: rgba(0,229,255,0.82); }
     &.st-ready     { color: rgba(0,229,255,0.65); }
     &.st-connected { color: rgba(0,229,255,0.75); }
     &.st-active    { color: rgba(0,229,255,0.82); }
     &.st-loading   { color: rgba(255,190,90,0.72); }
     &.st-offline   { color: rgba(180,190,205,0.46); }
+}
+
+.status-icon {
+    font-size: 8px;
+    line-height: 1;
+    flex-shrink: 0;
 }
 
 .sys-row-value {
