@@ -21,7 +21,7 @@
     let launching = false
     let wasRunning = false
 
-    isJarvisRunning.subscribe((value) => {
+    const unsubRunning = isJarvisRunning.subscribe((value) => {
         processRunning = value
         if (value) {
             enableIpc()
@@ -37,6 +37,7 @@
     })
 
     onDestroy(() => {
+        unsubRunning()
         disableIpc()
     })
 

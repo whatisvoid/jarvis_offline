@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { onMount } from "svelte"
+    import { onMount, onDestroy } from "svelte"
     import { invoke } from "@tauri-apps/api/core"
     import { appInfo, currentLanguage, translations, translate } from "@/stores"
 
@@ -13,11 +13,15 @@
 
     const currentYear = new Date().getFullYear()
 
-    appInfo.subscribe(info => {
+    const unsubAppInfo = appInfo.subscribe(info => {
         tgLink = info.tgOfficialLink
         repoLink = info.repositoryLink
         boostyLink = info.boostySupportLink
         patreonLink = info.patreonSupportLink
+    })
+
+    onDestroy(() => {
+        unsubAppInfo()
     })
 
     onMount(async () => {

@@ -121,6 +121,7 @@ commands-title = Команды
 commands-search = Поиск команд...
 commands-count = { $count } команд
 commands-no-commands = Нет доступных команд
+commands-load-error = Не удалось загрузить команды
 commands-wip-title = [404] Этот раздел еще находится в разработке!
 commands-wip-desc = Тут будет список команд + полноценный редактор команд.
 commands-wip-follow = Следите за обновлениями в

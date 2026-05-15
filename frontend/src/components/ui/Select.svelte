@@ -185,8 +185,8 @@
     align-items: center;
     justify-content: space-between;
     padding: 0 14px;
-    background: rgba(255,255,255,0.025);
-    border: 1px solid rgba(255,255,255,0.08);
+    background: var(--bg-card);
+    border: 1px solid var(--border);
     border-radius: var(--r-md);
     color: rgba(230,245,255,0.92);
     font-family: var(--font);
@@ -197,18 +197,18 @@
 
     &:hover {
         background: rgba(0,229,255,0.025);
-        border-color: rgba(0,229,255,0.22);
+        border-color: var(--border-hover);
     }
 
     &:focus-visible {
         outline: none;
-        border-color: rgba(0,229,255,0.42);
-        box-shadow: 0 0 14px rgba(0,229,255,0.08);
+        border-color: var(--border-focus);
+        box-shadow: var(--glow-sm);
     }
 
     &[aria-expanded="true"] {
         border-color: rgba(0,229,255,0.4);
-        background: rgba(255,255,255,0.04);
+        background: var(--bg-hover);
     }
 }
 

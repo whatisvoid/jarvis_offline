@@ -23,6 +23,7 @@
     let commands: JCommand[] = []
     let searchQuery = ""
     let loading = true
+    let loadError = false
 
     $: lang = $currentLanguage || "ru"
 
@@ -57,6 +58,7 @@
             commands = await invoke<JCommand[]>("get_commands_list")
         } catch (err) {
             console.error("Failed to load commands:", err)
+            loadError = true
         } finally {
             loading = false
         }
@@ -76,6 +78,8 @@
 
 {#if loading}
     <div class="empty-state">{t('stats-loading')}</div>
+{:else if loadError}
+    <div class="empty-state error-state">{t('commands-load-error')}</div>
 {:else if commands.length === 0}
     <div class="empty-state">{t('commands-no-commands')}</div>
 {:else if filtered.length === 0}
@@ -133,6 +137,11 @@
     font-size: 0.82rem;
     padding: 2.5rem 0;
     font-style: italic;
+
+    &.error-state {
+        color: rgba(255, 90, 90, 0.75);
+        font-style: normal;
+    }
 }
 
 .commands-list {

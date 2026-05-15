@@ -121,6 +121,7 @@ commands-title = Commands
 commands-search = Search commands...
 commands-count = { $count } commands
 commands-no-commands = No commands available
+commands-load-error = Failed to load commands
 commands-wip-title = [404] This section is under development!
 commands-wip-desc = Here will be a list of commands + full-featured command editor.
 commands-wip-follow = Follow updates in

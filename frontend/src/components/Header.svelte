@@ -1,28 +1,16 @@
 <script lang="ts">
-    import { onMount } from "svelte"
-    import { goto } from "@roxi/routify"
+    import { goto, isActive } from "@roxi/routify"
     import { translations, translate } from "@/stores"
     import WindowFrame from "@/components/layout/WindowFrame.svelte"
 
     $: t = (key: string) => translate($translations, key)
-
-    let currentPath = "/"
-
-    onMount(() => {
-        currentPath = window.location.pathname
-    })
-
-    function navigate(path: string) {
-        $goto(path)
-        currentPath = path
-    }
 </script>
 
 <header class="header">
 
     <!-- Level 1: System Shell -->
     <div class="shell-bar">
-        <a class="logo" href="/" title="JARVIS" on:click|preventDefault={() => navigate('/')}>
+        <a class="logo" href="/" title="JARVIS" on:click|preventDefault={() => $goto('/')}>
             <svg class="logo-icon" width="36" height="36" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <circle cx="20" cy="20" r="18" stroke="currentColor" stroke-width="0.75" opacity="0.28"/>
                 <g class="logo-spin">
@@ -45,29 +33,29 @@
     <nav class="nav-bar">
         <button
             class="nav-tab"
-            class:active={currentPath === '/'}
-            on:click={() => navigate('/')}
+            class:active={$isActive('/', {}, { recursive: false })}
+            on:click={() => $goto('/')}
         >
             {t('header-home')}
         </button>
         <button
             class="nav-tab"
-            class:active={currentPath === '/commands'}
-            on:click={() => navigate('/commands')}
+            class:active={$isActive('/commands')}
+            on:click={() => $goto('/commands')}
         >
             {t('header-commands')}
         </button>
         <button
             class="nav-tab"
-            class:active={currentPath === '/settings'}
-            on:click={() => navigate('/settings')}
+            class:active={$isActive('/settings')}
+            on:click={() => $goto('/settings')}
         >
             {t('header-settings')}
         </button>
         <button
             class="nav-tab"
-            class:active={currentPath === '/system'}
-            on:click={() => navigate('/system')}
+            class:active={$isActive('/system')}
+            on:click={() => $goto('/system')}
         >
             {t('header-system')}
         </button>

@@ -25,6 +25,8 @@
     --border-strong:  rgba(255,255,255,0.14);
     --border-accent:  rgba(0,229,255,0.35);
     --border-section: rgba(255,255,255,0.04);
+    --border-hover:   rgba(0,229,255,0.22);
+    --border-focus:   rgba(0,229,255,0.42);
 
     /* Typography */
     --font:      "Inter", "Segoe UI", -apple-system, sans-serif;

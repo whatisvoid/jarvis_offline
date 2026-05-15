@@ -1,4 +1,4 @@
-import { writable, get } from "svelte/store"
+import { writable } from "svelte/store"
 import { invoke } from "@tauri-apps/api/core"
 import { getCurrentWindow } from "@tauri-apps/api/window"
 
@@ -14,11 +14,15 @@ export const lastError = writable("")
 
 // ### CONNECTION ###
 
-const RECONNECT_BASE_MS  = 1000
-const RECONNECT_MAX_MS   = 30000
+const RECONNECT_BASE_MS    = 1000
+const RECONNECT_MAX_MS     = 30000
+const HEARTBEAT_INTERVAL_MS = 30000
+const HEARTBEAT_TIMEOUT_MS  = 5000
 
 let ws: WebSocket | null = null
 let reconnectTimer: ReturnType<typeof setTimeout> | null = null
+let heartbeatTimer: ReturnType<typeof setInterval> | null = null
+let heartbeatTimeoutTimer: ReturnType<typeof setTimeout> | null = null
 let reconnectAttempt = 0
 let manualDisconnect = false
 let enabled = false  // only connect when enabled
@@ -43,12 +47,14 @@ export function connectIpc(port: number = 9712) {
         ipcConnected.set(true)
         jarvisState.set("idle")
         reconnectAttempt = 0
+        startHeartbeat()
         console.log("[IPC] connected")
     }
 
     ws.onclose = () => {
         ipcConnected.set(false)
         jarvisState.set("disconnected")
+        stopHeartbeat()
         scheduleReconnect()
         console.log("[IPC] disconnected")
     }
@@ -59,8 +65,10 @@ export function connectIpc(port: number = 9712) {
 
     ws.onmessage = (event) => {
         try {
-            const msg = JSON.parse(event.data)
-            handleEvent(msg)
+            const raw = JSON.parse(event.data)
+            if (typeof raw?.event === "string") {
+                handleEvent(raw as IpcMessage)
+            }
         } catch (err) {
             console.error("[IPC] failed to parse message:", err)
         }
@@ -82,6 +90,7 @@ function scheduleReconnect() {
 export function disconnectIpc() {
     manualDisconnect = true
     reconnectAttempt = 0
+    stopHeartbeat()
 
     if (reconnectTimer) {
         clearTimeout(reconnectTimer)
@@ -97,14 +106,42 @@ export function disconnectIpc() {
     jarvisState.set("disconnected")
 }
 
+function startHeartbeat() {
+    stopHeartbeat()
+    heartbeatTimer = setInterval(() => {
+        if (ws?.readyState !== WebSocket.OPEN) return
+        ws.send(JSON.stringify({ action: "ping" }))
+        heartbeatTimeoutTimer = setTimeout(() => {
+            console.warn("[IPC] heartbeat timeout — forcing reconnect")
+            ws?.close()
+        }, HEARTBEAT_TIMEOUT_MS)
+    }, HEARTBEAT_INTERVAL_MS)
+}
+
+function stopHeartbeat() {
+    if (heartbeatTimer) {
+        clearInterval(heartbeatTimer)
+        heartbeatTimer = null
+    }
+    if (heartbeatTimeoutTimer) {
+        clearTimeout(heartbeatTimeoutTimer)
+        heartbeatTimeoutTimer = null
+    }
+}
+
 // ### EVENT HANDLING ###
 
-interface IpcMessage {
-    event: string
-    text?: string
-    id?: string
-    message?: string
-}
+type IpcMessage =
+    | { event: "wake_word_detected" }
+    | { event: "listening" }
+    | { event: "speech_recognized"; text: string }
+    | { event: "command_executed"; id: string }
+    | { event: "idle" }
+    | { event: "error"; message: string }
+    | { event: "started" }
+    | { event: "stopping" }
+    | { event: "pong" }
+    | { event: "reveal_window" }
 
 function handleEvent(data: IpcMessage) {
     console.log("IPC: Event", data.event, data)
@@ -116,12 +153,12 @@ function handleEvent(data: IpcMessage) {
             break
 
         case "speech_recognized":
-            lastRecognizedText.set(data.text || "")
+            lastRecognizedText.set(data.text)
             jarvisState.set("processing")
             break
 
         case "command_executed":
-            lastExecutedCommand.set(data.id || "")
+            lastExecutedCommand.set(data.id)
             break
 
         case "idle":
@@ -141,11 +178,13 @@ function handleEvent(data: IpcMessage) {
             break
 
         case "pong":
-            // connection verified
+            if (heartbeatTimeoutTimer) {
+                clearTimeout(heartbeatTimeoutTimer)
+                heartbeatTimeoutTimer = null
+            }
             break
 
         case "reveal_window":
-            // bring window to foreground
             revealWindow()
             break
     }
