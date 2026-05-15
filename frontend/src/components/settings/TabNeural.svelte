@@ -1,6 +1,7 @@
 <script lang="ts">
     import { createEventDispatcher } from "svelte"
     import Select from "@/components/ui/Select.svelte"
+    import Button from "@/components/ui/Button.svelte"
     import type { SelectOption } from "@/types"
 
     export let t: (key: string) => string
@@ -153,13 +154,9 @@
             placeholder="http://localhost:11434"
             bind:value={ollamaUrl}
         />
-        <button
-            class="btn-secondary btn-sm"
-            on:click={() => dispatch('loadOllama')}
-            disabled={ollamaLoading}
-        >
+        <Button size="sm" on:click={() => dispatch('loadOllama')} disabled={ollamaLoading}>
             {ollamaLoading ? '...' : t('settings-ollama-load-models')}
-        </button>
+        </Button>
     </div>
     {#if ollamaError}
         <p class="error-text">{ollamaError}</p>

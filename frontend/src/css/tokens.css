@@ -47,9 +47,16 @@
     --header-bg:        linear-gradient(180deg, rgba(10,15,24,0.98), rgba(5,8,14,0.96));
     --header-border:    1px solid rgba(255,255,255,0.04);
 
-    /* Glows */
+    /* Glows — box-shadow presets */
     --glow-sm: 0 0 12px rgba(0,229,255,0.06);
     --glow-md: 0 0 24px rgba(0,229,255,0.08);
+
+    /* Accent glow — raw rgba for use inside gradients and inline shadows */
+    --accent-glow-xs: rgba(var(--accent-rgb), 0.04);
+    --accent-glow-sm: rgba(var(--accent-rgb), 0.08);
+    --accent-glow-md: rgba(var(--accent-rgb), 0.12);
+    --accent-glow-lg: rgba(var(--accent-rgb), 0.16);
+    --accent-glow-xl: rgba(var(--accent-rgb), 0.22);
 
     /* Shell separators — unified geometry */
     --shell-separator: linear-gradient(90deg, transparent 0%, rgba(0,229,255,0.22) 30%, rgba(0,229,255,0.22) 70%, transparent 100%);

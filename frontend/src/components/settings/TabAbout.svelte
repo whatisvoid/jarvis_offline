@@ -1,5 +1,6 @@
 <script lang="ts">
     import { showInExplorer } from "@/functions"
+    import Button from "@/components/ui/Button.svelte"
 
     export let t: (key: string) => string
     export let appVersion: string
@@ -20,9 +21,9 @@
     </div>
     <p class="beta-panel-body">{t('settings-beta-desc')}</p>
     <p class="beta-panel-body">{t('settings-beta-feedback')} <a href={feedbackLink} target="_blank" rel="noopener noreferrer" class="beta-panel-link">{t('settings-beta-bot')}</a>.</p>
-    <button class="btn-secondary btn-sm btn-logs" disabled={!logFilePath} on:click={() => logFilePath && showInExplorer(logFilePath)}>
+    <Button size="sm" class="btn-logs" disabled={!logFilePath} on:click={() => logFilePath && showInExplorer(logFilePath)}>
         {t('settings-open-logs')}
-    </button>
+    </Button>
 </div>
 
 <div class="settings-section about-section">
