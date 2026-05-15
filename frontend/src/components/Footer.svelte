@@ -63,7 +63,7 @@
 <style lang="scss">
     #footer {
         text-align: center;
-        color: #6c6e71;
+        color: var(--text-muted);
         font-size: 13px;
         font-weight: normal;
         line-height: 1.7em;
@@ -84,55 +84,41 @@
         }
 
         a {
-            color: #555759!important;
+            color: rgba(255,255,255,0.32);
             text-decoration: none;
-            transition: 0.3s;
-            
+            transition: var(--ease);
+
             & > span {
-                color: #185876;
-                border-bottom: 1px solid #185876;
-                transition: 0.3s;
+                color: rgba(0,229,255,0.52);
+                border-bottom: 1px solid rgba(0,229,255,0.22);
+                transition: var(--ease);
             }
 
             img {
-                opacity: 0.5;
-                transition: opacity 0.5s;
+                opacity: 0.42;
+                transition: var(--ease);
                 margin-top: -3px;
             }
 
             &:hover {
-                color: #777a7d!important;
+                color: rgba(255,255,255,0.55);
 
                 & > span {
-                    color: #2A9CD0;
+                    color: var(--accent);
+                    border-bottom-color: rgba(0,229,255,0.45);
                 }
 
                 img {
-                    opacity: 1;
+                    opacity: 0.85;
                 }
             }
 
             &.telegram-link {
-                color: #185876;
+                color: rgba(0,229,255,0.52);
                 display: inline-block;
 
                 &:hover {
-                    color: #2A9CD0;
-                    // background: url(/media/images/bg/bg24.gif);
-                    // background-repeat: no-repeat;
-                    // background-size: contain;
-                }
-            }
-
-            &.special-link {
-                color: #941d92;
-                display: inline-block;
-
-                &:hover {
-                    color: #FF07FC;
-                    background: url(/media/images/bg/bg24.gif);
-                    background-repeat: no-repeat;
-                    background-size: contain;
+                    color: var(--accent);
                 }
             }
         }
