@@ -14,11 +14,12 @@ export const lastError = writable("")
 
 // ### CONNECTION ###
 
-const IPC_URL = "ws://127.0.0.1:9712"
-const RECONNECT_DELAY = 5000
+const RECONNECT_BASE_MS  = 1000
+const RECONNECT_MAX_MS   = 30000
 
 let ws: WebSocket | null = null
 let reconnectTimer: ReturnType<typeof setTimeout> | null = null
+let reconnectAttempt = 0
 let manualDisconnect = false
 let enabled = false  // only connect when enabled
 
@@ -34,17 +35,21 @@ export function disableIpc() {
 
 export function connectIpc(port: number = 9712) {
     if (ws?.readyState === WebSocket.OPEN) return
+    manualDisconnect = false
 
     ws = new WebSocket(`ws://127.0.0.1:${port}`)
 
     ws.onopen = () => {
         ipcConnected.set(true)
         jarvisState.set("idle")
+        reconnectAttempt = 0
         console.log("[IPC] connected")
     }
 
     ws.onclose = () => {
         ipcConnected.set(false)
+        jarvisState.set("disconnected")
+        scheduleReconnect()
         console.log("[IPC] disconnected")
     }
 
@@ -65,15 +70,18 @@ export function connectIpc(port: number = 9712) {
 function scheduleReconnect() {
     if (reconnectTimer || manualDisconnect || !enabled) return
 
-    console.log(`IPC: Will retry in ${RECONNECT_DELAY / 1000}s...`)
+    const delay = Math.min(RECONNECT_BASE_MS * Math.pow(2, reconnectAttempt), RECONNECT_MAX_MS)
+    reconnectAttempt++
+    console.log(`[IPC] Reconnecting in ${delay / 1000}s (attempt ${reconnectAttempt})...`)
     reconnectTimer = setTimeout(() => {
         reconnectTimer = null
         connectIpc()
-    }, RECONNECT_DELAY)
+    }, delay)
 }
 
 export function disconnectIpc() {
     manualDisconnect = true
+    reconnectAttempt = 0
 
     if (reconnectTimer) {
         clearTimeout(reconnectTimer)
@@ -91,7 +99,14 @@ export function disconnectIpc() {
 
 // ### EVENT HANDLING ###
 
-function handleEvent(data: any) {
+interface IpcMessage {
+    event: string
+    text?: string
+    id?: string
+    message?: string
+}
+
+function handleEvent(data: IpcMessage) {
     console.log("IPC: Event", data.event, data)
 
     switch (data.event) {

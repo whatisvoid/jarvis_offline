@@ -5,7 +5,6 @@
     export let value: string = ""
     export let label: string = ""
     export let description: string = ""
-    export const variant: string = ""  // for NativeSelect compat, unused
 
     const dispatch = createEventDispatcher<{ change: string }>()
 

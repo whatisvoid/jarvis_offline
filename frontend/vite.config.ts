@@ -13,10 +13,6 @@ export default defineConfig({
         }),
       ],
       onwarn: (warning, handler) => {
-        const { code, frame } = warning;
-        if (code === "css-unused-selector")
-            return;
-
         handler(warning);
       },
     }),

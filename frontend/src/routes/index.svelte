@@ -5,6 +5,7 @@
     import SearchBar from "@/components/elements/SearchBar.svelte"
     import ArcReactor from "@/components/elements/ArcReactor.svelte"
     import Stats from "@/components/elements/Stats.svelte"
+    import { get } from "svelte/store"
     import {
         isJarvisRunning,
         updateJarvisStats,
@@ -43,10 +44,15 @@
         launching = true
         try {
             await invoke("run_jarvis_app")
-            setTimeout(async () => {
+            const poll = async (attemptsLeft: number) => {
                 await updateJarvisStats()
-                launching = false
-            }, 2500)
+                if (get(isJarvisRunning) || attemptsLeft <= 0) {
+                    launching = false
+                } else {
+                    setTimeout(() => poll(attemptsLeft - 1), 500)
+                }
+            }
+            setTimeout(() => poll(12), 500)
         } catch (err) {
             console.error("Failed to run jarvis-app:", err)
             launching = false
