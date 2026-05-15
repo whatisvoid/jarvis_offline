@@ -1,10 +1,10 @@
 <script lang="ts">
-    import { invoke } from "@tauri-apps/api/core"
     import { onMount } from "svelte"
-    import { jarvisRamUsage, translations, translate } from "@/stores"
+    import { jarvisRamUsage, tStore } from "@/stores"
     import { DB_KEYS } from "@/lib/db-keys"
+    import { dbRead, getAudioDevices } from "@/lib/api"
 
-    $: t = (key: string) => translate($translations, key)
+    $: t = $tStore
 
     const DEFAULT_WAKE_ENGINE = "Rustpotter"
     const DEFAULT_STT_ENGINE  = "Vosk"
@@ -19,17 +19,17 @@
         microphoneName = t('stats-loading')
 
         try {
-            const micIndex = await invoke<string>("db_read", { key: DB_KEYS.microphone })
+            const micIndex = await dbRead(DB_KEYS.microphone)
             if (micIndex && micIndex !== "-1") {
-                const devices = await invoke<string[]>("pv_get_audio_devices")
+                const devices = await getAudioDevices()
                 const idx = parseInt(micIndex)
                 if (!isNaN(idx) && devices[idx]) microphoneName = devices[idx]
             } else {
                 microphoneName = t('stats-system-default')
             }
 
-            wakeWordEngine = await invoke<string>("db_read", { key: DB_KEYS.wakeWordEngine }) || DEFAULT_WAKE_ENGINE
-            sttEngine = await invoke<string>("db_read", { key: DB_KEYS.sttEngine }) || DEFAULT_STT_ENGINE
+            wakeWordEngine = await dbRead(DB_KEYS.wakeWordEngine) || DEFAULT_WAKE_ENGINE
+            sttEngine = await dbRead(DB_KEYS.sttEngine) || DEFAULT_STT_ENGINE
         } catch (err: unknown) {
             console.error("Failed to load stats:", err)
             microphoneName = t('stats-not-selected')

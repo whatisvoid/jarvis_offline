@@ -6,6 +6,9 @@
     export let label: string = ""
     export let description: string = ""
 
+    const MAX_VISIBLE = 200
+    $: visibleData = data.length > MAX_VISIBLE ? data.slice(0, MAX_VISIBLE) : data
+
     const dispatch = createEventDispatcher<{ change: string }>()
 
     let open = false
@@ -18,6 +21,7 @@
 
     $: selectedLabel = data.find(d => d.value === value)?.label ?? data[0]?.label ?? "—"
 
+
     $: if (open && listEl && focusedIndex >= 0) {
         const item = listEl.children[focusedIndex] as HTMLElement | undefined
         item?.scrollIntoView({ block: 'nearest' })
@@ -29,7 +33,7 @@
         dropdownTop = rect.bottom + 2
         dropdownLeft = rect.left
         dropdownWidth = rect.width
-        focusedIndex = Math.max(0, data.findIndex(d => d.value === value))
+        focusedIndex = Math.max(0, visibleData.findIndex(d => d.value === value))
         open = true
         await tick()
         listEl?.focus()
@@ -61,14 +65,14 @@
                 break
             case 'ArrowDown':
                 e.preventDefault()
-                focusedIndex = Math.min(focusedIndex + 1, data.length - 1)
+                focusedIndex = Math.min(focusedIndex + 1, visibleData.length - 1)
                 break
             case 'ArrowUp':
                 e.preventDefault()
                 focusedIndex = Math.max(focusedIndex - 1, 0)
                 break
             case 'Enter':
-                if (focusedIndex >= 0) selectItem(data[focusedIndex].value)
+                if (focusedIndex >= 0) selectItem(visibleData[focusedIndex].value)
                 break
         }
     }
@@ -125,7 +129,7 @@
         tabindex="-1"
         on:keydown={handleListKeydown}
     >
-        {#each data as item, i}
+        {#each visibleData as item, i}
             <!-- svelte-ignore a11y-click-events-have-key-events -->
             <li
                 class="select-item"

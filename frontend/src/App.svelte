@@ -4,6 +4,7 @@
     import routes from "../.routify/routes.default.js"
     import { SvelteUIProvider } from "@svelteuidev/core"
     import Events from "./Events.svelte"
+    import Toasts from "@/components/ui/Toasts.svelte"
 
     import {
         loadVoiceSetting,
@@ -30,3 +31,4 @@
 </SvelteUIProvider>
 
 <Events />
+<Toasts />

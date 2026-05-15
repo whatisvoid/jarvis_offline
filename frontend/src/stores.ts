@@ -1,7 +1,17 @@
 import { writable } from "svelte/store"
-import { invoke } from "@tauri-apps/api/core"
-import type { JarvisStats, AppInfo } from "./types"
+import type { RuntimeEvent, AppInfo } from "./types"
 import { DB_KEYS } from "./lib/db-keys"
+import { addToast } from "./lib/toast"
+import {
+    dbRead,
+    getJarvisStats,
+    getTgOfficialLink,
+    getFeedbackLink,
+    getRepositoryLink,
+    getBoostyLink,
+    getPatreonLink,
+    getLogFilePath
+} from "./lib/api"
 
 // ### RE-EXPORT IPC STORES
 export {
@@ -24,6 +34,7 @@ export {
 export {
     translations,
     currentLanguage,
+    tStore,
     translate,
     loadTranslations,
     setLanguage,
@@ -49,25 +60,39 @@ export const appInfo = writable<AppInfo>({
     logFilePath: ""
 })
 
+// ### RUNTIME EVENTS LOG (persists across navigation)
+const EVENTS_MAX = 15
+let _nextEventId = 0
+
+export const runtimeEvents = writable<RuntimeEvent[]>([])
+
+export function addRuntimeEvent(title: string, detail = '') {
+    const d = new Date()
+    const pad = (n: number) => String(n).padStart(2, '0')
+    const time = `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`
+    runtimeEvents.update(evs => [{ id: _nextEventId++, title, detail, time }, ...evs].slice(0, EVENTS_MAX))
+}
+
 // ### INIT FUNCTIONS (call these from a component)
 export async function loadVoiceSetting() {
     try {
-        const voice = await invoke<string>("db_read", { key: DB_KEYS.voice })
+        const voice = await dbRead(DB_KEYS.voice)
         assistantVoice.set(voice)
     } catch (err: unknown) {
         console.error("failed to load voice setting:", err)
+        addToast("Failed to load voice setting", "error")
     }
 }
 
 export async function loadAppInfo() {
     try {
         const [tg, feedback, repo, boosty, patreon, logPath] = await Promise.all([
-            invoke<string>("get_tg_official_link"),
-            invoke<string>("get_feedback_link"),
-            invoke<string>("get_repository_link"),
-            invoke<string>("get_boosty_link"),
-            invoke<string>("get_patreon_link"),
-            invoke<string>("get_log_file_path")
+            getTgOfficialLink(),
+            getFeedbackLink(),
+            getRepositoryLink(),
+            getBoostyLink(),
+            getPatreonLink(),
+            getLogFilePath()
         ])
 
         appInfo.set({
@@ -80,12 +105,13 @@ export async function loadAppInfo() {
         })
     } catch (err: unknown) {
         console.error("failed to load app info:", err)
+        addToast("Failed to load app info", "error")
     }
 }
 
 export async function updateJarvisStats() {
     try {
-        const stats = await invoke<JarvisStats>("get_jarvis_app_stats")
+        const stats = await getJarvisStats()
         isJarvisRunning.set(stats.running)
         jarvisRamUsage.set(stats.ram_mb)
         jarvisCpuUsage.set(stats.cpu_usage)

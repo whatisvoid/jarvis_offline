@@ -1,9 +1,9 @@
 <script lang="ts">
     import { onMount, onDestroy } from "svelte"
-    import { invoke } from "@tauri-apps/api/core"
-    import { appInfo, currentLanguage, translations, translate } from "@/stores"
+    import { getAuthorName } from "@/lib/api"
+    import { appInfo, currentLanguage, tStore } from "@/stores"
 
-    $: t = (key: string) => translate($translations, key)
+    $: t = $tStore
 
     let authorName = ""
     let tgLink = ""
@@ -26,7 +26,7 @@
 
     onMount(async () => {
         try {
-            authorName = await invoke<string>("get_author_name")
+            authorName = await getAuthorName()
         } catch (err: unknown) {
             console.error("failed to get author name:", err)
         }

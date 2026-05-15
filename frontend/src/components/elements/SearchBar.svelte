@@ -1,7 +1,7 @@
 <script lang="ts">
-    import { translations, translate, isJarvisRunning, ipcConnected, sendTextCommand } from "@/stores"
+    import { tStore, isJarvisRunning, ipcConnected, sendTextCommand } from "@/stores"
 
-    $: t = (key: string) => translate($translations, key)
+    $: t = $tStore
 
     let searchQuery = ""
     let isProcessing = false

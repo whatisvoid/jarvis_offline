@@ -1,9 +1,9 @@
 <script lang="ts">
     import { goto, isActive } from "@roxi/routify"
-    import { translations, translate } from "@/stores"
+    import { tStore } from "@/stores"
     import WindowFrame from "@/components/layout/WindowFrame.svelte"
 
-    $: t = (key: string) => translate($translations, key)
+    $: t = $tStore
 </script>
 
 <header class="header">

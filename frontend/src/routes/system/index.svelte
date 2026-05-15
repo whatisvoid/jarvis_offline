@@ -1,6 +1,6 @@
 <script lang="ts">
     import { onMount, onDestroy } from "svelte"
-    import { invoke } from "@tauri-apps/api/core"
+    import { dbRead } from "@/lib/api"
 
     import {
         isJarvisRunning,
@@ -11,13 +11,13 @@
         lastRecognizedText,
         lastExecutedCommand,
         lastError,
-        translations,
-        translate
+        tStore,
+        runtimeEvents,
+        addRuntimeEvent
     } from "@/stores"
     import { DB_KEYS } from "@/lib/db-keys"
-    import type { RuntimeEvent } from "@/types"
 
-    $: t = (key: string) => translate($translations, key)
+    $: t = $tStore
 
     // ── Models ──────────────────────────────────────────────────────────────
     const DEFAULT_WAKE_ENGINE   = "Rustpotter"
@@ -73,17 +73,7 @@
     )
 
     // ── Events ───────────────────────────────────────────────────────────────
-    const EVENTS_MAX = 15
-    let events: RuntimeEvent[] = []
-    let nextId = 0
-
-    function addEvent(title: string, detail = '') {
-        const d = new Date()
-        const time = `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`
-        events = [{ id: nextId++, title, detail, time }, ...events].slice(0, EVENTS_MAX)
-    }
-
-    function pad(n: number) { return String(n).padStart(2, '0') }
+    $: events = $runtimeEvents
 
     // ── Lifecycle ─────────────────────────────────────────────────────────────
     const unsubs: (() => void)[] = []
@@ -91,11 +81,11 @@
     onMount(async () => {
         try {
             const [wake, stt, vosk, intent, llm] = await Promise.all([
-                invoke<string>("db_read", { key: DB_KEYS.wakeWordEngine }),
-                invoke<string>("db_read", { key: DB_KEYS.sttEngine }),
-                invoke<string>("db_read", { key: DB_KEYS.voskModel }),
-                invoke<string>("db_read", { key: DB_KEYS.intentEngine }),
-                invoke<string>("db_read", { key: DB_KEYS.ollamaModel }),
+                dbRead(DB_KEYS.wakeWordEngine),
+                dbRead(DB_KEYS.sttEngine),
+                dbRead(DB_KEYS.voskModel),
+                dbRead(DB_KEYS.intentEngine),
+                dbRead(DB_KEYS.ollamaModel),
             ])
             wakeEngine   = wake   || DEFAULT_WAKE_ENGINE
             sttEngine    = stt    || DEFAULT_STT_ENGINE
@@ -112,18 +102,18 @@
         }
 
         unsubs.push(jarvisState.subscribe(skipFirst(state => {
-            if (state === 'listening')   addEvent('WAKE WORD DETECTED')
-            if (state === 'processing')  addEvent('PROCESSING SPEECH')
-            if (state === 'idle')        addEvent('SYSTEM IDLE')
+            if (state === 'listening')   addRuntimeEvent('WAKE WORD DETECTED')
+            if (state === 'processing')  addRuntimeEvent('PROCESSING SPEECH')
+            if (state === 'idle')        addRuntimeEvent('SYSTEM IDLE')
         })))
 
         unsubs.push(lastRecognizedText.subscribe(skipFirst(text => {
-            if (text) addEvent('SPEECH RECOGNIZED', text)
+            if (text) addRuntimeEvent('SPEECH RECOGNIZED', text)
         })))
 
         unsubs.push(lastExecutedCommand.subscribe(skipFirst(cmd => {
             if (cmd) {
-                addEvent('COMMAND EXECUTED', cmd)
+                addRuntimeEvent('COMMAND EXECUTED', cmd)
                 responseActive = true
                 if (responseTimer) clearTimeout(responseTimer)
                 responseTimer = setTimeout(() => { responseActive = false }, RESPONSE_ACTIVE_MS)
@@ -131,7 +121,7 @@
         })))
 
         unsubs.push(lastError.subscribe(skipFirst(err => {
-            if (err) addEvent('ERROR', err)
+            if (err) addRuntimeEvent('ERROR', err)
         })))
     })
 

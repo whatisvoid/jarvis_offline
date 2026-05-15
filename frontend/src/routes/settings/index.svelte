@@ -1,13 +1,15 @@
 <script lang="ts">
     import { onMount, onDestroy } from "svelte"
-    import { invoke } from "@tauri-apps/api/core"
     import { goto } from "@roxi/routify"
-    import { appInfo, assistantVoice, currentLanguage, setLanguage, translations, translate } from "@/stores"
-    import { DB_KEYS } from "@/lib/db-keys"
+    import {
+        getAuthorName, getAppVersion,
+        listVoices, getAudioDevices,
+        listVoskModels, listGlinerModels, listOllamaModels
+    } from "@/lib/api"
+    import { appInfo, assistantVoice, currentLanguage, setLanguage, tStore } from "@/stores"
+    import { addToast } from "@/lib/toast"
+    import { loadSettingsValues, saveSettingsValues } from "@/lib/settings"
     import type { VoiceMeta, VoiceConfig, SelectOption } from "@/types"
-
-    import { Notification } from "@svelteuidev/core"
-    import { Check } from "radix-icons-svelte"
 
     import TabGeneral from "@/components/settings/TabGeneral.svelte"
     import TabDevices from "@/components/settings/TabDevices.svelte"
@@ -15,7 +17,7 @@
     import TabAbout from "@/components/settings/TabAbout.svelte"
     import Button from "@/components/ui/Button.svelte"
 
-    $: t = (key: string) => translate($translations, key)
+    $: t = $tStore
 
     let activeTab = "general"
 
@@ -23,8 +25,6 @@
     let availableMicrophones: SelectOption[] = []
     let availableVoskModels: SelectOption[] = []
     let availableGlinerModels: SelectOption[] = []
-    let settingsSaved = false
-    let saveError = false
     let saveButtonDisabled = false
 
     let voiceVal = ""
@@ -60,7 +60,7 @@
         ollamaError = ""
         ollamaModelsLoaded = false
         try {
-            const models = await invoke<string[]>("list_ollama_models", { url: ollamaUrl })
+            const models = await listOllamaModels(ollamaUrl)
             availableOllamaModels = models.map(m => ({ label: m, value: m }))
             ollamaModelsLoaded = true
             if (models.length > 0 && !ollamaModel) {
@@ -97,32 +97,29 @@
 
     async function saveSettings() {
         saveButtonDisabled = true
-        settingsSaved = false
 
         try {
-            await Promise.all([
-                invoke("db_write", { key: DB_KEYS.voice, val: voiceVal }),
-                invoke("db_write", { key: DB_KEYS.microphone, val: selectedMicrophone }),
-                invoke("db_write", { key: DB_KEYS.wakeWordEngine, val: selectedWakeWordEngine }),
-                invoke("db_write", { key: DB_KEYS.intentEngine, val: selectedIntentRecognitionEngine }),
-                invoke("db_write", { key: DB_KEYS.slotEngine, val: selectedSlotExtractionEngine }),
-                invoke("db_write", { key: DB_KEYS.glinerModel, val: selectedGlinerModel }),
-                invoke("db_write", { key: DB_KEYS.voskModel, val: selectedVoskModel }),
-                invoke("db_write", { key: DB_KEYS.noiseSuppression, val: selectedNoiseSuppression }),
-                invoke("db_write", { key: DB_KEYS.vad, val: selectedVad }),
-                invoke("db_write", { key: DB_KEYS.gainNormalizer, val: gainNormalizerEnabled.toString() }),
-                invoke("db_write", { key: DB_KEYS.picovoiceApiKey, val: apiKeyPicovoice }),
-                invoke("db_write", { key: DB_KEYS.ollamaUrl, val: ollamaUrl }),
-                invoke("db_write", { key: DB_KEYS.ollamaModel, val: ollamaModel })
-            ])
+            await saveSettingsValues({
+                voiceVal,
+                microphone:            selectedMicrophone,
+                wakeWordEngine:        selectedWakeWordEngine,
+                intentEngine:          selectedIntentRecognitionEngine,
+                slotEngine:            selectedSlotExtractionEngine,
+                glinerModel:           selectedGlinerModel,
+                voskModel:             selectedVoskModel,
+                noiseSuppression:      selectedNoiseSuppression,
+                vad:                   selectedVad,
+                gainNormalizerEnabled,
+                apiKeyPicovoice,
+                ollamaUrl,
+                ollamaModel,
+            })
 
             assistantVoice.set(voiceVal)
-            settingsSaved = true
-            setTimeout(() => { settingsSaved = false }, 5000)
+            addToast(t('notification-saved') || "Settings saved", "success")
         } catch (err: unknown) {
             console.error("failed to save settings:", err)
-            saveError = true
-            setTimeout(() => { saveError = false }, 5000)
+            addToast(t('notification-error') || "Failed to save settings", "error")
         }
 
         setTimeout(() => { saveButtonDisabled = false }, 1000)
@@ -134,91 +131,78 @@
     })
 
     onMount(async () => {
-        try {
-            authorName = await invoke<string>("get_author_name")
-            appVersion = await invoke<string>("get_app_version")
-        } catch (err: unknown) {
-            console.error("failed to get author name:", err)
+        const languageNames: Record<string, string> = {
+            us: 'English', ru: 'Русский', uk: 'Українська',
+            de: 'German', fr: 'French', es: 'Spanish',
         }
 
-        try {
-            const voices = await invoke<VoiceConfig[]>("list_voices")
-            availableVoices = voices.map(v => v.voice)
-        } catch (err: unknown) {
-            console.error("Failed to load voices:", err)
-            availableVoices = []
+        const [meta, voices, mics, vosk, gliner, settings] = await Promise.allSettled([
+            Promise.all([getAuthorName(), getAppVersion()]),
+            listVoices(),
+            getAudioDevices(),
+            listVoskModels(),
+            listGlinerModels(),
+            loadSettingsValues(),
+        ])
+
+        if (meta.status === 'fulfilled') {
+            ;[authorName, appVersion] = meta.value
+        } else {
+            console.error("failed to get app meta:", meta.reason)
         }
 
-        try {
-            const mics = await invoke<string[]>("pv_get_audio_devices")
+        if (voices.status === 'fulfilled') {
+            availableVoices = voices.value.map(v => v.voice)
+        } else {
+            console.error("Failed to load voices:", voices.reason)
+            addToast(t('error-load-voices') || "Failed to load voices", "error")
+        }
+
+        if (mics.status === 'fulfilled') {
             availableMicrophones = [
                 { label: t('settings-mic-default'), value: "-1" },
-                ...mics.map((name, idx) => ({ label: name, value: String(idx) }))
+                ...mics.value.map((name, idx) => ({ label: name, value: String(idx) }))
             ]
+        } else {
+            console.error("Failed to load microphones:", mics.reason)
+            addToast(t('error-load-microphones') || "Failed to load microphones", "error")
+        }
 
-            const languageNames: Record<string, string> = {
-                us: 'English', ru: 'Русский', uk: 'Українська',
-                de: 'German', fr: 'French', es: 'Spanish',
-            }
-            const voskModels = await invoke<{ name: string; language: string; size: string }[]>("list_vosk_models")
-            availableVoskModels = voskModels.map(m => ({
+        if (vosk.status === 'fulfilled') {
+            availableVoskModels = vosk.value.map(m => ({
                 label: `${m.name} (${languageNames[m.language] ?? m.language}, ${m.size})`,
                 value: m.name
             }))
+        } else {
+            console.error("Failed to load vosk models:", vosk.reason)
+        }
 
-            const glinerModels = await invoke<{ display_name: string; value: string }[]>("list_gliner_models")
-            availableGlinerModels = glinerModels.map(m => ({ label: m.display_name, value: m.value }))
+        if (gliner.status === 'fulfilled') {
+            availableGlinerModels = gliner.value.map(m => ({ label: m.display_name, value: m.value }))
+        } else {
+            console.error("Failed to load gliner models:", gliner.reason)
+        }
 
-            const settled = await Promise.allSettled([
-                invoke<string>("db_read", { key: DB_KEYS.microphone }),
-                invoke<string>("db_read", { key: DB_KEYS.wakeWordEngine }),
-                invoke<string>("db_read", { key: DB_KEYS.intentEngine }),
-                invoke<string>("db_read", { key: DB_KEYS.slotEngine }),
-                invoke<string>("db_read", { key: DB_KEYS.glinerModel }),
-                invoke<string>("db_read", { key: DB_KEYS.voskModel }),
-                invoke<string>("db_read", { key: DB_KEYS.noiseSuppression }),
-                invoke<string>("db_read", { key: DB_KEYS.vad }),
-                invoke<string>("db_read", { key: DB_KEYS.gainNormalizer }),
-                invoke<string>("db_read", { key: DB_KEYS.picovoiceApiKey }),
-                invoke<string>("db_read", { key: DB_KEYS.ollamaUrl }),
-                invoke<string>("db_read", { key: DB_KEYS.ollamaModel })
-            ])
-
-            const val = (i: number): string => settled[i].status === 'fulfilled' ? (settled[i] as PromiseFulfilledResult<string>).value : ""
-
-            selectedMicrophone               = val(0)
-            selectedWakeWordEngine           = val(1)
-            selectedIntentRecognitionEngine  = val(2)
-            selectedSlotExtractionEngine     = val(3)
-            selectedGlinerModel              = val(4)
-            selectedVoskModel                = val(5)
-            selectedNoiseSuppression         = val(6)
-            selectedVad                      = val(7)
-            gainNormalizerEnabled            = val(8) === "true"
-            apiKeyPicovoice                  = val(9)
-            if (val(10)) ollamaUrl           = val(10)
-            ollamaModel                      = val(11)
-        } catch (err: unknown) {
-            console.error("failed to load settings:", err)
+        if (settings.status === 'fulfilled') {
+            const s = settings.value
+            selectedMicrophone               = s.microphone
+            selectedWakeWordEngine           = s.wakeWordEngine
+            selectedIntentRecognitionEngine  = s.intentEngine
+            selectedSlotExtractionEngine     = s.slotEngine
+            selectedGlinerModel              = s.glinerModel
+            selectedVoskModel                = s.voskModel
+            selectedNoiseSuppression         = s.noiseSuppression
+            selectedVad                      = s.vad
+            gainNormalizerEnabled            = s.gainNormalizerEnabled
+            apiKeyPicovoice                  = s.apiKeyPicovoice
+            ollamaUrl                        = s.ollamaUrl
+            ollamaModel                      = s.ollamaModel
+        } else {
+            console.error("failed to load settings:", settings.reason)
+            addToast(t('error-load-settings') || "Failed to load settings", "error")
         }
     })
 </script>
-
-{#if settingsSaved}
-    <Notification
-        title={t('notification-saved')}
-        icon={Check}
-        color="teal"
-        on:close={() => { settingsSaved = false }}
-    />
-{/if}
-{#if saveError}
-    <Notification
-        title={t('notification-error')}
-        color="red"
-        on:close={() => { saveError = false }}
-    />
-{/if}
 
 <div class="settings-layout">
     <nav class="settings-nav">

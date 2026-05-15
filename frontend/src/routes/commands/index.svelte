@@ -1,12 +1,12 @@
 <script lang="ts">
     import { onMount } from "svelte"
-    import { invoke } from "@tauri-apps/api/core"
     import { Space } from "@svelteuidev/core"
+    import { getCommandsList } from "@/lib/api"
 
-    import { currentLanguage, translations, translate } from "@/stores"
+    import { currentLanguage, tStore } from "@/stores"
     import type { JCommand } from "@/types"
 
-    $: t = (key: string) => translate($translations, key)
+    $: t = $tStore
 
     let commands: JCommand[] = []
     let searchQuery = ""
@@ -32,7 +32,7 @@
         loading = true
         loadError = false
         try {
-            commands = await invoke<JCommand[]>("get_commands_list")
+            commands = await getCommandsList()
         } catch (err: unknown) {
             console.error("Failed to load commands:", err)
             loadError = true

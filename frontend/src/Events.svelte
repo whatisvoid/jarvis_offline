@@ -1,8 +1,8 @@
 <script lang="ts">
     import { onMount, onDestroy } from "svelte"
     import { listen } from "@tauri-apps/api/event"
-    import { invoke } from "@tauri-apps/api/core"
-    import { assistantVoice } from "@/stores"
+    import { playSound } from "@/lib/api"
+    import { assistantVoice, jarvisState } from "@/stores"
 
     let voiceVal = "jarvis-og"
     const unsubVoice = assistantVoice.subscribe(value => {
@@ -23,21 +23,19 @@
                 return
             }
 
-            const filename = `sound/${voice}/${rawName}.wav`
-
             try {
-                await invoke("play_sound", { filename, sleep: true })
+                await playSound(`sound/${voice}/${rawName}.wav`)
             } catch (err: unknown) {
                 console.error("failed to play sound:", err)
             }
         })
 
         const unlistenGreet = await listen("assistant-greet", () => {
-            document.getElementById("arc-reactor")?.classList.add("active")
+            jarvisState.set("listening")
         })
 
         const unlistenWaiting = await listen("assistant-waiting", () => {
-            document.getElementById("arc-reactor")?.classList.remove("active")
+            jarvisState.set("idle")
         })
 
         unlisteners = [unlistenAudio, unlistenGreet, unlistenWaiting]
