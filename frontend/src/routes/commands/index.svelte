@@ -77,7 +77,7 @@
 {#if loading}
     <div class="empty-state">{t('stats-loading')}</div>
 {:else if commands.length === 0}
-    <div class="empty-state">Нет доступных команд</div>
+    <div class="empty-state">{t('commands-no-commands')}</div>
 {:else if filtered.length === 0}
     <div class="empty-state">{t('error-not-found')}</div>
 {:else}
