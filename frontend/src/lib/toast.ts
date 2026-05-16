@@ -3,19 +3,20 @@ import { writable } from "svelte/store"
 export type ToastType = "error" | "success" | "info"
 
 export interface Toast {
-    id: number
-    type: ToastType
+    id:      number
+    type:    ToastType
     message: string
 }
 
 let _nextId = 0
-const DURATION_MS = 5000
+const DURATION_MS = 4500
 
 export const toasts = writable<Toast[]>([])
 
 export function addToast(message: string, type: ToastType = "error") {
     const id = _nextId++
-    toasts.update(ts => [...ts, { id, type, message }])
+    // prepend so newest renders at the top of the stack
+    toasts.update(ts => [{ id, type, message }, ...ts])
     setTimeout(() => removeToast(id), DURATION_MS)
 }
 
