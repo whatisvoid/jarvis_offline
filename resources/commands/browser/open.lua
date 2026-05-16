@@ -1,2 +1,2 @@
-jarvis.system.open("about:blank")
+jarvis.system.open("https://")
 return { chain = false }

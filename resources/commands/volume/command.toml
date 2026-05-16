@@ -73,3 +73,32 @@ phrases.ru = [
     "полная громкость",
     "полный уровень громкости",
 ]
+
+
+[[commands]]
+id = "volume_up"
+type = "lua"
+script = "volume_step.lua"
+sandbox = "full"
+sounds.ru = ["ok1", "ok2", "ok3"]
+phrases.ru = [
+    "громче",
+    "сделай громче",
+    "увеличь громкость",
+    "прибавь звук",
+    "прибавь громкость",
+]
+
+
+[[commands]]
+id = "volume_down"
+type = "lua"
+script = "volume_step.lua"
+sandbox = "full"
+sounds.ru = ["ok1", "ok2", "ok3"]
+phrases.ru = [
+    "тише",
+    "сделай тише",
+    "уменьши громкость",
+    "убавь звук немного",
+]

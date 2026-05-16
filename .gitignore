@@ -55,3 +55,4 @@ tree.txt
 /resources/models/*
 # Vite HMR cache files
 frontend/vite.config.ts.timestamp-*.mjs
+/resources/sound/voices/jarvis-new

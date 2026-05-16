@@ -35,7 +35,19 @@ if id == "music_play" then
     jarvis.system.open(track)
 
 elseif id == "music_stop" then
-    send_media_key(178)  -- VK_MEDIA_STOP
+    -- Direct Stop-Process calls per name; avoids pipeline $_ issues under cmd /C
+    jarvis.system.exec(
+        "powershell -NoProfile -c \"" ..
+        "Stop-Process -Name Microsoft.Media.Player -Force -ErrorAction SilentlyContinue;" ..
+        "Stop-Process -Name wmplayer -Force -ErrorAction SilentlyContinue;" ..
+        "Stop-Process -Name vlc -Force -ErrorAction SilentlyContinue;" ..
+        "Stop-Process -Name Music.UI -Force -ErrorAction SilentlyContinue;" ..
+        "Stop-Process -Name AIMP -Force -ErrorAction SilentlyContinue;" ..
+        "Stop-Process -Name foobar2000 -Force -ErrorAction SilentlyContinue;" ..
+        "Stop-Process -Name mpc-hc64 -Force -ErrorAction SilentlyContinue;" ..
+        "Stop-Process -Name PotPlayerMini64 -Force -ErrorAction SilentlyContinue;" ..
+        "Stop-Process -Name winamp -Force -ErrorAction SilentlyContinue\""
+    )
 
 elseif id == "music_pause" then
     send_media_key(179)  -- VK_MEDIA_PLAY_PAUSE

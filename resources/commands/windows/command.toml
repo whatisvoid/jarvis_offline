@@ -109,3 +109,109 @@ phrases.ru = [
     "смени язык на английский",
     "поменяй язык на английский",
 ]
+
+
+[[commands]]
+id = "win_restart"
+type = "cli"
+cli_cmd = "shutdown"
+cli_args = ["/r", "/t", "0"]
+sounds.ru = ["ok1", "ok2", "ok3"]
+phrases.ru = [
+    "перезагрузи компьютер",
+    "перезагрузи комп",
+    "перезагрузка",
+]
+
+
+[[commands]]
+id = "win_shutdown"
+type = "cli"
+cli_cmd = "shutdown"
+cli_args = ["/s", "/t", "0"]
+sounds.ru = ["ok1", "ok2", "ok3"]
+phrases.ru = [
+    "выключи компьютер",
+    "выключи комп",
+    "завершение работы",
+    "выключение",
+]
+
+
+[[commands]]
+id = "win_hibernate"
+type = "cli"
+cli_cmd = "shutdown"
+cli_args = ["/h"]
+sounds.ru = ["ok1", "ok2", "ok3"]
+phrases.ru = [
+    "режим гибернации",
+    "гибернация",
+    "перейди в режим гибернации",
+]
+
+
+[[commands]]
+id = "win_display_off"
+type = "lua"
+script = "windows.lua"
+sandbox = "full"
+sounds.ru = ["ok1", "ok2", "ok3"]
+phrases.ru = [
+    "выключи монитор",
+    "выключи экран",
+    "погаси монитор",
+    "погаси экран",
+]
+
+
+[[commands]]
+id = "win_empty_clipboard"
+type = "lua"
+script = "windows.lua"
+sandbox = "full"
+sounds.ru = ["ok1", "ok2", "ok3"]
+phrases.ru = [
+    "очисти буфер обмена",
+    "очисти буфер",
+    "сотри буфер обмена",
+]
+
+
+[[commands]]
+id = "win_open_downloads"
+type = "lua"
+script = "windows.lua"
+sandbox = "standard"
+sounds.ru = ["ok1", "ok2", "ok3"]
+phrases.ru = [
+    "открой загрузки",
+    "открой папку загрузки",
+    "перейди в загрузки",
+]
+
+
+[[commands]]
+id = "win_open_desktop"
+type = "lua"
+script = "windows.lua"
+sandbox = "full"
+sounds.ru = ["ok1", "ok2", "ok3"]
+phrases.ru = [
+    "покажи рабочий стол",
+    "переключись на рабочий стол",
+]
+
+
+[[commands]]
+id = "win_night_mode"
+type = "lua"
+script = "windows.lua"
+sandbox = "standard"
+sounds.ru = ["ok1", "ok2", "ok3"]
+phrases.ru = [
+    "ночной режим",
+    "включи ночной режим",
+    "выключи ночной режим",
+    "открой настройки ночного режима",
+]
