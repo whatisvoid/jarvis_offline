@@ -1,6 +1,7 @@
 import { getCurrentWindow } from "@tauri-apps/api/window"
 import { jarvisState, ipcConnected, lastRecognizedText, lastExecutedCommand, lastError } from "./stores"
-import type { IpcMessage, IpcOutgoing } from "./types"
+import type { IpcOutgoing } from "./types"
+import { parseIpcMessage, computeReconnectDelay } from "./utils"
 
 // ### CONNECTION ###
 
@@ -63,13 +64,11 @@ export function connectIpc(port: number = IPC_PORT) {
     }
 
     ws.onmessage = (event) => {
-        try {
-            const raw = JSON.parse(event.data)
-            if (typeof raw?.event === "string") {
-                handleEvent(raw as IpcMessage)
-            }
-        } catch (err: unknown) {
-            console.error("[IPC] failed to parse message:", err)
+        const msg = parseIpcMessage(event.data)
+        if (msg) {
+            handleEvent(msg)
+        } else {
+            console.error("[IPC] failed to parse message:", event.data)
         }
     }
 }
@@ -77,7 +76,7 @@ export function connectIpc(port: number = IPC_PORT) {
 function scheduleReconnect() {
     if (reconnectTimer || manualDisconnect || !enabled) return
 
-    const delay = Math.min(RECONNECT_BASE_MS * Math.pow(2, reconnectAttempt), RECONNECT_MAX_MS)
+    const delay = computeReconnectDelay(reconnectAttempt, RECONNECT_BASE_MS, RECONNECT_MAX_MS)
     reconnectAttempt++
     console.log(`[IPC] Reconnecting in ${delay / 1000}s (attempt ${reconnectAttempt})...`)
     reconnectTimer = setTimeout(() => {

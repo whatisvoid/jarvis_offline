@@ -1,11 +1,14 @@
 import { dbRead, dbWrite } from "./api"
 import { DB_KEYS } from "./db-keys"
+import type { IntentEngine } from "@/types"
+
+// ── Types ────────────────────────────────────────────────────────────────────
 
 export interface SettingsValues {
     microphone:            string
     wakeWordEngine:        string
     sttEngine:             string
-    intentEngine:          string
+    intentEngine:          IntentEngine
     slotEngine:            string
     glinerModel:           string
     voskModel:             string
@@ -16,6 +19,37 @@ export interface SettingsValues {
     ollamaUrl:             string
     ollamaModel:           string
 }
+
+// ── Normalization helpers (pure — exported for testing) ───────────────────────
+
+const VALID_INTENT_ENGINES: ReadonlyArray<IntentEngine> = ["intent-classifier", "none"]
+
+export function normalizeIntentEngine(raw: string): IntentEngine {
+    return (VALID_INTENT_ENGINES as readonly string[]).includes(raw)
+        ? (raw as IntentEngine)
+        : "none"
+}
+
+/** Coerce raw DB string map into a validated SettingsValues. */
+export function normalizeSettingsValues(raw: Record<string, string>): SettingsValues {
+    return {
+        microphone:            raw.microphone       ?? "",
+        wakeWordEngine:        raw.wakeWordEngine    ?? "",
+        sttEngine:             raw.sttEngine         ?? "",
+        intentEngine:          normalizeIntentEngine(raw.intentEngine ?? ""),
+        slotEngine:            raw.slotEngine        ?? "",
+        glinerModel:           raw.glinerModel       ?? "",
+        voskModel:             raw.voskModel         ?? "",
+        noiseSuppression:      raw.noiseSuppression  ?? "",
+        vad:                   raw.vad               ?? "",
+        gainNormalizerEnabled: raw.gainNormalizerEnabled === "true",
+        apiKeyPicovoice:       raw.apiKeyPicovoice   ?? "",
+        ollamaUrl:             raw.ollamaUrl || "http://localhost:11434",
+        ollamaModel:           raw.ollamaModel       ?? "",
+    }
+}
+
+// ── DB read / write ──────────────────────────────────────────────────────────
 
 export async function loadSettingsValues(): Promise<SettingsValues> {
     const settled = await Promise.allSettled([
@@ -37,41 +71,37 @@ export async function loadSettingsValues(): Promise<SettingsValues> {
     const val = (i: number): string =>
         settled[i].status === 'fulfilled' ? (settled[i] as PromiseFulfilledResult<string>).value : ""
 
-    const VALID_INTENT_ENGINES = ["intent-classifier", "none"]
-    const rawIntent = val(3)
-    const intentEngine = VALID_INTENT_ENGINES.includes(rawIntent) ? rawIntent : "none"
-
-    return {
+    return normalizeSettingsValues({
         microphone:            val(0),
         wakeWordEngine:        val(1),
         sttEngine:             val(2),
-        intentEngine,
+        intentEngine:          val(3),
         slotEngine:            val(4),
         glinerModel:           val(5),
         voskModel:             val(6),
         noiseSuppression:      val(7),
         vad:                   val(8),
-        gainNormalizerEnabled: val(9) === "true",
+        gainNormalizerEnabled: val(9),
         apiKeyPicovoice:       val(10),
-        ollamaUrl:             val(11) || "http://localhost:11434",
+        ollamaUrl:             val(11),
         ollamaModel:           val(12),
-    }
+    })
 }
 
 export async function saveSettingsValues(s: SettingsValues & { voiceVal: string }): Promise<void> {
     await Promise.all([
-        dbWrite(DB_KEYS.voice,           s.voiceVal),
-        dbWrite(DB_KEYS.microphone,      s.microphone),
-        dbWrite(DB_KEYS.wakeWordEngine,  s.wakeWordEngine),
-        dbWrite(DB_KEYS.intentEngine,    s.intentEngine),
-        dbWrite(DB_KEYS.slotEngine,      s.slotEngine),
-        dbWrite(DB_KEYS.glinerModel,     s.glinerModel),
-        dbWrite(DB_KEYS.voskModel,       s.voskModel),
+        dbWrite(DB_KEYS.voice,            s.voiceVal),
+        dbWrite(DB_KEYS.microphone,       s.microphone),
+        dbWrite(DB_KEYS.wakeWordEngine,   s.wakeWordEngine),
+        dbWrite(DB_KEYS.intentEngine,     s.intentEngine),
+        dbWrite(DB_KEYS.slotEngine,       s.slotEngine),
+        dbWrite(DB_KEYS.glinerModel,      s.glinerModel),
+        dbWrite(DB_KEYS.voskModel,        s.voskModel),
         dbWrite(DB_KEYS.noiseSuppression, s.noiseSuppression),
-        dbWrite(DB_KEYS.vad,             s.vad),
-        dbWrite(DB_KEYS.gainNormalizer,  s.gainNormalizerEnabled.toString()),
-        dbWrite(DB_KEYS.picovoiceApiKey, s.apiKeyPicovoice),
-        dbWrite(DB_KEYS.ollamaUrl,       s.ollamaUrl),
-        dbWrite(DB_KEYS.ollamaModel,     s.ollamaModel),
+        dbWrite(DB_KEYS.vad,              s.vad),
+        dbWrite(DB_KEYS.gainNormalizer,   s.gainNormalizerEnabled.toString()),
+        dbWrite(DB_KEYS.picovoiceApiKey,  s.apiKeyPicovoice),
+        dbWrite(DB_KEYS.ollamaUrl,        s.ollamaUrl),
+        dbWrite(DB_KEYS.ollamaModel,      s.ollamaModel),
     ])
 }

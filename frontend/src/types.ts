@@ -1,5 +1,23 @@
 // Shared domain types — used across components and stores
 
+// ── Engine / enum-like domain values ────────────────────────────────────────
+
+/** Intent recognition backend choices stored in the DB */
+export type IntentEngine = "intent-classifier" | "none"
+
+/** Known command types emitted by the backend. Future types remain as string. */
+export const COMMAND_TYPE = {
+    LUA:           "lua",
+    AHK:           "ahk",
+    CLI:           "cli",
+    VOICE:         "voice",
+    TERMINATE:     "terminate",
+    STOP_CHAINING: "stop_chaining",
+} as const
+export type CommandType = typeof COMMAND_TYPE[keyof typeof COMMAND_TYPE]
+
+// ── Entities ─────────────────────────────────────────────────────────────────
+
 export interface VoiceMeta {
     id: string
     name: string

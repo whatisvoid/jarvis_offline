@@ -4,6 +4,7 @@
 
     import { currentLanguage, tStore, reloadCommands, ipcConnected } from "@/stores"
     import { addToast } from "@/lib/toast"
+    import { filterCommands, getPhrases } from "@/lib/commands-filter"
     import type { JCommand } from "@/types"
 
     $: t = $tStore
@@ -19,18 +20,7 @@
         ? "Reload backend commands & refresh list"
         : "Refresh list (JARVIS not connected — backend reload skipped)"
 
-    function getPhrases(cmd: JCommand): string[] {
-        return cmd.phrases[lang] ?? cmd.phrases["en"] ?? Object.values(cmd.phrases)[0] ?? []
-    }
-
-    $: filtered = commands.filter(cmd => {
-        if (!searchQuery.trim()) return true
-        const q = searchQuery.toLowerCase()
-        return (
-            cmd.id.toLowerCase().includes(q) ||
-            getPhrases(cmd).some(p => p.toLowerCase().includes(q))
-        )
-    })
+    $: filtered = filterCommands(commands, searchQuery, lang)
 
     async function loadCommands() {
         loading = true
@@ -86,7 +76,7 @@
 {:else}
     <div class="commands-list">
         {#each filtered as cmd (cmd.id)}
-            {@const phrases = getPhrases(cmd)}
+            {@const phrases = getPhrases(cmd, lang)}
             <div class="command-card">
                 <div class="card-header">
                     <span class="cmd-id">{cmd.id}</span>

@@ -6,7 +6,7 @@
     import { addToast } from "@/lib/toast"
     import { saveSettingsValues } from "@/lib/settings"
     import { loadSettingsPageData } from "@/lib/settings-loader"
-    import type { VoiceMeta, SelectOption } from "@/types"
+    import type { VoiceMeta, SelectOption, IntentEngine } from "@/types"
 
     import TabGeneral from "@/components/settings/TabGeneral.svelte"
     import TabDevices from "@/components/settings/TabDevices.svelte"
@@ -29,7 +29,7 @@
     let selectedMicrophone = ""
     let selectedWakeWordEngine = ""
     let selectedSttEngine = ""
-    let selectedIntentRecognitionEngine = ""
+    let selectedIntentRecognitionEngine: IntentEngine = "none"
     let selectedSlotExtractionEngine = ""
     let selectedGlinerModel = ""
     let selectedVoskModel = ""

@@ -5,19 +5,12 @@
     import Events from "./Events.svelte"
     import Toasts from "@/components/ui/Toasts.svelte"
 
-    import {
-        loadVoiceSetting,
-        loadAppInfo,
-        enableIpc,
-        disconnectIpc,
-        loadTranslations
-    } from "@/stores"
+    import { disconnectIpc } from "@/stores"
+    import { criticalInit, deferredInit } from "@/lib/bootstrap"
 
-    onMount(() => {
-        loadVoiceSetting()
-        loadAppInfo()
-        enableIpc()
-        loadTranslations()
+    onMount(async () => {
+        await criticalInit()
+        deferredInit()
     })
 
     onDestroy(() => {
