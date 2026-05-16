@@ -10,13 +10,16 @@ export interface Toast {
 
 let _nextId = 0
 const DURATION_MS = 4500
+const MAX_TOASTS  = 5
 
 export const toasts = writable<Toast[]>([])
 
 export function addToast(message: string, type: ToastType = "error") {
     const id = _nextId++
-    // prepend so newest renders at the top of the stack
-    toasts.update(ts => [{ id, type, message }, ...ts])
+    toasts.update(ts => {
+        const next = [{ id, type, message }, ...ts]
+        return next.length > MAX_TOASTS ? next.slice(0, MAX_TOASTS) : next
+    })
     setTimeout(() => removeToast(id), DURATION_MS)
 }
 

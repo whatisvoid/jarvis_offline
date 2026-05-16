@@ -16,7 +16,8 @@
 
     $: t = $tStore
 
-    let activeTab = "general"
+    type SettingsTab = "general" | "devices" | "neural" | "about"
+    let activeTab: SettingsTab = "general"
     let loading = true
 
     let availableVoices: VoiceMeta[] = []

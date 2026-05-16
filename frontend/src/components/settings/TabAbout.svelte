@@ -39,24 +39,27 @@
 </div>
 
 <div class="settings-section about-section">
-    <span class="section-label">LINKS</span>
+    <span class="section-label">{t('settings-links', 'LINKS')}</span>
     <div class="link-rows">
-        {#if currentLanguage === "ru" || currentLanguage === "ua"}
+        {#if (currentLanguage === "ru" || currentLanguage === "ua") && tgLink}
             <a href={tgLink} target="_blank" rel="noopener noreferrer" class="link-row">
                 <span class="link-name">{t('footer-telegram')}</span>
                 <span class="link-arrow">→</span>
             </a>
         {/if}
-        <a href={repoLink} target="_blank" rel="noopener noreferrer" class="link-row">
-            <span class="link-name">{t('footer-github')}</span>
-            <span class="link-arrow">→</span>
-        </a>
-        {#if currentLanguage === "ru"}
+        {#if repoLink}
+            <a href={repoLink} target="_blank" rel="noopener noreferrer" class="link-row">
+                <span class="link-name">{t('footer-github')}</span>
+                <span class="link-arrow">→</span>
+            </a>
+        {/if}
+        {#if currentLanguage === "ru" && boostyLink}
             <a href={boostyLink} target="_blank" rel="noopener noreferrer" class="link-row">
                 <span class="link-name">Boosty</span>
                 <span class="link-arrow">→</span>
             </a>
-        {:else if currentLanguage === "ua" || currentLanguage === "en"}
+        {/if}
+        {#if (currentLanguage === "ua" || currentLanguage === "en") && patreonLink}
             <a href={patreonLink} target="_blank" rel="noopener noreferrer" class="link-row">
                 <span class="link-name">Patreon</span>
                 <span class="link-arrow">→</span>

@@ -28,26 +28,28 @@
 <footer id="footer">
     <p>© {currentYear}. {t('footer-author')}: <b>{authorName}</b></p>
     <p class="links">
-        {#if $currentLanguage === "ru" || $currentLanguage === "ua"}
+        {#if ($currentLanguage === "ru" || $currentLanguage === "ua") && tgLink}
         <a href={tgLink} target="_blank" rel="noopener noreferrer" class="telegram-link">
             <img src="/media/icons/telegram.webp" alt="Telegram" width="18px" />
             &nbsp;<span>{t('footer-telegram')}</span>
         </a>
         &nbsp;
         {/if}
+        {#if repoLink}
         <a href={repoLink} target="_blank" rel="noopener noreferrer">
             <img src="/media/icons/github-logo.png" alt="GitHub" width="18px" />
             &nbsp;<span>{t('footer-github')}</span>
         </a>
+        {/if}
     </p>
     <p class="links last">
-        {#if $currentLanguage === "ru"}
+        {#if $currentLanguage === "ru" && boostyLink}
         {t('footer-support')} <a href={boostyLink} target="_blank" rel="noopener noreferrer" class="telegram-link">
             <img src="/media/icons/boosty.webp" alt="Boosty" width="18px" />
             <span>Boosty</span>
         </a>.
         {/if}
-        {#if $currentLanguage === "ua" || $currentLanguage === "en"}
+        {#if ($currentLanguage === "ua" || $currentLanguage === "en") && patreonLink}
         {t('footer-support')} <a href={patreonLink} target="_blank" rel="noopener noreferrer" class="telegram-link">
             <img src="/media/icons/patreon.png" alt="Patreon" width="18px" />
             <span>Patreon</span>

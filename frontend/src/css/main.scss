@@ -62,7 +62,7 @@
     height: 44px;
     background: linear-gradient(90deg, rgba(10,18,28,0.94), rgba(12,24,36,0.92));
     border: 1px solid var(--border-subtle);
-    border-radius: 12px;
+    border-radius: var(--r-lg);
     color: var(--text);
     font-family: var(--font);
     font-size: 14px;

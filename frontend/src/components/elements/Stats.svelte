@@ -101,8 +101,8 @@
 <style lang="scss">
 .footer-separator {
     height: 1px;
-    width: calc(100% + 48px);
-    margin-left: -24px;
+    width: calc(100% + 2 * var(--page-px));
+    margin-left: calc(-1 * var(--page-px));
     background: var(--shell-separator);
 }
 

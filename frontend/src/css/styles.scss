@@ -74,8 +74,9 @@ a:hover { opacity: 0.8; }
 }
 
 main {
+    --page-px: 24px;
     flex: 1;
-    padding: 0 24px;
+    padding: 0 var(--page-px);
 }
 
 /* Route transition — fade-in on mount */

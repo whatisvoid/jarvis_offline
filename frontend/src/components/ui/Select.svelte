@@ -168,6 +168,11 @@
                     {/if}
                 </li>
             {/each}
+            {#if data.length > MAX_VISIBLE}
+                <li class="select-item select-item--overflow" role="option" aria-disabled="true">
+                    <span>… and {data.length - MAX_VISIBLE} more</span>
+                </li>
+            {/if}
         </ul>
     {/if}
 </div>
@@ -307,6 +312,14 @@
 
     &.focused.selected {
         background: rgba(0,229,255,0.10);
+    }
+
+    &--overflow {
+        color: rgba(185, 205, 220, 0.35);
+        font-size: 0.75rem;
+        cursor: default;
+        pointer-events: none;
+        justify-content: center;
     }
 }
 </style>
