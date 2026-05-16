@@ -1,25 +1,15 @@
-import { writable } from "svelte/store"
-import { invoke } from "@tauri-apps/api/core"
 import { getCurrentWindow } from "@tauri-apps/api/window"
-
-// ### IPC STORES ###
-
-export type JarvisState = "disconnected" | "idle" | "listening" | "processing"
-
-export const jarvisState = writable<JarvisState>("disconnected")
-export const ipcConnected = writable(false)
-export const lastRecognizedText = writable("")
-export const lastExecutedCommand = writable("")
-export const lastError = writable("")
+import { jarvisState, ipcConnected, lastRecognizedText, lastExecutedCommand, lastError } from "./stores"
+import type { IpcMessage, IpcOutgoing } from "./types"
 
 // ### CONNECTION ###
 
-const IPC_PORT                = 9712
-const RECONNECT_BASE_MS       = 1000
-const RECONNECT_MAX_MS        = 3000
-const HEARTBEAT_INTERVAL_MS   = 30000
-const HEARTBEAT_TIMEOUT_MS    = 5000
-const PENDING_COMMANDS_MAX    = 20
+const IPC_PORT              = 9712
+const RECONNECT_BASE_MS     = 1000
+const RECONNECT_MAX_MS      = 3000
+const HEARTBEAT_INTERVAL_MS = 30000
+const HEARTBEAT_TIMEOUT_MS  = 5000
+const PENDING_COMMANDS_MAX  = 20
 
 let ws: WebSocket | null = null
 let reconnectTimer: ReturnType<typeof setTimeout> | null = null
@@ -27,7 +17,7 @@ let heartbeatTimer: ReturnType<typeof setInterval> | null = null
 let heartbeatTimeoutTimer: ReturnType<typeof setTimeout> | null = null
 let reconnectAttempt = 0
 let manualDisconnect = false
-let enabled = false  // only connect when enabled
+let enabled = false
 let pendingTextCommands: string[] = []
 
 export function enableIpc() {
@@ -141,18 +131,6 @@ function stopHeartbeat() {
 
 // ### EVENT HANDLING ###
 
-type IpcMessage =
-    | { event: "wake_word_detected" }
-    | { event: "listening" }
-    | { event: "speech_recognized"; text: string }
-    | { event: "command_executed"; id: string }
-    | { event: "idle" }
-    | { event: "error"; message: string }
-    | { event: "started" }
-    | { event: "stopping" }
-    | { event: "pong" }
-    | { event: "reveal_window" }
-
 function handleEvent(data: IpcMessage) {
     console.log("IPC: Event", data.event, data)
 
@@ -201,11 +179,6 @@ function handleEvent(data: IpcMessage) {
 }
 
 // ### ACTIONS ###
-
-type IpcOutgoing =
-    | { action: "stop" }
-    | { action: "reload_commands" }
-    | { action: "text_command"; text: string }
 
 function sendAction(msg: IpcOutgoing): boolean {
     if (ws?.readyState !== WebSocket.OPEN) return false

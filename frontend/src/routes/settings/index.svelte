@@ -1,14 +1,11 @@
 <script lang="ts">
     import { onMount, onDestroy } from "svelte"
     import { goto } from "@roxi/routify"
-    import {
-        getAuthorName, getAppVersion,
-        listVoices,
-        listVoskModels, listGlinerModels, listOllamaModels
-    } from "@/lib/api"
+    import { listOllamaModels } from "@/lib/api"
     import { appInfo, assistantVoice, currentLanguage, setLanguage, tStore, audioDevices, loadAudioDevices } from "@/stores"
     import { addToast } from "@/lib/toast"
-    import { loadSettingsValues, saveSettingsValues } from "@/lib/settings"
+    import { saveSettingsValues } from "@/lib/settings"
+    import { loadSettingsPageData } from "@/lib/settings-loader"
     import type { VoiceMeta, SelectOption } from "@/types"
 
     import TabGeneral from "@/components/settings/TabGeneral.svelte"
@@ -76,9 +73,7 @@
         }
     }
 
-    const unsubVoice = assistantVoice.subscribe(value => {
-        voiceVal = value
-    })
+    const unsubVoice = assistantVoice.subscribe(value => { voiceVal = value })
 
     let feedbackLink = ""
     let logFilePath = ""
@@ -90,16 +85,15 @@
     let appVersion = ""
     const unsubAppInfo = appInfo.subscribe(info => {
         feedbackLink = info.feedbackLink
-        logFilePath = info.logFilePath
-        tgLink = info.tgOfficialLink
-        repoLink = info.repositoryLink
-        boostyLink = info.boostySupportLink
-        patreonLink = info.patreonSupportLink
+        logFilePath  = info.logFilePath
+        tgLink       = info.tgOfficialLink
+        repoLink     = info.repositoryLink
+        boostyLink   = info.boostySupportLink
+        patreonLink  = info.patreonSupportLink
     })
 
     async function saveSettings() {
         saveButtonDisabled = true
-
         try {
             await saveSettingsValues({
                 voiceVal,
@@ -117,14 +111,12 @@
                 ollamaUrl,
                 ollamaModel,
             })
-
             assistantVoice.set(voiceVal)
             addToast(t('notification-saved') || "Settings saved", "success")
         } catch (err: unknown) {
             console.error("failed to save settings:", err)
             addToast(t('notification-error') || "Failed to save settings", "error")
         }
-
         setTimeout(() => { saveButtonDisabled = false }, 1000)
     }
 
@@ -134,72 +126,42 @@
     })
 
     onMount(async () => {
-        const languageNames: Record<string, string> = {
-            us: 'English', ru: 'Русский', uk: 'Українська',
-            de: 'German', fr: 'French', es: 'Spanish',
-        }
-
         await loadAudioDevices()
 
-        const [meta, voices, vosk, gliner, settingsResult] = await Promise.allSettled([
-            Promise.all([getAuthorName(), getAppVersion()]),
-            listVoices(),
-            listVoskModels(),
-            listGlinerModels(),
-            loadSettingsValues(),
-        ])
+        const data = await loadSettingsPageData()
 
-        if (meta.status === 'fulfilled') {
-            ;[authorName, appVersion] = meta.value
-        } else {
-            console.error("failed to get app meta:", meta.reason)
-        }
-
-        if (voices.status === 'fulfilled') {
-            availableVoices = voices.value.map(v => v.voice)
-        } else {
-            console.error("Failed to load voices:", voices.reason)
-            addToast(t('error-load-voices') || "Failed to load voices", "error")
-        }
+        authorName            = data.authorName
+        appVersion            = data.appVersion
+        availableVoices       = data.availableVoices
+        availableVoskModels   = data.availableVoskModels
+        availableGlinerModels = data.availableGlinerModels
 
         availableMicrophones = [
             { label: t('settings-mic-default'), value: "-1" },
             ...$audioDevices.map((name, idx) => ({ label: name, value: String(idx) }))
         ]
 
-        if (vosk.status === 'fulfilled') {
-            availableVoskModels = vosk.value.map(m => ({
-                label: `${m.name} (${languageNames[m.language] ?? m.language}, ${m.size})`,
-                value: m.name
-            }))
-        } else {
-            console.error("Failed to load vosk models:", vosk.reason)
-        }
+        if (data.errors.meta)    console.error("failed to get app meta")
+        if (data.errors.vosk)    console.error("failed to load vosk models")
+        if (data.errors.gliner)  console.error("failed to load gliner models")
+        if (data.errors.voices)  addToast(t('error-load-voices')   || "Failed to load voices",   "error")
+        if (data.errors.settings) addToast(t('error-load-settings') || "Failed to load settings", "error")
 
-        if (gliner.status === 'fulfilled') {
-            availableGlinerModels = gliner.value.map(m => ({ label: m.display_name, value: m.value }))
-        } else {
-            console.error("Failed to load gliner models:", gliner.reason)
-        }
-
-        if (settingsResult.status === 'fulfilled') {
-            const s = settingsResult.value
-            selectedMicrophone               = s.microphone
-            selectedWakeWordEngine           = s.wakeWordEngine
-            selectedSttEngine                = s.sttEngine
-            selectedIntentRecognitionEngine  = s.intentEngine
-            selectedSlotExtractionEngine     = s.slotEngine
-            selectedGlinerModel              = s.glinerModel
-            selectedVoskModel                = s.voskModel
-            selectedNoiseSuppression         = s.noiseSuppression
-            selectedVad                      = s.vad
-            gainNormalizerEnabled            = s.gainNormalizerEnabled
-            apiKeyPicovoice                  = s.apiKeyPicovoice
-            ollamaUrl                        = s.ollamaUrl
-            ollamaModel                      = s.ollamaModel
-        } else {
-            console.error("failed to load settings:", settingsResult.reason)
-            addToast(t('error-load-settings') || "Failed to load settings", "error")
+        if (data.settings) {
+            const s = data.settings
+            selectedMicrophone              = s.microphone
+            selectedWakeWordEngine          = s.wakeWordEngine
+            selectedSttEngine               = s.sttEngine
+            selectedIntentRecognitionEngine = s.intentEngine
+            selectedSlotExtractionEngine    = s.slotEngine
+            selectedGlinerModel             = s.glinerModel
+            selectedVoskModel               = s.voskModel
+            selectedNoiseSuppression        = s.noiseSuppression
+            selectedVad                     = s.vad
+            gainNormalizerEnabled           = s.gainNormalizerEnabled
+            apiKeyPicovoice                 = s.apiKeyPicovoice
+            ollamaUrl                       = s.ollamaUrl
+            ollamaModel                     = s.ollamaModel
         }
 
         loading = false
