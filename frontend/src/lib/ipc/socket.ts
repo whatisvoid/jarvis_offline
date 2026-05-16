@@ -1,3 +1,4 @@
+import { get } from "svelte/store"
 import { getCurrentWindow } from "@tauri-apps/api/window"
 import { jarvisState, ipcConnected, lastRecognizedText, lastExecutedCommand, lastError } from "./stores"
 import type { IpcMessage, IpcOutgoing } from "./types"
@@ -109,6 +110,8 @@ function startHeartbeat() {
     stopHeartbeat()
     heartbeatTimer = setInterval(() => {
         if (ws?.readyState !== WebSocket.OPEN) return
+        // Skip ping while backend is actively processing to avoid false reconnects
+        if (get(jarvisState) === "processing") return
         ws.send(JSON.stringify({ action: "ping" }))
         heartbeatTimeoutTimer = setTimeout(() => {
             console.warn("[IPC] heartbeat timeout — forcing reconnect")
@@ -203,10 +206,15 @@ export function sendTextCommand(text: string): boolean {
 }
 
 function flushPendingCommands() {
-    while (pendingTextCommands.length > 0) {
-        const text = pendingTextCommands.shift()!
-        sendAction({ action: "text_command", text })
-    }
+    const commands = [...pendingTextCommands]
+    pendingTextCommands = []
+    commands.forEach((text, i) => {
+        setTimeout(() => {
+            if (ws?.readyState === WebSocket.OPEN) {
+                sendAction({ action: "text_command", text })
+            }
+        }, i * 100)
+    })
 }
 
 async function revealWindow() {

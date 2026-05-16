@@ -17,16 +17,31 @@ export async function updateJarvisStats() {
 }
 
 let statsInterval: ReturnType<typeof setInterval> | null = null
+let visibilityListener: (() => void) | null = null
 
 export function startStatsPolling(intervalMs = 5000) {
     if (statsInterval) return
+
     updateJarvisStats()
-    statsInterval = setInterval(updateJarvisStats, intervalMs)
+    statsInterval = setInterval(() => {
+        if (!document.hidden) updateJarvisStats()
+    }, intervalMs)
+
+    if (!visibilityListener) {
+        visibilityListener = () => {
+            if (!document.hidden) updateJarvisStats()
+        }
+        document.addEventListener("visibilitychange", visibilityListener)
+    }
 }
 
 export function stopStatsPolling() {
     if (statsInterval) {
         clearInterval(statsInterval)
         statsInterval = null
+    }
+    if (visibilityListener) {
+        document.removeEventListener("visibilitychange", visibilityListener)
+        visibilityListener = null
     }
 }

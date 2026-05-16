@@ -1,14 +1,15 @@
 <script lang="ts">
     import { onMount, onDestroy } from 'svelte'
     import { getCurrentWindow } from '@tauri-apps/api/window'
+    import type { WebviewWindow } from '@tauri-apps/api/webviewWindow'
     import type { UnlistenFn } from '@tauri-apps/api/event'
 
-    const appWindow = getCurrentWindow()
-
+    let appWindow: WebviewWindow | null = null
     let isMaximized = false
     let unlisten: UnlistenFn | null = null
 
     onMount(async () => {
+        appWindow = getCurrentWindow()
         isMaximized = await appWindow.isMaximized()
         unlisten = await appWindow.onResized(async () => {
             isMaximized = await appWindow.isMaximized()
@@ -17,9 +18,9 @@
 
     onDestroy(() => { unlisten?.() })
 
-    function minimize() { appWindow.minimize() }
-    function toggleMax() { appWindow.toggleMaximize() }
-    function closeWin() { appWindow.close() }
+    function minimize()   { appWindow?.minimize() }
+    function toggleMax()  { appWindow?.toggleMaximize() }
+    function closeWin()   { appWindow?.close() }
 </script>
 
 <div class="win-controls">
