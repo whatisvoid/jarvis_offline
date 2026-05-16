@@ -35,18 +35,18 @@ if id == "music_play" then
     jarvis.system.open(track)
 
 elseif id == "music_stop" then
-    -- Direct Stop-Process calls per name; avoids pipeline $_ issues under cmd /C
+    -- No \"...\" wrapper: cmd passes \"script\" to PS as a string literal, not as commands.
+    -- Without outer quotes, cmd passes the script verbatim and PS executes it correctly.
     jarvis.system.exec(
-        "powershell -NoProfile -c \"" ..
-        "Stop-Process -Name Microsoft.Media.Player -Force -ErrorAction SilentlyContinue;" ..
-        "Stop-Process -Name wmplayer -Force -ErrorAction SilentlyContinue;" ..
-        "Stop-Process -Name vlc -Force -ErrorAction SilentlyContinue;" ..
-        "Stop-Process -Name Music.UI -Force -ErrorAction SilentlyContinue;" ..
-        "Stop-Process -Name AIMP -Force -ErrorAction SilentlyContinue;" ..
-        "Stop-Process -Name foobar2000 -Force -ErrorAction SilentlyContinue;" ..
-        "Stop-Process -Name mpc-hc64 -Force -ErrorAction SilentlyContinue;" ..
-        "Stop-Process -Name PotPlayerMini64 -Force -ErrorAction SilentlyContinue;" ..
-        "Stop-Process -Name winamp -Force -ErrorAction SilentlyContinue\""
+        "powershell -NoProfile -c " ..
+        "Stop-Process -Name Microsoft.Media.Player -Force -ErrorAction SilentlyContinue; " ..
+        "Stop-Process -Name wmplayer -Force -ErrorAction SilentlyContinue; " ..
+        "Stop-Process -Name vlc -Force -ErrorAction SilentlyContinue; " ..
+        "Stop-Process -Name Music.UI -Force -ErrorAction SilentlyContinue; " ..
+        "Stop-Process -Name AIMP -Force -ErrorAction SilentlyContinue; " ..
+        "Stop-Process -Name foobar2000 -Force -ErrorAction SilentlyContinue; " ..
+        "Stop-Process -Name PotPlayerMini64 -Force -ErrorAction SilentlyContinue; " ..
+        "Stop-Process -Name winamp -Force -ErrorAction SilentlyContinue"
     )
 
 elseif id == "music_pause" then
