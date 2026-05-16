@@ -2,10 +2,16 @@ local MUSIC_DIR = "F:\\temp\\jarvis_offline\\music"
 local id = jarvis.context.command_id
 
 local function send_media_key(key_code)
-    jarvis.system.exec(string.format(
-        "powershell -NoProfile -c \"(New-Object -ComObject WScript.Shell).SendKeys([char]%d)\"",
-        key_code
-    ))
+    -- keybd_event is required for VK codes above 127 (media keys 176-179);
+    -- WScript.Shell.SendKeys treats those as Unicode chars, not virtual keys.
+    local cmd = string.format(
+        "powershell -NoProfile -c \"" ..
+        "Add-Type -TypeDefinition 'using System;using System.Runtime.InteropServices;" ..
+        "public class K{[DllImport(\\\"user32.dll\\\")]public static extern void keybd_event(byte v,byte s,int f,int e);}'; " ..
+        "[K]::keybd_event(%d,0,0,0);[K]::keybd_event(%d,0,2,0)\"",
+        key_code, key_code
+    )
+    jarvis.system.exec(cmd)
 end
 
 if id == "music_play" then
@@ -29,10 +35,7 @@ if id == "music_play" then
     jarvis.system.open(track)
 
 elseif id == "music_stop" then
-    local players = { "wmplayer.exe", "vlc.exe", "Music.UI.exe", "MediaPlayer.exe" }
-    for _, p in ipairs(players) do
-        jarvis.system.exec("taskkill /F /IM " .. p)
-    end
+    send_media_key(178)  -- VK_MEDIA_STOP
 
 elseif id == "music_pause" then
     send_media_key(179)  -- VK_MEDIA_PLAY_PAUSE
