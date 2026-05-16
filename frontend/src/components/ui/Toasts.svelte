@@ -1,6 +1,9 @@
 <script lang="ts">
     import { fly } from "svelte/transition"
     import { toasts, removeToast } from "@/lib/toast"
+    import { tStore } from "@/stores"
+
+    $: t = $tStore
 </script>
 
 <div class="hud-toasts" aria-live="assertive" aria-atomic="false">
@@ -14,7 +17,7 @@
             <span class="hud-msg">{toast.message}</span>
             <button
                 class="hud-close"
-                aria-label="Dismiss"
+                aria-label={t('ui-dismiss', 'Dismiss')}
                 on:click={() => removeToast(toast.id)}
             >✕</button>
         </div>

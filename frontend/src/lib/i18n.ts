@@ -22,6 +22,7 @@ export async function loadTranslations() {
         const [trans, lang] = await Promise.all([getTranslations(), getCurrentLanguage()])
         translations.set(trans)
         currentLanguage.set(lang)
+        document.documentElement.lang = lang
     } catch (err: unknown) {
         console.error("Failed to load translations:", err)
     }
@@ -33,6 +34,7 @@ export async function setLanguage(lang: string) {
         const newTranslations = await setLanguageInvoke(lang)
         translations.set(newTranslations)
         currentLanguage.set(lang)
+        document.documentElement.lang = lang
     } catch (err: unknown) {
         console.error("Failed to set language:", err)
     }

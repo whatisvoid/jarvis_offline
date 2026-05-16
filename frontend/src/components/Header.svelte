@@ -30,35 +30,43 @@
     </div>
 
     <!-- Level 2: Application Navigation -->
-    <nav class="nav-bar">
-        <button
+    <nav class="nav-bar" aria-label={t('nav-main') || 'Main navigation'}>
+        <a
             class="nav-tab"
+            href="/"
             class:active={$isActive('/', {}, { recursive: false })}
-            on:click={() => $goto('/')}
+            aria-current={$isActive('/', {}, { recursive: false }) ? 'page' : undefined}
+            on:click|preventDefault={() => $goto('/')}
         >
             {t('header-home')}
-        </button>
-        <button
+        </a>
+        <a
             class="nav-tab"
+            href="/commands"
             class:active={$isActive('/commands')}
-            on:click={() => $goto('/commands')}
+            aria-current={$isActive('/commands') ? 'page' : undefined}
+            on:click|preventDefault={() => $goto('/commands')}
         >
             {t('header-commands')}
-        </button>
-        <button
+        </a>
+        <a
             class="nav-tab"
+            href="/settings"
             class:active={$isActive('/settings')}
-            on:click={() => $goto('/settings')}
+            aria-current={$isActive('/settings') ? 'page' : undefined}
+            on:click|preventDefault={() => $goto('/settings')}
         >
             {t('header-settings')}
-        </button>
-        <button
+        </a>
+        <a
             class="nav-tab"
+            href="/system"
             class:active={$isActive('/system')}
-            on:click={() => $goto('/system')}
+            aria-current={$isActive('/system') ? 'page' : undefined}
+            on:click|preventDefault={() => $goto('/system')}
         >
             {t('header-system')}
-        </button>
+        </a>
         <div class="scan-line" aria-hidden="true"></div>
     </nav>
 
@@ -177,6 +185,8 @@
 /* ── Nav tabs ── */
 .nav-tab {
     position: relative;
+    display: inline-flex;
+    align-items: center;
     height: 100%;
     padding: 0;
     background: transparent;
@@ -188,6 +198,7 @@
     text-transform: uppercase;
     letter-spacing: 0.08em;
     cursor: pointer;
+    text-decoration: none;
     transition: color 140ms ease;
     white-space: nowrap;
 
