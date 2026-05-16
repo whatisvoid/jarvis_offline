@@ -2,7 +2,8 @@
     import { onMount } from "svelte"
     import { getCommandsList } from "@/lib/api"
 
-    import { currentLanguage, tStore, reloadCommands } from "@/stores"
+    import { currentLanguage, tStore, reloadCommands, ipcConnected } from "@/stores"
+    import { addToast } from "@/lib/toast"
     import type { JCommand } from "@/types"
 
     $: t = $tStore
@@ -13,6 +14,10 @@
     let loadError = false
 
     $: lang = $currentLanguage || "ru"
+    $: isConnected = $ipcConnected
+    $: reloadTitle = isConnected
+        ? "Reload backend commands & refresh list"
+        : "Refresh list (JARVIS not connected — backend reload skipped)"
 
     function getPhrases(cmd: JCommand): string[] {
         return cmd.phrases[lang] ?? cmd.phrases["en"] ?? Object.values(cmd.phrases)[0] ?? []
@@ -41,7 +46,11 @@
     }
 
     function handleReload() {
-        reloadCommands()
+        if (isConnected) {
+            reloadCommands()
+        } else {
+            addToast("JARVIS not connected — refreshing list only", "info")
+        }
         loadCommands()
     }
 
@@ -55,7 +64,7 @@
         placeholder={t('commands-search')}
         bind:value={searchQuery}
     />
-    <button class="reload-btn" on:click={handleReload} title="Reload commands" aria-label="Reload commands">
+    <button class="reload-btn" on:click={handleReload} title={reloadTitle} aria-label="Reload commands">
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
             <path d="M12 7A5 5 0 1 1 7 2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
             <polyline points="7,1 9,3 7,5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>

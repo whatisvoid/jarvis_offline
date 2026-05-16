@@ -15,6 +15,7 @@
         runtimeEvents,
         addRuntimeEvent
     } from "@/stores"
+    import { addToast } from "@/lib/toast"
     import { DB_KEYS } from "@/lib/db-keys"
 
     $: t = $tStore
@@ -109,6 +110,7 @@
             llmModel     = llm    || ""
         } catch (err: unknown) {
             console.error("System: failed to load models", err)
+            addToast("Failed to load system configuration", "error")
         }
 
         function skipFirst<T>(cb: (v: T) => void) {
@@ -206,7 +208,7 @@
                     {#if cpuDisplay}
                         <span class="telemetry-val">{cpuDisplay}</span>
                     {:else}
-                        <span class="telemetry-val unavailable">NO DATA</span>
+                        <span class="telemetry-val unavailable">—</span>
                     {/if}
                 </div>
                 <div class="telemetry-card">
@@ -214,20 +216,20 @@
                     {#if ramDisplay}
                         <span class="telemetry-val">{ramDisplay}</span>
                     {:else}
-                        <span class="telemetry-val unavailable">NO DATA</span>
+                        <span class="telemetry-val unavailable">—</span>
                     {/if}
                 </div>
-                <div class="telemetry-card">
+                <div class="telemetry-card" title="Not yet available">
                     <span class="telemetry-key">WAKE LAT</span>
-                    <span class="telemetry-val unavailable">NO DATA</span>
+                    <span class="telemetry-val unavailable">N/A</span>
                 </div>
-                <div class="telemetry-card">
+                <div class="telemetry-card" title="Not yet available">
                     <span class="telemetry-key">STT LAT</span>
-                    <span class="telemetry-val unavailable">NO DATA</span>
+                    <span class="telemetry-val unavailable">N/A</span>
                 </div>
-                <div class="telemetry-card">
+                <div class="telemetry-card" title="Not yet available">
                     <span class="telemetry-key">MODEL RESP</span>
-                    <span class="telemetry-val unavailable">NO DATA</span>
+                    <span class="telemetry-val unavailable">N/A</span>
                 </div>
             </div>
         </div>

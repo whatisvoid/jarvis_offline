@@ -14,11 +14,12 @@ export const lastError = writable("")
 
 // ### CONNECTION ###
 
-const IPC_PORT              = 9712
-const RECONNECT_BASE_MS     = 1000
-const RECONNECT_MAX_MS      = 3000
-const HEARTBEAT_INTERVAL_MS = 30000
-const HEARTBEAT_TIMEOUT_MS  = 5000
+const IPC_PORT                = 9712
+const RECONNECT_BASE_MS       = 1000
+const RECONNECT_MAX_MS        = 3000
+const HEARTBEAT_INTERVAL_MS   = 30000
+const HEARTBEAT_TIMEOUT_MS    = 5000
+const PENDING_COMMANDS_MAX    = 20
 
 let ws: WebSocket | null = null
 let reconnectTimer: ReturnType<typeof setTimeout> | null = null
@@ -222,6 +223,9 @@ export function reloadCommands() {
 
 export function sendTextCommand(text: string): boolean {
     if (sendAction({ action: "text_command", text })) return true
+    if (pendingTextCommands.length >= PENDING_COMMANDS_MAX) {
+        pendingTextCommands.shift()
+    }
     pendingTextCommands.push(text)
     return false
 }
