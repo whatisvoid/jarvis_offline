@@ -55,8 +55,15 @@ fn main() -> Result<(), String> {
     // init i18n
     i18n::init(&settings.lock().language);
 
-    // init recorder
-    if recorder::init().is_err() {
+    // init recorder — WAV test mode or live microphone
+    let audio_test_path = parse_audio_test_arg();
+    if let Some(ref path) = audio_test_path {
+        info!("[AUDIO_TEST] WAV test mode enabled: {}", path);
+        if let Err(e) = recorder::init_wav(path) {
+            error!("[AUDIO_TEST] Failed to initialize WAV source: {}", e);
+            app::close(1);
+        }
+    } else if recorder::init().is_err() {
         app::close(1);
     }
 
@@ -170,4 +177,16 @@ fn main() -> Result<(), String> {
 
 pub fn should_stop() -> bool {
     SHOULD_STOP.load(Ordering::SeqCst)
+}
+
+fn parse_audio_test_arg() -> Option<String> {
+    let args: Vec<String> = std::env::args().collect();
+    for i in 0..args.len() {
+        if args[i] == "--audio-test" {
+            if i + 1 < args.len() {
+                return Some(args[i + 1].clone());
+            }
+        }
+    }
+    std::env::var("JARVIS_AUDIO_TEST_FILE").ok()
 }

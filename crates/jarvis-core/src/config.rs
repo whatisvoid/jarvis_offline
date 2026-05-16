@@ -96,7 +96,7 @@ pub const TRAY_ICON: &str = "32x32.png";
 pub const TRAY_TOOLTIP: &str = "Jarvis Voice Assistant";
 
 // RUSPOTTER
-pub const RUSPOTTER_MIN_SCORE: f32 = 0.62;
+pub const RUSPOTTER_MIN_SCORE: f32 = 0.58;
 
 #[cfg(feature="jarvis_app")]
 pub const RUSTPOTTER_DEFAULT_CONFIG: Lazy<RustpotterConfig> = Lazy::new(|| {
@@ -105,7 +105,7 @@ pub const RUSTPOTTER_DEFAULT_CONFIG: Lazy<RustpotterConfig> = Lazy::new(|| {
         detector: DetectorConfig {
             avg_threshold: 0.,
             threshold: 0.5,
-            min_scores: 15,
+            min_scores: 5,
             score_ref: 0.22,
             band_size: 5,
             vad_mode: None,
@@ -126,9 +126,9 @@ pub const RUSTPOTTER_DEFAULT_CONFIG: Lazy<RustpotterConfig> = Lazy::new(|| {
                 max_gain: 1.0,
             },
             band_pass: BandPassConfig {
-                enabled: true,
+                enabled: false,
                 low_cutoff: 80.,
-                high_cutoff: 400.,
+                high_cutoff: 8000.,
             },
         },
     }

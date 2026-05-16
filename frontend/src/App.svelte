@@ -2,7 +2,6 @@
     import { onMount, onDestroy } from "svelte"
     import { Router } from "@roxi/routify"
     import routes from "../.routify/routes.default.js"
-    import { SvelteUIProvider } from "@svelteuidev/core"
     import Events from "./Events.svelte"
     import Toasts from "@/components/ui/Toasts.svelte"
 
@@ -26,9 +25,6 @@
     })
 </script>
 
-<SvelteUIProvider themeObserver="dark" withNormalizeCSS withGlobalStyles>
-    <Router {routes} />
-</SvelteUIProvider>
-
+<Router {routes} />
 <Events />
 <Toasts />

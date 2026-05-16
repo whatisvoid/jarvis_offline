@@ -2,6 +2,7 @@ use sysinfo::{System, Pid, ProcessRefreshKind, RefreshKind, CpuRefreshKind, Comp
 use peak_alloc::PeakAlloc;
 use std::sync::Mutex;
 use once_cell::sync::Lazy;
+use log::{info, error};
 
 #[global_allocator]
 static PEAK_ALLOC: PeakAlloc = PeakAlloc;
@@ -124,27 +125,52 @@ pub fn get_peak_ram_usage() -> String {
 
 #[tauri::command]
 pub fn run_jarvis_app() -> Result<(), String> {
+    // Kill any existing instance so the new one can acquire the microphone.
+    // Without this, PvRecorder blocks indefinitely if the old process still holds the device.
+    {
+        let mut sys = SYS.lock().unwrap();
+        sys.refresh_processes(sysinfo::ProcessesToUpdate::All, true);
+        if let Some(pid) = find_jarvis_app_pid(&sys) {
+            if let Some(proc) = sys.process(pid) {
+                proc.kill();
+            }
+        }
+    }
+    // Give the OS a moment to release the microphone device before we open it again.
+    std::thread::sleep(std::time::Duration::from_millis(500));
+
     let exe_dir = std::env::current_exe()
         .map_err(|e| format!("Failed to get exe path: {}", e))?
         .parent()
         .ok_or("Failed to get exe directory")?
         .to_path_buf();
-    
+
     #[cfg(target_os = "windows")]
     let jarvis_app_name = "jarvis-app.exe";
-    
+
     #[cfg(not(target_os = "windows"))]
     let jarvis_app_name = "jarvis-app";
-    
+
     let jarvis_app_path = exe_dir.join(jarvis_app_name);
-    
+
+    info!("Launching jarvis-app subprocess: {}", jarvis_app_path.display());
+
     if !jarvis_app_path.exists() {
+        error!("jarvis-app binary not found at: {}", jarvis_app_path.display());
         return Err(format!("jarvis-app not found at: {}", jarvis_app_path.display()));
     }
-    
-    std::process::Command::new(&jarvis_app_path)
+
+    match std::process::Command::new(&jarvis_app_path)
+        .current_dir(&exe_dir)
         .spawn()
-        .map_err(|e| format!("Failed to start jarvis-app: {}", e))?;
-    
-    Ok(())
+    {
+        Ok(child) => {
+            info!("jarvis-app spawned successfully (PID {})", child.id());
+            Ok(())
+        }
+        Err(e) => {
+            error!("Failed to spawn jarvis-app: {}", e);
+            Err(format!("Failed to start jarvis-app: {}", e))
+        }
+    }
 }

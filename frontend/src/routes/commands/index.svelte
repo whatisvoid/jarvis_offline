@@ -1,6 +1,5 @@
 <script lang="ts">
     import { onMount } from "svelte"
-    import { Space } from "@svelteuidev/core"
     import { getCommandsList } from "@/lib/api"
 
     import { currentLanguage, tStore, reloadCommands } from "@/stores"
@@ -48,8 +47,6 @@
 
     onMount(loadCommands)
 </script>
-
-<Space h="md" />
 
 <div class="commands-header">
     <input
@@ -121,6 +118,7 @@
     align-items: center;
     gap: 0.75rem;
     padding-right: 12px;
+    margin-top: 16px;
     margin-bottom: 10px;
 }
 

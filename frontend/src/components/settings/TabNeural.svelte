@@ -70,8 +70,8 @@
     <p class="section-desc">{t('settings-intent-engine-desc')}</p>
     <Select
         data={[
-            { label: "Intent Classifier", value: "IntentClassifier" },
-            { label: "Embedding Classifier", value: "EmbeddingClassifier" }
+            { label: "Intent Classifier", value: "intent-classifier" },
+            { label: "Disabled", value: "none" }
         ]}
         bind:value={selectedIntentRecognitionEngine}
     />

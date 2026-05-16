@@ -31,6 +31,12 @@
     let intentEngine = ""
     let llmModel = ""
 
+    $: intentDisplay = (!intentEngine || intentEngine === 'none')
+        ? 'NOT CONFIGURED'
+        : intentEngine === 'intent-classifier'
+        ? 'Intent Classifier'
+        : intentEngine
+
     // ── Status derivation ────────────────────────────────────────────────────
     $: wakeStatus     = $isJarvisRunning ? 'online'    : 'offline'
     $: sttStatus      = $ipcConnected    ? 'ready'     : ($isJarvisRunning ? 'loading' : 'offline')
@@ -268,7 +274,7 @@
                 </div>
                 <div class="sys-status-row sys-status-row--sm">
                     <span class="sys-row-name">INTENT</span>
-                    <span class="sys-row-value">{intentEngine || '—'}</span>
+                    <span class="sys-row-value">{intentDisplay}</span>
                 </div>
                 <div class="sys-status-row sys-status-row--sm">
                     <span class="sys-row-name">LLM</span>

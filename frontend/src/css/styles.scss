@@ -93,8 +93,6 @@ input, select, textarea, button {
 }
 input:focus:not(:focus-visible), select:focus:not(:focus-visible), textarea:focus:not(:focus-visible) { outline: none; }
 
-/* SvelteUI global overrides */
-.svelteui-InputWrapper-description { white-space: pre-line; }
 
 @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after {

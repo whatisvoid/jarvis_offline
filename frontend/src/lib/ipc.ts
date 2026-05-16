@@ -16,7 +16,7 @@ export const lastError = writable("")
 
 const IPC_PORT              = 9712
 const RECONNECT_BASE_MS     = 1000
-const RECONNECT_MAX_MS      = 30000
+const RECONNECT_MAX_MS      = 3000
 const HEARTBEAT_INTERVAL_MS = 30000
 const HEARTBEAT_TIMEOUT_MS  = 5000
 
@@ -31,6 +31,11 @@ let pendingTextCommands: string[] = []
 
 export function enableIpc() {
     enabled = true
+    reconnectAttempt = 0
+    if (reconnectTimer) {
+        clearTimeout(reconnectTimer)
+        reconnectTimer = null
+    }
     connectIpc()
 }
 

@@ -37,11 +37,15 @@ export async function loadSettingsValues(): Promise<SettingsValues> {
     const val = (i: number): string =>
         settled[i].status === 'fulfilled' ? (settled[i] as PromiseFulfilledResult<string>).value : ""
 
+    const VALID_INTENT_ENGINES = ["intent-classifier", "none"]
+    const rawIntent = val(3)
+    const intentEngine = VALID_INTENT_ENGINES.includes(rawIntent) ? rawIntent : "none"
+
     return {
         microphone:            val(0),
         wakeWordEngine:        val(1),
         sttEngine:             val(2),
-        intentEngine:          val(3),
+        intentEngine,
         slotEngine:            val(4),
         glinerModel:           val(5),
         voskModel:             val(6),
@@ -59,7 +63,6 @@ export async function saveSettingsValues(s: SettingsValues & { voiceVal: string 
         dbWrite(DB_KEYS.voice,           s.voiceVal),
         dbWrite(DB_KEYS.microphone,      s.microphone),
         dbWrite(DB_KEYS.wakeWordEngine,  s.wakeWordEngine),
-        dbWrite(DB_KEYS.sttEngine,       s.sttEngine),
         dbWrite(DB_KEYS.intentEngine,    s.intentEngine),
         dbWrite(DB_KEYS.slotEngine,      s.slotEngine),
         dbWrite(DB_KEYS.glinerModel,     s.glinerModel),

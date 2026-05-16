@@ -44,3 +44,17 @@ pub fn data_callback(frame_buffer: &[i16]) -> Option<i32> {
         WakeWordEngine::Vosk => vosk::data_callback(frame_buffer),
     }
 }
+
+pub fn get_max_score() -> f32 {
+    match WAKE_WORD_ENGINE.get() {
+        Some(WakeWordEngine::Rustpotter) => rustpotter::get_max_score(),
+        _ => 0.0,
+    }
+}
+
+pub fn get_frame_count() -> usize {
+    match WAKE_WORD_ENGINE.get() {
+        Some(WakeWordEngine::Rustpotter) => rustpotter::get_frame_count(),
+        _ => 0,
+    }
+}
