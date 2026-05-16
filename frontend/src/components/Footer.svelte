@@ -1,9 +1,9 @@
 <script lang="ts">
-    import { onMount } from "svelte"
-    import { invoke } from "@tauri-apps/api/core"
-    import { appInfo, currentLanguage, translations, translate } from "@/stores"
+    import { onMount, onDestroy } from "svelte"
+    import { getAuthorName } from "@/lib/api"
+    import { appInfo, currentLanguage, tStore } from "@/stores"
 
-    $: t = (key: string) => translate($translations, key)
+    $: t = $tStore
 
     let authorName = ""
     let tgLink = ""
@@ -13,17 +13,21 @@
 
     const currentYear = new Date().getFullYear()
 
-    appInfo.subscribe(info => {
+    const unsubAppInfo = appInfo.subscribe(info => {
         tgLink = info.tgOfficialLink
         repoLink = info.repositoryLink
         boostyLink = info.boostySupportLink
         patreonLink = info.patreonSupportLink
     })
 
+    onDestroy(() => {
+        unsubAppInfo()
+    })
+
     onMount(async () => {
         try {
-            authorName = await invoke<string>("get_author_name")
-        } catch (err) {
+            authorName = await getAuthorName()
+        } catch (err: unknown) {
             console.error("failed to get author name:", err)
         }
     })
@@ -33,26 +37,26 @@
     <p>© {currentYear}. {t('footer-author')}: <b>{authorName}</b></p>
     <p class="links">
         {#if $currentLanguage === "ru" || $currentLanguage === "ua"}
-        <a href={tgLink} target="_blank" class="telegram-link">
+        <a href={tgLink} target="_blank" rel="noopener noreferrer" class="telegram-link">
             <img src="/media/icons/telegram.webp" alt="Telegram" width="18px" />
             &nbsp;<span>{t('footer-telegram')}</span>
         </a>
         &nbsp;
         {/if}
-        <a href={repoLink} target="_blank">
+        <a href={repoLink} target="_blank" rel="noopener noreferrer">
             <img src="/media/icons/github-logo.png" alt="GitHub" width="18px" />
             &nbsp;<span>{t('footer-github')}</span>
         </a>
     </p>
     <p class="links last">
         {#if $currentLanguage === "ru"}
-        {t('footer-support')} <a href={boostyLink} target="_blank" class="telegram-link">
+        {t('footer-support')} <a href={boostyLink} target="_blank" rel="noopener noreferrer" class="telegram-link">
             <img src="/media/icons/boosty.webp" alt="Boosty" width="18px" />
             <span>Boosty</span>
         </a>.
         {/if}
         {#if $currentLanguage === "ua" || $currentLanguage === "en"}
-        {t('footer-support')} <a href={patreonLink} target="_blank" class="telegram-link">
+        {t('footer-support')} <a href={patreonLink} target="_blank" rel="noopener noreferrer" class="telegram-link">
             <img src="/media/icons/patreon.png" alt="Patreon" width="18px" />
             <span>Patreon</span>
         </a>.
@@ -63,7 +67,7 @@
 <style lang="scss">
     #footer {
         text-align: center;
-        color: #6c6e71;
+        color: var(--text-muted);
         font-size: 13px;
         font-weight: normal;
         line-height: 1.7em;
@@ -84,55 +88,41 @@
         }
 
         a {
-            color: #555759!important;
+            color: rgba(255,255,255,0.32);
             text-decoration: none;
-            transition: 0.3s;
-            
+            transition: var(--ease);
+
             & > span {
-                color: #185876;
-                border-bottom: 1px solid #185876;
-                transition: 0.3s;
+                color: rgba(var(--accent-rgb),0.52);
+                border-bottom: 1px solid var(--border-hover);
+                transition: var(--ease);
             }
 
             img {
-                opacity: 0.5;
-                transition: opacity 0.5s;
+                opacity: 0.42;
+                transition: var(--ease);
                 margin-top: -3px;
             }
 
             &:hover {
-                color: #777a7d!important;
+                color: rgba(255,255,255,0.55);
 
                 & > span {
-                    color: #2A9CD0;
+                    color: var(--accent);
+                    border-bottom-color: rgba(var(--accent-rgb),0.45);
                 }
 
                 img {
-                    opacity: 1;
+                    opacity: 0.85;
                 }
             }
 
             &.telegram-link {
-                color: #185876;
+                color: rgba(var(--accent-rgb),0.52);
                 display: inline-block;
 
                 &:hover {
-                    color: #2A9CD0;
-                    // background: url(/media/images/bg/bg24.gif);
-                    // background-repeat: no-repeat;
-                    // background-size: contain;
-                }
-            }
-
-            &.special-link {
-                color: #941d92;
-                display: inline-block;
-
-                &:hover {
-                    color: #FF07FC;
-                    background: url(/media/images/bg/bg24.gif);
-                    background-repeat: no-repeat;
-                    background-size: contain;
+                    color: var(--accent);
                 }
             }
         }

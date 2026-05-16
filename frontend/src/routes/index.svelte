@@ -1,26 +1,29 @@
 <script lang="ts">
     import { onMount, onDestroy } from "svelte"
-    import { invoke } from "@tauri-apps/api/core"
+    import { runJarvisApp } from "@/lib/api"
+    import { addToast } from "@/lib/toast"
 
     import SearchBar from "@/components/elements/SearchBar.svelte"
     import ArcReactor from "@/components/elements/ArcReactor.svelte"
     import Stats from "@/components/elements/Stats.svelte"
+    import { get } from "svelte/store"
     import {
         isJarvisRunning,
         updateJarvisStats,
+        startStatsPolling,
+        stopStatsPolling,
         enableIpc,
         disableIpc,
-        translate,
-        translations
+        tStore
     } from "@/stores"
 
-    $: t = (key: string) => translate($translations, key)
+    $: t = $tStore
 
     let processRunning = false
     let launching = false
     let wasRunning = false
 
-    isJarvisRunning.subscribe((value) => {
+    const unsubRunning = isJarvisRunning.subscribe((value) => {
         processRunning = value
         if (value) {
             enableIpc()
@@ -32,23 +35,33 @@
     })
 
     onMount(() => {
-        updateJarvisStats()
+        startStatsPolling(5000)
     })
 
     onDestroy(() => {
-        disableIpc()
+        stopStatsPolling()
+        unsubRunning()
+        // disableIpc already called via unsubRunning → isJarvisRunning handler when process stops.
+        // Call unconditionally here only if we never got a "stopped" event (e.g. user navigates away while running).
+        if (wasRunning) disableIpc()
     })
 
     async function runAssistant() {
         launching = true
         try {
-            await invoke("run_jarvis_app")
-            setTimeout(async () => {
+            await runJarvisApp()
+            const poll = async (attemptsLeft: number) => {
                 await updateJarvisStats()
-                launching = false
-            }, 2500)
-        } catch (err) {
+                if (get(isJarvisRunning) || attemptsLeft <= 0) {
+                    launching = false
+                } else {
+                    setTimeout(() => poll(attemptsLeft - 1), 500)
+                }
+            }
+            setTimeout(() => poll(12), 500)
+        } catch (err: unknown) {
             console.error("Failed to run jarvis-app:", err)
+            addToast(t('error-start-failed') || "Failed to start JARVIS", "error")
             launching = false
         }
     }
@@ -60,24 +73,26 @@
     </div>
 
     <div class="reactor-section">
-        <div class="reactor-wrapper">
-            <ArcReactor />
-        </div>
-
-        {#if !processRunning}
-            <div class="offline-badge">
-                <span class="offline-icon">⚠</span>
-                <span class="offline-text">{t('assistant-not-running')}</span>
-                <small>{t('assistant-offline-hint')}</small>
+        <div class="reactor-group">
+            <div class="reactor-wrapper">
+                <ArcReactor />
             </div>
-            <button
-                class="start-button"
-                on:click={runAssistant}
-                disabled={launching}
-            >
-                {launching ? t('btn-starting') : t('btn-start')}
-            </button>
-        {/if}
+
+            {#if !processRunning}
+                <div class="offline-badge">
+                    <span class="offline-icon">⚠</span>
+                    <span class="offline-text">{t('assistant-not-running')}</span>
+                    <small>{t('assistant-offline-hint')}</small>
+                </div>
+                <button
+                    class="start-button"
+                    on:click={runAssistant}
+                    disabled={launching}
+                >
+                    {launching ? t('btn-starting') : t('btn-start')}
+                </button>
+            {/if}
+        </div>
     </div>
 
     <footer class="stats-footer">
@@ -90,7 +105,6 @@
     display: flex;
     flex-direction: column;
     height: calc(100vh - var(--header-h));
-    overflow: hidden;
 }
 
 .search-section {
@@ -101,13 +115,92 @@
 
 .reactor-section {
     flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
     overflow: hidden;
     position: relative;
+}
+
+.reactor-group {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     padding-bottom: 96px;
+    transform: translateY(20px);
+}
+
+.reactor-wrapper {
+    transition: opacity 0.5s ease, filter 0.5s ease;
+}
+
+.offline-badge {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    position: absolute;
+    top: 40%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    margin-top: -2.5rem;
+    white-space: nowrap;
+
+    small {
+        display: block;
+        position: absolute;
+        top: 26px;
+        text-align: center;
+        width: 100%;
+        font-size: 0.68rem;
+        color: var(--text-muted);
+        letter-spacing: 0.5px;
+    }
+}
+
+.offline-icon {
+    font-size: 1rem;
+    color: rgba(255,190,90,0.92);
+}
+
+.offline-text {
+    color: rgba(255,190,90,0.92);
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 3.5px;
+    white-space: nowrap;
+}
+
+.start-button {
+    position: absolute;
+    top: 40%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    margin-top: 2.8rem;
+    height: 36px;
+    padding: 0 1.8rem;
+    background: linear-gradient(180deg, var(--accent-glow-lg), rgba(0,120,180,0.10));
+    border: 1px solid var(--border-hover);
+    border-radius: var(--r-md);
+    color: var(--accent);
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 2.5px;
+    cursor: pointer;
+    transition: background 140ms ease, border-color 140ms ease, box-shadow 140ms ease, transform 140ms ease;
+    box-shadow: 0 0 16px var(--accent-glow-sm);
+
+    &:hover:not(:disabled) {
+        background: linear-gradient(180deg, var(--accent-glow-xl), rgba(0,140,200,0.14));
+        border-color: var(--border-focus);
+        box-shadow: 0 0 20px var(--accent-glow-md);
+        transform: translate(-50%, -50%) translateY(-1px);
+    }
+
+    &:disabled {
+        opacity: 0.35;
+        cursor: not-allowed;
+    }
 }
 
 .stats-footer {

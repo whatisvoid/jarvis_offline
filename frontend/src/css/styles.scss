@@ -6,6 +6,12 @@
     padding: 0;
 }
 
+/* Firefox scrollbar */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0,229,255,0.18) rgba(255,255,255,0.02);
+}
+
 html, body {
     height: 100%;
     overflow: hidden;
@@ -19,13 +25,14 @@ html, body {
     text-rendering: optimizeLegibility;
 }
 
+/* Webkit scrollbar — unified design */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
-::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-track { background: rgba(255,255,255,0.02); }
 ::-webkit-scrollbar-thumb {
-    background: rgba(255,255,255,0.10);
-    border-radius: 3px;
+    background: rgba(0,229,255,0.18);
+    border-radius: 999px;
 }
-::-webkit-scrollbar-thumb:hover { background: rgba(0,229,255,0.24); }
+::-webkit-scrollbar-thumb:hover { background: rgba(0,229,255,0.30); }
 ::-webkit-scrollbar-corner { background: transparent; }
 
 ::selection {
@@ -48,7 +55,7 @@ a:hover { opacity: 0.8; }
     position: relative;
     background:
         radial-gradient(ellipse at 50% 0%, rgba(0,229,255,0.07) 0%, transparent 52%),
-        linear-gradient(180deg, #05070B 0%, #070B11 100%);
+        linear-gradient(180deg, var(--bg-base) 0%, var(--bg-surface) 100%);
 
     /* Grid on its own layer with edge-fade mask */
     &::before {
@@ -68,14 +75,29 @@ a:hover { opacity: 0.8; }
 
 main {
     flex: 1;
-    overflow: hidden;
     padding: 0 24px;
+}
+
+/* Route transition — fade-in on mount */
+main > * {
+    animation: route-in 180ms ease both;
+}
+
+@keyframes route-in {
+    from { opacity: 0; transform: translateY(5px); }
+    to   { opacity: 1; transform: translateY(0); }
 }
 
 input, select, textarea, button {
     font-family: var(--font);
 }
-input:focus, select:focus, textarea:focus { outline: none; }
+input:focus:not(:focus-visible), select:focus:not(:focus-visible), textarea:focus:not(:focus-visible) { outline: none; }
 
-/* SvelteUI global overrides */
-.svelteui-InputWrapper-description { white-space: pre-line; }
+
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}

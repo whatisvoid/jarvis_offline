@@ -1,28 +1,16 @@
 <script lang="ts">
     import { onMount } from "svelte"
-    import { invoke } from "@tauri-apps/api/core"
-    import { Space } from "@svelteuidev/core"
+    import { getCommandsList } from "@/lib/api"
 
-    import { currentLanguage, translations, translate } from "@/stores"
+    import { currentLanguage, tStore, reloadCommands } from "@/stores"
+    import type { JCommand } from "@/types"
 
-    $: t = (key: string) => translate($translations, key)
-
-    interface SlotDefinition {
-        entity: string
-        context: string[]
-    }
-
-    interface JCommand {
-        id: string
-        type: string
-        description: string
-        phrases: Record<string, string[]>
-        slots: Record<string, SlotDefinition>
-    }
+    $: t = $tStore
 
     let commands: JCommand[] = []
     let searchQuery = ""
     let loading = true
+    let loadError = false
 
     $: lang = $currentLanguage || "ru"
 
@@ -39,45 +27,51 @@
         )
     })
 
-    const TYPE_COLORS: Record<string, string> = {
-        lua:           "#00FFC6",
-        ahk:           "#3b82f6",
-        cli:           "#f97316",
-        voice:         "#a855f7",
-        terminate:     "#ef4444",
-        stop_chaining: "#6b7280",
-    }
-
-    function typeColor(type: string): string {
-        return TYPE_COLORS[type.toLowerCase()] ?? "#6b7280"
-    }
-
-    onMount(async () => {
+    async function loadCommands() {
+        loading = true
+        loadError = false
         try {
-            commands = await invoke<JCommand[]>("get_commands_list")
-        } catch (err) {
+            commands = await getCommandsList()
+        } catch (err: unknown) {
             console.error("Failed to load commands:", err)
+            loadError = true
         } finally {
             loading = false
         }
-    })
-</script>
+    }
 
-<Space h="md" />
+    function handleReload() {
+        reloadCommands()
+        loadCommands()
+    }
+
+    onMount(loadCommands)
+</script>
 
 <div class="commands-header">
     <input
-        class="search-input"
+        class="shell-input"
         type="text"
         placeholder={t('commands-search')}
         bind:value={searchQuery}
     />
+    <button class="reload-btn" on:click={handleReload} title="Reload commands" aria-label="Reload commands">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+            <path d="M12 7A5 5 0 1 1 7 2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+            <polyline points="7,1 9,3 7,5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+    </button>
 </div>
 
 {#if loading}
     <div class="empty-state">{t('stats-loading')}</div>
+{:else if loadError}
+    <div class="empty-state error-state">
+        <span>{t('commands-load-error')}</span>
+        <button class="retry-btn" on:click={loadCommands}>{t('commands-retry')}</button>
+    </div>
 {:else if commands.length === 0}
-    <div class="empty-state">Нет доступных команд</div>
+    <div class="empty-state">{t('commands-no-commands')}</div>
 {:else if filtered.length === 0}
     <div class="empty-state">{t('error-not-found')}</div>
 {:else}
@@ -87,7 +81,7 @@
             <div class="command-card">
                 <div class="card-header">
                     <span class="cmd-id">{cmd.id}</span>
-                    <span class="cmd-type-badge" style="--type-color: {typeColor(cmd.type)}">
+                    <span class="cmd-type-badge" data-type={cmd.type.toLowerCase()}>
                         {cmd.type}
                     </span>
                 </div>
@@ -123,50 +117,91 @@
     display: flex;
     align-items: center;
     gap: 0.75rem;
+    padding-right: 12px;
+    margin-top: 16px;
     margin-bottom: 10px;
 }
 
-.search-input {
-    flex: 1;
-    height: 36px;
-    background: var(--bg-input);
-    border: 1px solid var(--border);
+.reload-btn {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.07);
     border-radius: var(--r-md);
-    color: var(--text);
-    font-size: 0.82rem;
-    padding: 0 12px;
-    outline: none;
+    color: rgba(255,255,255,0.35);
+    cursor: pointer;
     transition: var(--ease);
 
-    &::placeholder { color: var(--text-muted); }
-    &:focus { border-color: rgba(0,229,255,0.5); }
+    &:hover {
+        background: rgba(var(--accent-rgb),0.06);
+        border-color: rgba(var(--accent-rgb),0.2);
+        color: var(--accent);
+    }
 }
 
 .empty-state {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     text-align: center;
     color: var(--text-muted);
     font-size: 0.82rem;
     padding: 2.5rem 0;
     font-style: italic;
+
+    &.error-state {
+        color: rgba(255, 90, 90, 0.75);
+        font-style: normal;
+        gap: 12px;
+        flex-direction: column;
+    }
+}
+
+.retry-btn {
+    margin-top: 4px;
+    padding: 6px 16px;
+    background: transparent;
+    border: 1px solid rgba(255, 90, 90, 0.4);
+    border-radius: 6px;
+    color: rgba(255, 90, 90, 0.75);
+    font-family: var(--font);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    cursor: pointer;
+    transition: border-color 140ms ease, color 140ms ease;
+
+    &:hover {
+        border-color: rgba(255, 90, 90, 0.7);
+        color: rgba(255, 90, 90, 1);
+    }
 }
 
 .commands-list {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 8px;
+    padding-right: 12px;
     padding-bottom: 1rem;
     overflow-y: auto;
     max-height: calc(100vh - var(--header-h) - 80px);
 }
 
 .command-card {
-    background: var(--bg-card);
-    border: 1px solid var(--border);
+    background: rgba(255,255,255,0.018);
+    border: 1px solid rgba(255,255,255,0.045);
     border-radius: var(--r-md);
     padding: 10px 14px;
     transition: var(--ease);
 
-    &:hover { border-color: var(--border-strong); }
+    &:hover {
+        background: rgba(0,229,255,0.018);
+        border-color: rgba(0,229,255,0.08);
+    }
 }
 
 .card-header {
@@ -185,6 +220,7 @@
 }
 
 .cmd-type-badge {
+    --type-color: #6b7280;
     font-size: 0.6rem;
     font-weight: 700;
     text-transform: uppercase;
@@ -194,6 +230,13 @@
     border-radius: var(--r-sm);
     padding: 1px 5px;
     opacity: 0.82;
+
+    &[data-type="lua"]           { --type-color: #00FFC6; }
+    &[data-type="ahk"]           { --type-color: #3b82f6; }
+    &[data-type="cli"]           { --type-color: #f97316; }
+    &[data-type="voice"]         { --type-color: #a855f7; }
+    &[data-type="terminate"]     { --type-color: #ef4444; }
+    &[data-type="stop_chaining"] { --type-color: #6b7280; }
 }
 
 .cmd-description {
@@ -212,12 +255,13 @@
 
 .phrase-chip {
     font-size: 0.67rem;
-    background: rgba(255,255,255,0.04);
-    border: 1px solid rgba(255,255,255,0.07);
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
     border-radius: var(--r-sm);
     padding: 2px 7px;
     color: rgba(255,255,255,0.38);
     font-style: italic;
+    opacity: 0.78;
 }
 
 .cmd-slots {
@@ -229,12 +273,13 @@
 
 .slot-chip {
     font-size: 0.65rem;
-    background: rgba(168,85,247,0.07);
-    border: 1px solid rgba(168,85,247,0.22);
+    background: rgba(168,85,247,0.045);
+    border: 1px solid rgba(168,85,247,0.14);
     border-radius: var(--r-sm);
     padding: 1px 6px;
-    color: rgba(168,85,247,0.8);
+    color: rgba(168,85,247,0.72);
     font-family: var(--font-mono);
     cursor: help;
+    opacity: 0.78;
 }
 </style>

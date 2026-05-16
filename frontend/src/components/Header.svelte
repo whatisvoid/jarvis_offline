@@ -1,28 +1,16 @@
 <script lang="ts">
-    import { onMount } from "svelte"
-    import { goto } from "@roxi/routify"
-    import { translations, translate } from "@/stores"
+    import { goto, isActive } from "@roxi/routify"
+    import { tStore } from "@/stores"
     import WindowFrame from "@/components/layout/WindowFrame.svelte"
 
-    $: t = (key: string) => translate($translations, key)
-
-    let currentPath = "/"
-
-    onMount(() => {
-        currentPath = window.location.pathname
-    })
-
-    function navigate(path: string) {
-        $goto(path)
-        currentPath = path
-    }
+    $: t = $tStore
 </script>
 
 <header class="header">
 
     <!-- Level 1: System Shell -->
     <div class="shell-bar">
-        <a class="logo" href="/" title="JARVIS" on:click|preventDefault={() => navigate('/')}>
+        <a class="logo" href="/" title="JARVIS" on:click|preventDefault={() => $goto('/')}>
             <svg class="logo-icon" width="36" height="36" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <circle cx="20" cy="20" r="18" stroke="currentColor" stroke-width="0.75" opacity="0.28"/>
                 <g class="logo-spin">
@@ -45,17 +33,31 @@
     <nav class="nav-bar">
         <button
             class="nav-tab"
-            class:active={currentPath === '/commands'}
-            on:click={() => navigate('/commands')}
+            class:active={$isActive('/', {}, { recursive: false })}
+            on:click={() => $goto('/')}
+        >
+            {t('header-home')}
+        </button>
+        <button
+            class="nav-tab"
+            class:active={$isActive('/commands')}
+            on:click={() => $goto('/commands')}
         >
             {t('header-commands')}
         </button>
         <button
             class="nav-tab"
-            class:active={currentPath === '/settings'}
-            on:click={() => navigate('/settings')}
+            class:active={$isActive('/settings')}
+            on:click={() => $goto('/settings')}
         >
             {t('header-settings')}
+        </button>
+        <button
+            class="nav-tab"
+            class:active={$isActive('/system')}
+            on:click={() => $goto('/system')}
+        >
+            {t('header-system')}
         </button>
         <div class="scan-line" aria-hidden="true"></div>
     </nav>
@@ -92,7 +94,7 @@
         left: 0;
         right: 0;
         height: 1px;
-        background: linear-gradient(90deg, transparent 0%, rgba(0,229,255,0.25) 35%, rgba(0,229,255,0.25) 65%, transparent 100%);
+        background: var(--shell-separator);
         pointer-events: none;
     }
 }
@@ -154,8 +156,8 @@
     height: var(--nav-h);
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 28px;
-    padding: 0 20px;
     background: linear-gradient(180deg, rgba(7,10,15,0.92) 0%, rgba(5,8,12,0.90) 100%);
     position: relative;
     flex-shrink: 0;
@@ -167,7 +169,7 @@
         left: 0;
         right: 0;
         height: 1px;
-        background: linear-gradient(90deg, transparent 0%, rgba(0,229,255,0.22) 30%, rgba(0,229,255,0.22) 70%, transparent 100%);
+        background: var(--shell-separator);
         pointer-events: none;
     }
 }
@@ -204,6 +206,12 @@
 
     &:hover { color: rgba(255,255,255,0.88); }
 
+    &:focus-visible {
+        outline: 2px solid rgba(0,229,255,0.55);
+        outline-offset: -2px;
+        border-radius: 2px;
+    }
+
     &.active {
         color: var(--text);
         font-weight: 700;
@@ -227,5 +235,11 @@
 @keyframes scan-sweep {
     from { left: -30%; }
     to   { left: 110%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .logo-spin { animation: none; }
+    .scan-line { display: none; }
+    .nav-tab   { transition: none; }
 }
 </style>

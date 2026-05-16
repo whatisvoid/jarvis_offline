@@ -20,17 +20,22 @@ fn main_loop(text_cmd_rx: Receiver<String>, rt: &tokio::runtime::Runtime) -> Res
     let frame_length: usize = 512;
     let sample_rate: usize = 16000;
     let mut frame_buffer: Vec<i16> = vec![0; frame_length];
-    
+
     // ring buffer: keeps last 5 seconds of audio (pre-roll)
     let mut audio_buffer = AudioRingBuffer::new(5.0, frame_length, sample_rate);
 
     // VAD state
     let mut vad_state = VadState::WaitingForVoice;
     let mut silence_frames: u32 = 0;
-    
+
     // how many frames of silence before we consider speech ended
     // 1.5 seconds = 1.5 * (16000 / 512) ≈ 47 frames
     let silence_threshold: u32 = ((1.5 * sample_rate as f32) / frame_length as f32) as u32;
+
+    // WAV test mode: count silence frames after WAV is exhausted for auto-terminate
+    let mut wav_done_silence: u32 = 0;
+    // ~1.5 seconds of post-WAV silence before terminating
+    let wav_done_grace: u32 = ((1.5 * sample_rate as f32) / frame_length as f32) as u32;
     
     voices::play_greet();
 
@@ -61,18 +66,36 @@ fn main_loop(text_cmd_rx: Receiver<String>, rt: &tokio::runtime::Runtime) -> Res
 
         recorder::read_microphone(&mut frame_buffer);
         let processed = audio_processing::process(&frame_buffer);
-        
+
+        // WAV test mode: auto-terminate after WAV is exhausted + grace period
+        if recorder::is_wav_mode() && recorder::is_wav_done() {
+            if vad_state == VadState::WaitingForVoice {
+                wav_done_silence += 1;
+                if wav_done_silence >= wav_done_grace {
+                    info!("[AUDIO_TEST] WAV replay complete — shutting down");
+                    info!("[WAKE] Total frames sent to Rustpotter: {}", listener::get_frame_count());
+                    info!("[WAKE] Max score seen: {:.3}", listener::get_max_score());
+                    info!("[WAKE] Min score threshold: {:.3}", config::RUSPOTTER_MIN_SCORE);
+                    info!("[WAKE] Expected pipeline sample rate: 16000 Hz");
+                    break 'wake_word;
+                }
+            } else {
+                wav_done_silence = 0;
+            }
+        }
+
         match vad_state {
             VadState::WaitingForVoice => {
                 // always buffer audio
                 audio_buffer.push(&frame_buffer);
-                
+
                 if processed.is_voice {
-                    // voice started! flush buffer to Vosk
-                    info!("VAD: Voice started, flushing {} buffered frames", audio_buffer.len());
+                    // voice started — flush pre-roll buffer to wake word detector
+                    info!("[VAD] Voice started, flushing {} buffered frames to wake word engine", audio_buffer.len());
                     
                     for buffered_frame in audio_buffer.drain_all() {
                         listener::data_callback(&buffered_frame);
+                        let _ = stt::recognize_wake_word(&buffered_frame);
                     }
                     
                     vad_state = VadState::VoiceActive;
@@ -81,13 +104,27 @@ fn main_loop(text_cmd_rx: Receiver<String>, rt: &tokio::runtime::Runtime) -> Res
             }
             
             VadState::VoiceActive => {
-                // dual-feed: speech recognizer gets frames in parallel with wake word detector
+                // dual-feed: speech recognizer accumulates audio (captures "wake + command" in one breath)
                 let _ = stt::recognize(&frame_buffer, false);
 
-                // feed to wake word detector
-                if let Some(_keyword_index) = listener::data_callback(&frame_buffer) {
+                // Vosk wake recognizer: grammar-constrained, works with any mic
+                let vosk_wake = stt::recognize_wake_word(&frame_buffer).map_or(false, |(text, _conf)| {
+                    let phrases = config::get_wake_phrases(&i18n::get_language());
+                    let text_lower = text.to_lowercase();
+                    let matched = phrases.iter().any(|wp| text_lower.contains(wp));
+                    if matched {
+                        info!("[WAKE] Vosk detected: '{}'", text);
+                    }
+                    matched
+                });
+
+                // Rustpotter wake detector
+                let rustpotter_wake = listener::data_callback(&frame_buffer).is_some();
+
+                if vosk_wake || rustpotter_wake {
                     // WAKE WORD DETECTED!
                     info!("Wake word activated!");
+                    info!("[IPC] → WakeWordDetected");
                     ipc::send(IpcEvent::WakeWordDetected);
                     
                     stt::reset_wake_recognizer();
@@ -101,6 +138,7 @@ fn main_loop(text_cmd_rx: Receiver<String>, rt: &tokio::runtime::Runtime) -> Res
                         stt::recognize(&frame_buffer, false);
                     }
 
+                    info!("[IPC] → Listening");
                     ipc::send(IpcEvent::Listening);
                     recognize_command(&mut frame_buffer, &rt, frame_length, sample_rate, true);
 
@@ -111,8 +149,9 @@ fn main_loop(text_cmd_rx: Receiver<String>, rt: &tokio::runtime::Runtime) -> Res
                     stt::reset_wake_recognizer();
                     stt::reset_speech_recognizer(); // NOW reset, after command is done
                     audio_processing::reset();
+                    info!("[IPC] → Idle (after command)");
                     ipc::send(IpcEvent::Idle);
-                    
+
                     continue 'wake_word;
                 }
                 
@@ -123,7 +162,7 @@ fn main_loop(text_cmd_rx: Receiver<String>, rt: &tokio::runtime::Runtime) -> Res
                     silence_frames += 1;
                     
                     if silence_frames > silence_threshold {
-                        debug!("VAD: Silence timeout, returning to wait state");
+                        debug!("[VAD] Silence timeout — returning to WaitingForVoice");
                         vad_state = VadState::WaitingForVoice;
                         silence_frames = 0;
                         stt::reset_wake_recognizer();
@@ -195,7 +234,7 @@ fn recognize_command(
             VadState::VoiceActive => {
                 // feed to STT
                 if let Some(mut recognized_voice) = stt::recognize(frame_buffer, false) {
-                    info!("Recognized voice: {}", recognized_voice);
+                    info!("[STT] final transcript: '{}'", recognized_voice);
                     
                     ipc::send(IpcEvent::SpeechRecognized {
                         text: recognized_voice.clone(),
@@ -206,6 +245,19 @@ fn recognize_command(
                     // check if wake word repeated (reactivate)
                     let wake_phrases = config::get_wake_phrases(&i18n::get_language());
                     let contains_wake = wake_phrases.iter().any(|wp| recognized_voice.contains(wp));
+
+                    // On the first recognition after wake-word detection, the STT has accumulated
+                    // audio from the dual-feed buffer which includes the wake word pronunciation.
+                    // If the wake word wasn't recognized exactly (e.g. STT model misread it),
+                    // strip the leading word as the likely misrecognized wake word.
+                    if first_recognition && !contains_wake {
+                        let words: Vec<&str> = recognized_voice.split_whitespace().collect();
+                        if words.len() > 1 {
+                            info!("[STT] Stripping likely misrecognized wake word: '{}' → '{}'",
+                                words[0], words[1..].join(" "));
+                            recognized_voice = words[1..].join(" ");
+                        }
+                    }
 
                     if contains_wake {
                         // strip the wake word
@@ -361,7 +413,7 @@ fn execute_command(text: &str, rt: &tokio::runtime::Runtime) -> bool {
     };
     
     if let Some((cmd_path, cmd_config)) = cmd_result {
-        info!("Command found: {:?}", cmd_path);
+        info!("[COMMAND] Matched: {:?}", cmd_path);
         
         // extract slots if needed
         let extracted_slots = if !cmd_config.slots.is_empty() {
@@ -376,7 +428,7 @@ fn execute_command(text: &str, rt: &tokio::runtime::Runtime) -> bool {
 
         match commands::execute_command(&cmd_path, &cmd_config, Some(&text), extracted_slots.as_ref()) {
             Ok(chain) => {
-                info!("Command executed successfully");
+                info!("[COMMAND] Executed successfully: {}", cmd_config.id);
                 // voices::play_ok();
                 voices::play_random_from(cmd_config.get_sounds(&i18n::get_language()).as_slice());
                 ipc::send(IpcEvent::CommandExecuted {

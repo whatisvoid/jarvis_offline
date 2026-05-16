@@ -15,8 +15,10 @@ tray-vad = Voice Activity Detection
 tray-gain-normalizer = Gain Normalizer
 
 # ### HEADER
+header-home = HOME
 header-commands = COMMANDS
 header-settings = SETTINGS
+header-system = SYSTEM
 
 # ### SEARCH
 search-placeholder = Enter a command manually or say «Jarvis» ...
@@ -118,6 +120,9 @@ settings-ollama-error = Could not connect to Ollama
 commands-title = Commands
 commands-search = Search commands...
 commands-count = { $count } commands
+commands-no-commands = No commands available
+commands-load-error = Failed to load commands
+commands-retry = Retry
 commands-wip-title = [404] This section is under development!
 commands-wip-desc = Here will be a list of commands + full-featured command editor.
 commands-wip-follow = Follow updates in

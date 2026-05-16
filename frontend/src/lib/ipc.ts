@@ -1,4 +1,4 @@
-import { writable, get } from "svelte/store"
+import { writable } from "svelte/store"
 import { invoke } from "@tauri-apps/api/core"
 import { getCurrentWindow } from "@tauri-apps/api/window"
 
@@ -14,16 +14,28 @@ export const lastError = writable("")
 
 // ### CONNECTION ###
 
-const IPC_URL = "ws://127.0.0.1:9712"
-const RECONNECT_DELAY = 5000
+const IPC_PORT              = 9712
+const RECONNECT_BASE_MS     = 1000
+const RECONNECT_MAX_MS      = 3000
+const HEARTBEAT_INTERVAL_MS = 30000
+const HEARTBEAT_TIMEOUT_MS  = 5000
 
 let ws: WebSocket | null = null
 let reconnectTimer: ReturnType<typeof setTimeout> | null = null
+let heartbeatTimer: ReturnType<typeof setInterval> | null = null
+let heartbeatTimeoutTimer: ReturnType<typeof setTimeout> | null = null
+let reconnectAttempt = 0
 let manualDisconnect = false
 let enabled = false  // only connect when enabled
+let pendingTextCommands: string[] = []
 
 export function enableIpc() {
     enabled = true
+    reconnectAttempt = 0
+    if (reconnectTimer) {
+        clearTimeout(reconnectTimer)
+        reconnectTimer = null
+    }
     connectIpc()
 }
 
@@ -32,19 +44,26 @@ export function disableIpc() {
     disconnectIpc()
 }
 
-export function connectIpc(port: number = 9712) {
+export function connectIpc(port: number = IPC_PORT) {
     if (ws?.readyState === WebSocket.OPEN) return
+    manualDisconnect = false
 
     ws = new WebSocket(`ws://127.0.0.1:${port}`)
 
     ws.onopen = () => {
         ipcConnected.set(true)
         jarvisState.set("idle")
+        reconnectAttempt = 0
+        startHeartbeat()
+        flushPendingCommands()
         console.log("[IPC] connected")
     }
 
     ws.onclose = () => {
         ipcConnected.set(false)
+        jarvisState.set("disconnected")
+        stopHeartbeat()
+        scheduleReconnect()
         console.log("[IPC] disconnected")
     }
 
@@ -54,10 +73,12 @@ export function connectIpc(port: number = 9712) {
 
     ws.onmessage = (event) => {
         try {
-            const msg = JSON.parse(event.data)
-            handleEvent(msg)
-        } catch (e) {
-            console.error("[IPC] failed to parse message:", e)
+            const raw = JSON.parse(event.data)
+            if (typeof raw?.event === "string") {
+                handleEvent(raw as IpcMessage)
+            }
+        } catch (err: unknown) {
+            console.error("[IPC] failed to parse message:", err)
         }
     }
 }
@@ -65,15 +86,20 @@ export function connectIpc(port: number = 9712) {
 function scheduleReconnect() {
     if (reconnectTimer || manualDisconnect || !enabled) return
 
-    console.log(`IPC: Will retry in ${RECONNECT_DELAY / 1000}s...`)
+    const delay = Math.min(RECONNECT_BASE_MS * Math.pow(2, reconnectAttempt), RECONNECT_MAX_MS)
+    reconnectAttempt++
+    console.log(`[IPC] Reconnecting in ${delay / 1000}s (attempt ${reconnectAttempt})...`)
     reconnectTimer = setTimeout(() => {
         reconnectTimer = null
         connectIpc()
-    }, RECONNECT_DELAY)
+    }, delay)
 }
 
 export function disconnectIpc() {
     manualDisconnect = true
+    reconnectAttempt = 0
+    pendingTextCommands = []
+    stopHeartbeat()
 
     if (reconnectTimer) {
         clearTimeout(reconnectTimer)
@@ -89,9 +115,44 @@ export function disconnectIpc() {
     jarvisState.set("disconnected")
 }
 
+function startHeartbeat() {
+    stopHeartbeat()
+    heartbeatTimer = setInterval(() => {
+        if (ws?.readyState !== WebSocket.OPEN) return
+        ws.send(JSON.stringify({ action: "ping" }))
+        heartbeatTimeoutTimer = setTimeout(() => {
+            console.warn("[IPC] heartbeat timeout — forcing reconnect")
+            ws?.close()
+        }, HEARTBEAT_TIMEOUT_MS)
+    }, HEARTBEAT_INTERVAL_MS)
+}
+
+function stopHeartbeat() {
+    if (heartbeatTimer) {
+        clearInterval(heartbeatTimer)
+        heartbeatTimer = null
+    }
+    if (heartbeatTimeoutTimer) {
+        clearTimeout(heartbeatTimeoutTimer)
+        heartbeatTimeoutTimer = null
+    }
+}
+
 // ### EVENT HANDLING ###
 
-function handleEvent(data: any) {
+type IpcMessage =
+    | { event: "wake_word_detected" }
+    | { event: "listening" }
+    | { event: "speech_recognized"; text: string }
+    | { event: "command_executed"; id: string }
+    | { event: "idle" }
+    | { event: "error"; message: string }
+    | { event: "started" }
+    | { event: "stopping" }
+    | { event: "pong" }
+    | { event: "reveal_window" }
+
+function handleEvent(data: IpcMessage) {
     console.log("IPC: Event", data.event, data)
 
     switch (data.event) {
@@ -101,12 +162,12 @@ function handleEvent(data: any) {
             break
 
         case "speech_recognized":
-            lastRecognizedText.set(data.text || "")
+            lastRecognizedText.set(data.text)
             jarvisState.set("processing")
             break
 
         case "command_executed":
-            lastExecutedCommand.set(data.id || "")
+            lastExecutedCommand.set(data.id)
             break
 
         case "idle":
@@ -126,11 +187,13 @@ function handleEvent(data: any) {
             break
 
         case "pong":
-            // connection verified
+            if (heartbeatTimeoutTimer) {
+                clearTimeout(heartbeatTimeoutTimer)
+                heartbeatTimeoutTimer = null
+            }
             break
 
         case "reveal_window":
-            // bring window to foreground
             revealWindow()
             break
     }
@@ -138,41 +201,36 @@ function handleEvent(data: any) {
 
 // ### ACTIONS ###
 
-export function sendAction(action: string, payload: Record<string, any> = {}) {
-    if (ws?.readyState !== WebSocket.OPEN) {
-        return false
-    }
+type IpcOutgoing =
+    | { action: "stop" }
+    | { action: "reload_commands" }
+    | { action: "text_command"; text: string }
 
-    ws.send(JSON.stringify({ action, ...payload }))
+function sendAction(msg: IpcOutgoing): boolean {
+    if (ws?.readyState !== WebSocket.OPEN) return false
+    ws.send(JSON.stringify(msg))
     return true
 }
 
 export function stopJarvisApp() {
-    return sendAction("stop")
+    return sendAction({ action: "stop" })
 }
 
 export function reloadCommands() {
-    return sendAction("reload_commands")
-}
-
-export function sendIpcMessage(message: object): Promise<void> {
-    return new Promise((resolve, reject) => {
-        if (!ws || ws.readyState !== WebSocket.OPEN) {
-            reject(new Error("IPC not connected"))
-            return
-        }
-
-        try {
-            ws.send(JSON.stringify(message))
-            resolve()
-        } catch (err) {
-            reject(err)
-        }
-    })
+    return sendAction({ action: "reload_commands" })
 }
 
 export function sendTextCommand(text: string): boolean {
-    return sendAction("text_command", { text })
+    if (sendAction({ action: "text_command", text })) return true
+    pendingTextCommands.push(text)
+    return false
+}
+
+function flushPendingCommands() {
+    while (pendingTextCommands.length > 0) {
+        const text = pendingTextCommands.shift()!
+        sendAction({ action: "text_command", text })
+    }
 }
 
 async function revealWindow() {
@@ -181,7 +239,7 @@ async function revealWindow() {
         await window.show()
         await window.unminimize()
         await window.setFocus()
-    } catch (e) {
-        console.error("[IPC] Failed to reveal window:", e)
+    } catch (err: unknown) {
+        console.error("[IPC] Failed to reveal window:", err)
     }
 }

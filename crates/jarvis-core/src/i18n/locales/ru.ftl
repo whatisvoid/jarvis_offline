@@ -15,8 +15,10 @@ tray-vad = Детекция голоса (VAD)
 tray-gain-normalizer = Нормализация громкости
 
 # HEADER
+header-home = ГЛАВНАЯ
 header-commands = КОМАНДЫ
 header-settings = НАСТРОЙКИ
+header-system = СИСТЕМА
 
 # SEARCH
 search-placeholder = Введите команду вручную или произнесите «Джарвис» ...
@@ -118,6 +120,9 @@ settings-ollama-error = Не удалось подключиться к Ollama
 commands-title = Команды
 commands-search = Поиск команд...
 commands-count = { $count } команд
+commands-no-commands = Нет доступных команд
+commands-load-error = Не удалось загрузить команды
+commands-retry = Повторить
 commands-wip-title = [404] Этот раздел еще находится в разработке!
 commands-wip-desc = Тут будет список команд + полноценный редактор команд.
 commands-wip-follow = Следите за обновлениями в

@@ -23,13 +23,13 @@
 </script>
 
 <div class="win-controls">
-    <button class="win-btn" on:click={minimize} title="Minimize">
+    <button class="win-btn" on:click={minimize} title="Minimize" aria-label="Minimize">
         <svg width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
             <line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
         </svg>
     </button>
 
-    <button class="win-btn" on:click={toggleMax} title={isMaximized ? 'Restore' : 'Maximize'}>
+    <button class="win-btn" on:click={toggleMax} title={isMaximized ? 'Restore' : 'Maximize'} aria-label={isMaximized ? 'Restore' : 'Maximize'}>
         {#if isMaximized}
             <svg width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M0 4 L0 9.5 L5.5 9.5 L5.5 7" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/>
@@ -42,7 +42,7 @@
         {/if}
     </button>
 
-    <button class="win-btn win-btn--close" on:click={closeWin} title="Close">
+    <button class="win-btn win-btn--close" on:click={closeWin} title="Close" aria-label="Close">
         <svg width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
             <line x1="1" y1="1" x2="9" y2="9" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
             <line x1="9" y1="1" x2="1" y2="9" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
