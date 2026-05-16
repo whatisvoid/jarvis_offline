@@ -49,12 +49,13 @@ export interface JarvisStats {
 }
 
 export interface AppInfo {
-    tgOfficialLink: string
-    feedbackLink: string
-    repositoryLink: string
+    authorName:        string
+    tgOfficialLink:    string
+    feedbackLink:      string
+    repositoryLink:    string
     boostySupportLink: string
     patreonSupportLink: string
-    logFilePath: string
+    logFilePath:       string
 }
 
 export interface RuntimeEvent {

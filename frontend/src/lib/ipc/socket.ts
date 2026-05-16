@@ -1,6 +1,6 @@
 import { getCurrentWindow } from "@tauri-apps/api/window"
 import { jarvisState, ipcConnected, lastRecognizedText, lastExecutedCommand, lastError } from "./stores"
-import type { IpcOutgoing } from "./types"
+import type { IpcMessage, IpcOutgoing } from "./types"
 import { parseIpcMessage, computeReconnectDelay } from "./utils"
 
 // ### CONNECTION ###

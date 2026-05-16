@@ -1,4 +1,4 @@
-import { getAuthorName, getAppVersion, listVoices, listVoskModels, listGlinerModels } from "./api"
+import { getAppVersion, listVoices, listVoskModels, listGlinerModels } from "./api"
 import { loadSettingsValues } from "./settings"
 import type { VoiceMeta, SelectOption } from "@/types"
 import type { SettingsValues } from "./settings"
@@ -9,7 +9,6 @@ const LANGUAGE_NAMES: Record<string, string> = {
 }
 
 export interface SettingsPageData {
-    authorName:           string
     appVersion:           string
     availableVoices:      VoiceMeta[]
     availableVoskModels:  SelectOption[]
@@ -25,8 +24,8 @@ export interface SettingsPageData {
 }
 
 export async function loadSettingsPageData(): Promise<SettingsPageData> {
-    const [meta, voices, vosk, gliner, settings] = await Promise.allSettled([
-        Promise.all([getAuthorName(), getAppVersion()]),
+    const [appVersion, voices, vosk, gliner, settings] = await Promise.allSettled([
+        getAppVersion(),
         listVoices(),
         listVoskModels(),
         listGlinerModels(),
@@ -34,8 +33,7 @@ export async function loadSettingsPageData(): Promise<SettingsPageData> {
     ])
 
     return {
-        authorName:  meta.status === 'fulfilled' ? meta.value[0] : "",
-        appVersion:  meta.status === 'fulfilled' ? meta.value[1] : "",
+        appVersion: appVersion.status === 'fulfilled' ? appVersion.value : "",
 
         availableVoices: voices.status === 'fulfilled'
             ? voices.value.map(v => v.voice)
@@ -55,11 +53,11 @@ export async function loadSettingsPageData(): Promise<SettingsPageData> {
         settings: settings.status === 'fulfilled' ? settings.value : null,
 
         errors: {
-            meta:     meta.status     === 'rejected',
-            voices:   voices.status   === 'rejected',
-            vosk:     vosk.status     === 'rejected',
-            gliner:   gliner.status   === 'rejected',
-            settings: settings.status === 'rejected',
+            meta:     appVersion.status === 'rejected',
+            voices:   voices.status     === 'rejected',
+            vosk:     vosk.status       === 'rejected',
+            gliner:   gliner.status     === 'rejected',
+            settings: settings.status   === 'rejected',
         }
     }
 }

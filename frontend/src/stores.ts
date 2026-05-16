@@ -47,3 +47,6 @@ export { runtimeEvents, addRuntimeEvent } from "./lib/stores/events"
 
 // Assistant voice selection
 export { assistantVoice, loadVoiceSetting } from "./lib/stores/voice"
+
+// Cached display settings (microphone index, wake/STT engine) — lazy-loaded once at startup
+export { settingsSnapshot, loadSettingsSnapshot, invalidateSettingsSnapshot } from "./lib/stores/settings-cache"

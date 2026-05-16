@@ -1,39 +1,28 @@
 <script lang="ts">
     import { onMount } from "svelte"
-    import { jarvisRamUsage, tStore, audioDevices, loadAudioDevices } from "@/stores"
-    import { DB_KEYS } from "@/lib/db-keys"
-    import { dbRead } from "@/lib/api"
+    import { jarvisRamUsage, tStore, audioDevices, loadAudioDevices, settingsSnapshot, loadSettingsSnapshot } from "@/stores"
 
     $: t = $tStore
 
-    const DEFAULT_WAKE_ENGINE = "Rustpotter"
-    const DEFAULT_STT_ENGINE  = "Vosk"
-
     let microphoneName = ""
-    let wakeWordEngine = DEFAULT_WAKE_ENGINE
-    let sttEngine = DEFAULT_STT_ENGINE
 
-    $: neuralLabel = wakeWordEngine === sttEngine ? wakeWordEngine : `${wakeWordEngine} + ${sttEngine}`
+    $: neuralLabel = $settingsSnapshot.wakeWordEngine === $settingsSnapshot.sttEngine
+        ? $settingsSnapshot.wakeWordEngine
+        : `${$settingsSnapshot.wakeWordEngine} + ${$settingsSnapshot.sttEngine}`
 
     onMount(async () => {
         microphoneName = t('stats-loading')
-
         try {
-            await loadAudioDevices()
+            await Promise.all([loadAudioDevices(), loadSettingsSnapshot()])
+            const { microphoneIndex } = $settingsSnapshot
             const devices = $audioDevices
-
-            const micIndex = await dbRead(DB_KEYS.microphone)
-            if (micIndex && micIndex !== "-1") {
-                const idx = parseInt(micIndex)
+            if (microphoneIndex && microphoneIndex !== "-1") {
+                const idx = parseInt(microphoneIndex)
                 if (!isNaN(idx) && devices[idx]) microphoneName = devices[idx]
             } else {
                 microphoneName = t('stats-system-default')
             }
-
-            wakeWordEngine = await dbRead(DB_KEYS.wakeWordEngine) || DEFAULT_WAKE_ENGINE
-            sttEngine = await dbRead(DB_KEYS.sttEngine) || DEFAULT_STT_ENGINE
-        } catch (err: unknown) {
-            console.error("Failed to load stats:", err)
+        } catch {
             microphoneName = t('stats-not-selected')
         }
     })

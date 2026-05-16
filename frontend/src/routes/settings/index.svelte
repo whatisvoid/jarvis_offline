@@ -2,7 +2,7 @@
     import { onMount, onDestroy } from "svelte"
     import { goto } from "@roxi/routify"
     import { listOllamaModels } from "@/lib/api"
-    import { appInfo, assistantVoice, currentLanguage, setLanguage, tStore, audioDevices, loadAudioDevices } from "@/stores"
+    import { appInfo, assistantVoice, currentLanguage, setLanguage, tStore, audioDevices, loadAudioDevices, invalidateSettingsSnapshot } from "@/stores"
     import { addToast } from "@/lib/toast"
     import { saveSettingsValues } from "@/lib/settings"
     import { loadSettingsPageData } from "@/lib/settings-loader"
@@ -84,6 +84,7 @@
     let authorName = ""
     let appVersion = ""
     const unsubAppInfo = appInfo.subscribe(info => {
+        authorName   = info.authorName
         feedbackLink = info.feedbackLink
         logFilePath  = info.logFilePath
         tgLink       = info.tgOfficialLink
@@ -112,6 +113,7 @@
                 ollamaModel,
             })
             assistantVoice.set(voiceVal)
+            invalidateSettingsSnapshot()
             addToast(t('notification-saved') || "Settings saved", "success")
         } catch (err: unknown) {
             console.error("failed to save settings:", err)
@@ -135,7 +137,6 @@
         try {
             const data = await loadSettingsPageData()
 
-            authorName            = data.authorName
             appVersion            = data.appVersion
             availableVoices       = data.availableVoices
             availableVoskModels   = data.availableVoskModels

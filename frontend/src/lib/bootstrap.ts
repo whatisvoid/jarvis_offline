@@ -2,6 +2,7 @@ import { loadTranslations } from "./i18n"
 import { enableIpc } from "./ipc"
 import { loadVoiceSetting } from "./stores/voice"
 import { loadAppInfo } from "./stores/app-info"
+import { loadSettingsSnapshot } from "./stores/settings-cache"
 
 /**
  * Critical init — must complete before the UI is meaningfully usable.
@@ -20,4 +21,5 @@ export async function criticalInit(): Promise<void> {
 export function deferredInit(): void {
     loadVoiceSetting()
     loadAppInfo()
+    loadSettingsSnapshot()
 }

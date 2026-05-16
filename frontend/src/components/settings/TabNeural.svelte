@@ -3,6 +3,13 @@
     import Select from "@/components/ui/Select.svelte"
     import Button from "@/components/ui/Button.svelte"
     import type { SelectOption } from "@/types"
+    import {
+        WAKE_WORD_ENGINE_OPTIONS,
+        INTENT_ENGINE_OPTIONS,
+        SLOT_ENGINE_OPTIONS,
+        NOISE_SUPPRESSION_OPTIONS,
+        VAD_OPTIONS,
+    } from "@/lib/engine-options"
 
     export let t: (key: string) => string
     export let selectedWakeWordEngine: string
@@ -30,11 +37,7 @@
     <span class="section-label">{t('settings-wake-word-engine')}</span>
     <p class="section-desc">{t('settings-wake-word-desc')}</p>
     <Select
-        data={[
-            { label: "Rustpotter", value: "Rustpotter" },
-            { label: "Vosk", value: "Vosk" },
-            { label: "Picovoice Porcupine", value: "Picovoice" }
-        ]}
+        data={WAKE_WORD_ENGINE_OPTIONS}
         bind:value={selectedWakeWordEngine}
     />
     {#if selectedWakeWordEngine === "Picovoice"}
@@ -69,10 +72,7 @@
     <span class="section-label">{t('settings-intent-engine')}</span>
     <p class="section-desc">{t('settings-intent-engine-desc')}</p>
     <Select
-        data={[
-            { label: "Intent Classifier", value: "intent-classifier" },
-            { label: "Disabled", value: "none" }
-        ]}
+        data={INTENT_ENGINE_OPTIONS}
         bind:value={selectedIntentRecognitionEngine}
     />
 </div>
@@ -81,10 +81,7 @@
     <span class="section-label">{t('settings-slot-engine')}</span>
     <p class="section-desc">{t('settings-slot-engine-desc')}</p>
     <Select
-        data={[
-            { label: t('settings-disabled'), value: "None" },
-            { label: "GLiNER (NER)", value: "GLiNER" }
-        ]}
+        data={SLOT_ENGINE_OPTIONS.map(o => o.value === "None" ? { ...o, label: t('settings-disabled') } : o)}
         bind:value={selectedSlotExtractionEngine}
     />
     {#if selectedSlotExtractionEngine === "GLiNER"}
@@ -106,10 +103,7 @@
     <span class="section-label">{t('settings-noise-suppression')}</span>
     <p class="section-desc">{t('settings-noise-suppression-desc')}</p>
     <Select
-        data={[
-            { label: t('settings-disabled'), value: "None" },
-            { label: "Nnnoiseless", value: "Nnnoiseless" }
-        ]}
+        data={NOISE_SUPPRESSION_OPTIONS.map(o => o.value === "None" ? { ...o, label: t('settings-disabled') } : o)}
         bind:value={selectedNoiseSuppression}
     />
 </div>
@@ -118,11 +112,7 @@
     <span class="section-label">{t('settings-vad')}</span>
     <p class="section-desc">{t('settings-vad-desc')}</p>
     <Select
-        data={[
-            { label: t('settings-disabled'), value: "None" },
-            { label: "Energy", value: "Energy" },
-            { label: "Nnnoiseless", value: "Nnnoiseless" }
-        ]}
+        data={VAD_OPTIONS.map(o => o.value === "None" ? { ...o, label: t('settings-disabled') } : o)}
         bind:value={selectedVad}
     />
 </div>

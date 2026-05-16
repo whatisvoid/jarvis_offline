@@ -1,6 +1,5 @@
 <script lang="ts">
-    import { onMount, onDestroy } from "svelte"
-    import { getAuthorName } from "@/lib/api"
+    import { onDestroy } from "svelte"
     import { appInfo, currentLanguage, tStore } from "@/stores"
 
     $: t = $tStore
@@ -14,22 +13,15 @@
     const currentYear = new Date().getFullYear()
 
     const unsubAppInfo = appInfo.subscribe(info => {
-        tgLink = info.tgOfficialLink
-        repoLink = info.repositoryLink
+        authorName = info.authorName
+        tgLink     = info.tgOfficialLink
+        repoLink   = info.repositoryLink
         boostyLink = info.boostySupportLink
         patreonLink = info.patreonSupportLink
     })
 
     onDestroy(() => {
         unsubAppInfo()
-    })
-
-    onMount(async () => {
-        try {
-            authorName = await getAuthorName()
-        } catch (err: unknown) {
-            console.error("failed to get author name:", err)
-        }
     })
 </script>
 
