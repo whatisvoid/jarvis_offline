@@ -126,45 +126,51 @@
     })
 
     onMount(async () => {
-        await loadAudioDevices()
-
-        const data = await loadSettingsPageData()
-
-        authorName            = data.authorName
-        appVersion            = data.appVersion
-        availableVoices       = data.availableVoices
-        availableVoskModels   = data.availableVoskModels
-        availableGlinerModels = data.availableGlinerModels
-
-        availableMicrophones = [
-            { label: t('settings-mic-default'), value: "-1" },
-            ...$audioDevices.map((name, idx) => ({ label: name, value: String(idx) }))
-        ]
-
-        if (data.errors.meta)    console.error("failed to get app meta")
-        if (data.errors.vosk)    console.error("failed to load vosk models")
-        if (data.errors.gliner)  console.error("failed to load gliner models")
-        if (data.errors.voices)  addToast(t('error-load-voices')   || "Failed to load voices",   "error")
-        if (data.errors.settings) addToast(t('error-load-settings') || "Failed to load settings", "error")
-
-        if (data.settings) {
-            const s = data.settings
-            selectedMicrophone              = s.microphone
-            selectedWakeWordEngine          = s.wakeWordEngine
-            selectedSttEngine               = s.sttEngine
-            selectedIntentRecognitionEngine = s.intentEngine
-            selectedSlotExtractionEngine    = s.slotEngine
-            selectedGlinerModel             = s.glinerModel
-            selectedVoskModel               = s.voskModel
-            selectedNoiseSuppression        = s.noiseSuppression
-            selectedVad                     = s.vad
-            gainNormalizerEnabled           = s.gainNormalizerEnabled
-            apiKeyPicovoice                 = s.apiKeyPicovoice
-            ollamaUrl                       = s.ollamaUrl
-            ollamaModel                     = s.ollamaModel
+        try {
+            await loadAudioDevices()
+        } catch {
+            addToast(t('error-load-audio') || "Failed to load audio devices", "error")
         }
 
-        loading = false
+        try {
+            const data = await loadSettingsPageData()
+
+            authorName            = data.authorName
+            appVersion            = data.appVersion
+            availableVoices       = data.availableVoices
+            availableVoskModels   = data.availableVoskModels
+            availableGlinerModels = data.availableGlinerModels
+
+            availableMicrophones = [
+                { label: t('settings-mic-default'), value: "-1" },
+                ...$audioDevices.map((name, idx) => ({ label: name, value: String(idx) }))
+            ]
+
+            if (data.errors.meta)     addToast(t('error-load-meta')    || "Failed to load app metadata",  "info")
+            if (data.errors.vosk)     addToast(t('error-load-vosk')    || "Failed to load Vosk models",   "info")
+            if (data.errors.gliner)   addToast(t('error-load-gliner')  || "Failed to load GLiNER models", "info")
+            if (data.errors.voices)   addToast(t('error-load-voices')  || "Failed to load voices",        "error")
+            if (data.errors.settings) addToast(t('error-load-settings')|| "Failed to load settings",      "error")
+
+            if (data.settings) {
+                const s = data.settings
+                selectedMicrophone              = s.microphone
+                selectedWakeWordEngine          = s.wakeWordEngine
+                selectedSttEngine               = s.sttEngine
+                selectedIntentRecognitionEngine = s.intentEngine
+                selectedSlotExtractionEngine    = s.slotEngine
+                selectedGlinerModel             = s.glinerModel
+                selectedVoskModel               = s.voskModel
+                selectedNoiseSuppression        = s.noiseSuppression
+                selectedVad                     = s.vad
+                gainNormalizerEnabled           = s.gainNormalizerEnabled
+                apiKeyPicovoice                 = s.apiKeyPicovoice
+                ollamaUrl                       = s.ollamaUrl
+                ollamaModel                     = s.ollamaModel
+            }
+        } finally {
+            loading = false
+        }
     })
 </script>
 

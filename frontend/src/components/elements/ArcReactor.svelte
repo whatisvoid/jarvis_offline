@@ -19,7 +19,7 @@
     }[$jarvisState] || 'arc-white'
 </script>
 
-<div id="arc-reactor" class="reactor-container {stateClass} {colorClass}">
+<div id="arc-reactor" class="reactor-container {stateClass} {colorClass}" aria-hidden="true">
     <div class="reactor-container-inner circle abs-center">
         <ul class="marks">
             {#each Array(TICK_COUNT) as _, i}

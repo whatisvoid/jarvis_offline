@@ -1,5 +1,11 @@
+<script context="module" lang="ts">
+    let _uid = 0
+</script>
+
 <script lang="ts">
     import { tick, createEventDispatcher } from 'svelte'
+
+    const _id = `select-${_uid++}`
 
     export let data: { label: string; value: string }[] = []
     export let value: string = ""
@@ -124,7 +130,7 @@
         role="combobox"
         aria-expanded={open}
         aria-haspopup="listbox"
-        aria-controls="select-dropdown-{label}"
+        aria-controls={_id}
     >
         <span class="select-value">{selectedLabel}</span>
         <svg class="select-arrow" class:open width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
@@ -135,7 +141,7 @@
     {#if open}
         <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
         <ul
-            id="select-dropdown-{label}"
+            id={_id}
             class="select-dropdown"
             class:drop-up={dropUp}
             bind:this={listEl}
