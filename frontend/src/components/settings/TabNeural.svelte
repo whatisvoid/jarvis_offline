@@ -135,7 +135,7 @@
 </div>
 
 <div class="settings-section">
-    <span class="section-label">OLLAMA</span>
+    <span class="section-label">{t('settings-ollama', 'OLLAMA')}</span>
     <p class="section-desc">{t('settings-ollama-desc')}</p>
     <div class="ollama-url-row">
         <input

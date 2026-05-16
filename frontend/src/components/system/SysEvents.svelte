@@ -1,37 +1,7 @@
 <script lang="ts">
-    import { onMount, onDestroy } from "svelte"
-    import { jarvisState, lastRecognizedText, lastExecutedCommand, lastError, runtimeEvents, addRuntimeEvent } from "@/stores"
+    import { runtimeEvents } from "@/stores"
 
     $: events = $runtimeEvents
-
-    function skipFirst<T>(cb: (v: T) => void) {
-        let first = true
-        return (v: T) => { if (first) { first = false; return } cb(v) }
-    }
-
-    const unsubs: (() => void)[] = []
-
-    onMount(() => {
-        unsubs.push(jarvisState.subscribe(skipFirst(state => {
-            if (state === 'listening')  addRuntimeEvent('WAKE WORD DETECTED')
-            if (state === 'processing') addRuntimeEvent('PROCESSING SPEECH')
-            if (state === 'idle')       addRuntimeEvent('SYSTEM IDLE')
-        })))
-
-        unsubs.push(lastRecognizedText.subscribe(skipFirst(text => {
-            if (text) addRuntimeEvent('SPEECH RECOGNIZED', text)
-        })))
-
-        unsubs.push(lastExecutedCommand.subscribe(skipFirst(cmd => {
-            if (cmd) addRuntimeEvent('COMMAND EXECUTED', cmd)
-        })))
-
-        unsubs.push(lastError.subscribe(skipFirst(err => {
-            if (err) addRuntimeEvent('ERROR', err)
-        })))
-    })
-
-    onDestroy(() => { unsubs.forEach(u => u()) })
 </script>
 
 {#if events.length === 0}
@@ -95,7 +65,7 @@
     flex-direction: column;
     gap: 3px;
     padding: 10px 14px;
-    border-radius: 8px;
+    border-radius: var(--r-lg);
     background: rgba(255,255,255,0.018);
     border: 1px solid rgba(255,255,255,0.04);
     transition: var(--ease);

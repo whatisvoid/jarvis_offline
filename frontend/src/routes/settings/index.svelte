@@ -29,7 +29,6 @@
     let voiceVal = ""
     let selectedMicrophone = ""
     let selectedWakeWordEngine = ""
-    let selectedSttEngine = ""
     let selectedIntentRecognitionEngine: IntentEngine = "none"
     let selectedSlotExtractionEngine = ""
     let selectedGlinerModel = ""
@@ -101,7 +100,7 @@
                 voiceVal,
                 microphone:            selectedMicrophone,
                 wakeWordEngine:        selectedWakeWordEngine,
-                sttEngine:             selectedSttEngine,
+                sttEngine:             "",
                 intentEngine:          selectedIntentRecognitionEngine,
                 slotEngine:            selectedSlotExtractionEngine,
                 glinerModel:           selectedGlinerModel,
@@ -158,7 +157,6 @@
                 const s = data.settings
                 selectedMicrophone              = s.microphone
                 selectedWakeWordEngine          = s.wakeWordEngine
-                selectedSttEngine               = s.sttEngine
                 selectedIntentRecognitionEngine = s.intentEngine
                 selectedSlotExtractionEngine    = s.slotEngine
                 selectedGlinerModel             = s.glinerModel

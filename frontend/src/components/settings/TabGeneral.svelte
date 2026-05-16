@@ -1,6 +1,7 @@
 <script lang="ts">
     import { createEventDispatcher } from "svelte"
     import { previewVoice } from "@/lib/api"
+    import { addToast } from "@/lib/toast"
     import Select from "@/components/ui/Select.svelte"
     import type { VoiceMeta } from "@/types"
 
@@ -31,7 +32,7 @@
         <Select
             data={availableVoices.map(v => ({ value: v.id, label: v.name }))}
             bind:value={voiceVal}
-            on:change={(e) => previewVoice(e.detail).catch(err => console.error("Failed to preview voice:", err))}
+            on:change={(e) => previewVoice(e.detail).catch(err => { console.error("Failed to preview voice:", err); addToast(t('error-preview-voice') || "Failed to preview voice", "error") })}
         />
         {#if selectedVoiceMeta}
             <div class="voice-meta">

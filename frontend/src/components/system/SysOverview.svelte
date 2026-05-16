@@ -1,18 +1,19 @@
 <script lang="ts">
+    export let t: (key: string, fallback?: string) => string
     export let wakeStatus:     string
     export let sttStatus:      string
     export let ttsStatus:      string
     export let ollamaStatus:   string
     export let pipelineStatus: string
 
-    const STATUS_LABEL: Record<string, string> = {
-        online:    'ONLINE',
-        ready:     'READY',
-        loading:   'LOADING',
-        connected: 'CONNECTED',
-        active:    'ACTIVE',
-        offline:   'INACTIVE',
-    }
+    $: STATUS_LABEL = {
+        online:    t('status-online',    'ONLINE'),
+        ready:     t('status-ready',     'READY'),
+        loading:   t('status-loading',   'LOADING'),
+        connected: t('status-connected', 'CONNECTED'),
+        active:    t('status-active',    'ACTIVE'),
+        offline:   t('status-offline',   'INACTIVE'),
+    } as Record<string, string>
 
     const STATUS_ICON: Record<string, string> = {
         online:    '●',
@@ -26,11 +27,11 @@
 
 <div class="sys-card sys-card--primary">
     {#each [
-        { name: 'WAKE ENGINE',    status: wakeStatus     },
-        { name: 'STT',            status: sttStatus      },
-        { name: 'TTS',            status: ttsStatus      },
-        { name: 'OLLAMA',         status: ollamaStatus   },
-        { name: 'VOICE PIPELINE', status: pipelineStatus },
+        { name: t('system-wake-engine', 'WAKE ENGINE'), status: wakeStatus     },
+        { name: t('system-stt',         'STT'),         status: sttStatus      },
+        { name: t('system-tts',         'TTS'),         status: ttsStatus      },
+        { name: t('system-ollama',      'OLLAMA'),      status: ollamaStatus   },
+        { name: t('system-pipeline',    'VOICE PIPELINE'), status: pipelineStatus },
     ] as row}
         <div class="sys-status-row">
             <span class="sys-row-name">{row.name}</span>
@@ -43,26 +44,6 @@
 </div>
 
 <style lang="scss">
-.sys-card {
-    padding: 4px 18px;
-    border-radius: 10px;
-    background: linear-gradient(180deg, rgba(255,255,255,0.025), rgba(255,255,255,0.012));
-    border: 1px solid rgba(255,255,255,0.055);
-
-    &--primary { padding: 20px 22px; }
-}
-
-.sys-status-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    min-height: 42px;
-    padding: 4px 0;
-    border-bottom: 1px solid rgba(255,255,255,0.038);
-
-    &:last-child { border-bottom: none; }
-}
-
 .sys-row-name {
     font-size: 11px;
     font-weight: 600;
@@ -80,12 +61,12 @@
     align-items: center;
     gap: 5px;
 
-    &.st-online    { color: rgba(0,229,255,0.82); }
-    &.st-ready     { color: rgba(0,229,255,0.65); }
-    &.st-connected { color: rgba(0,229,255,0.75); }
-    &.st-active    { color: rgba(0,229,255,0.82); }
-    &.st-loading   { color: rgba(255,190,90,0.72); }
-    &.st-offline   { color: rgba(180,190,205,0.46); }
+    &.st-online    { color: var(--status-online); }
+    &.st-ready     { color: var(--status-ready); }
+    &.st-connected { color: var(--status-connected); }
+    &.st-active    { color: var(--status-active); }
+    &.st-loading   { color: var(--status-loading); }
+    &.st-offline   { color: var(--status-offline); }
 }
 
 .status-icon {

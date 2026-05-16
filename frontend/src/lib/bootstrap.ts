@@ -3,6 +3,8 @@ import { enableIpc } from "./ipc"
 import { loadVoiceSetting } from "./stores/voice"
 import { loadAppInfo } from "./stores/app-info"
 import { loadSettingsSnapshot } from "./stores/settings-cache"
+import { startStatsPolling } from "./stores/runtime"
+import { startEventTracking } from "./stores/event-tracker"
 
 /**
  * Critical init — must complete before the UI is meaningfully usable.
@@ -22,4 +24,6 @@ export function deferredInit(): void {
     loadVoiceSetting()
     loadAppInfo()
     loadSettingsSnapshot()
+    startStatsPolling(5000)
+    startEventTracking()
 }

@@ -1,6 +1,5 @@
 import { writable, derived } from "svelte/store"
-import { DB_KEYS } from "./db-keys"
-import { dbRead, getTranslations, getCurrentLanguage, setLanguageInvoke, getSupportedLangs } from "./api"
+import { getTranslations, getCurrentLanguage, setLanguageInvoke, getSupportedLangs } from "./api"
 
 // stores
 export const translations = writable<Record<string, string>>({})
@@ -37,15 +36,6 @@ export async function setLanguage(lang: string) {
         document.documentElement.lang = lang
     } catch (err: unknown) {
         console.error("Failed to set language:", err)
-    }
-}
-
-export async function loadLanguage() {
-    try {
-        const lang = await dbRead(DB_KEYS.language)
-        if (lang) currentLanguage.set(lang)
-    } catch (err: unknown) {
-        console.error("Failed to load language:", err)
     }
 }
 

@@ -1,6 +1,5 @@
 import { writable } from "svelte/store"
 import type { AppInfo } from "@/types"
-import { addToast } from "@/lib/toast"
 import {
     getAuthorName,
     getTgOfficialLink, getFeedbackLink, getRepositoryLink,
@@ -18,27 +17,24 @@ export const appInfo = writable<AppInfo>({
 })
 
 export async function loadAppInfo() {
-    try {
-        const [author, tg, feedback, repo, boosty, patreon, logPath] = await Promise.all([
-            getAuthorName(),
-            getTgOfficialLink(),
-            getFeedbackLink(),
-            getRepositoryLink(),
-            getBoostyLink(),
-            getPatreonLink(),
-            getLogFilePath()
-        ])
-        appInfo.set({
-            authorName:        author,
-            tgOfficialLink:    tg,
-            feedbackLink:      feedback,
-            repositoryLink:    repo,
-            boostySupportLink: boosty,
-            patreonSupportLink: patreon,
-            logFilePath:       logPath
-        })
-    } catch (err: unknown) {
-        console.error("failed to load app info:", err)
-        addToast("Failed to load app info", "error")
-    }
+    const results = await Promise.allSettled([
+        getAuthorName(),
+        getTgOfficialLink(),
+        getFeedbackLink(),
+        getRepositoryLink(),
+        getBoostyLink(),
+        getPatreonLink(),
+        getLogFilePath()
+    ])
+    const val = (r: PromiseSettledResult<string>) =>
+        r.status === 'fulfilled' ? r.value : ""
+    appInfo.set({
+        authorName:         val(results[0]),
+        tgOfficialLink:     val(results[1]),
+        feedbackLink:       val(results[2]),
+        repositoryLink:     val(results[3]),
+        boostySupportLink:  val(results[4]),
+        patreonSupportLink: val(results[5]),
+        logFilePath:        val(results[6]),
+    })
 }

@@ -22,7 +22,6 @@ export {
     translate,
     loadTranslations,
     setLanguage,
-    loadLanguage,
     getSupportedLanguages
 } from "./lib/i18n"
 

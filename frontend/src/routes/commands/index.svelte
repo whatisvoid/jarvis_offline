@@ -11,6 +11,8 @@
 
     let commands: JCommand[] = []
     let searchQuery = ""
+    let debouncedQuery = ""
+    let _debounceTimer: ReturnType<typeof setTimeout> | undefined
     let loading = true
     let loadError = false
 
@@ -20,7 +22,13 @@
         ? "Reload backend commands & refresh list"
         : "Refresh list (JARVIS not connected — backend reload skipped)"
 
-    $: filtered = filterCommands(commands, searchQuery, lang)
+    function handleSearch(e: Event) {
+        searchQuery = (e.target as HTMLInputElement).value
+        clearTimeout(_debounceTimer)
+        _debounceTimer = setTimeout(() => { debouncedQuery = searchQuery }, 150)
+    }
+
+    $: filtered = filterCommands(commands, debouncedQuery, lang)
 
     async function loadCommands() {
         loading = true
@@ -52,7 +60,8 @@
         class="shell-input"
         type="text"
         placeholder={t('commands-search')}
-        bind:value={searchQuery}
+        value={searchQuery}
+        on:input={handleSearch}
     />
     <button class="reload-btn" on:click={handleReload} title={reloadTitle} aria-label="Reload commands">
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">

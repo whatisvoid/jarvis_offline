@@ -58,7 +58,7 @@
     display: flex;
     align-items: center;
     padding: 16px 18px;
-    border-radius: 10px;
+    border-radius: var(--r-xl);
     background: linear-gradient(180deg, rgba(255,255,255,0.025), rgba(255,255,255,0.012));
     border: 1px solid rgba(255,255,255,0.055);
 }

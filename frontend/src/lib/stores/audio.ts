@@ -6,11 +6,12 @@ let _loaded = false
 
 export async function loadAudioDevices() {
     if (_loaded) return
+    _loaded = true
     try {
         const devices = await getAudioDevices()
         audioDevices.set(devices)
-        _loaded = true
     } catch (err: unknown) {
+        _loaded = false
         console.error("failed to load audio devices:", err)
     }
 }

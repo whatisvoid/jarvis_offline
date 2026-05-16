@@ -1,8 +1,9 @@
 <script lang="ts">
     import { onMount } from "svelte"
     import { dbRead } from "@/lib/api"
-    import { isJarvisRunning, ipcConnected, tStore } from "@/stores"
+    import { isJarvisRunning, ipcConnected, tStore, settingsSnapshot } from "@/stores"
     import { DB_KEYS } from "@/lib/db-keys"
+    import { ENGINE_DEFAULTS } from "@/lib/engine-options"
     import { addToast } from "@/lib/toast"
 
     import SysOverview  from "@/components/system/SysOverview.svelte"
@@ -13,14 +14,13 @@
 
     $: t = $tStore
 
-    // ── Models (loaded from DB on mount) ──────────────────────────────────────
-    const DEFAULT_WAKE_ENGINE   = "Rustpotter"
-    const DEFAULT_STT_ENGINE    = "Vosk"
     const DEFAULT_STT_MODEL     = "Auto-detect"
     const DEFAULT_INTENT_ENGINE = "Intent Classifier"
 
-    let wakeEngine   = ""
-    let sttEngine    = ""
+    // Wake/STT engines come from the cached snapshot (already loaded in deferredInit)
+    $: wakeEngine = $settingsSnapshot.wakeWordEngine || ENGINE_DEFAULTS.wakeWordEngine
+    $: sttEngine  = $settingsSnapshot.sttEngine      || ENGINE_DEFAULTS.sttEngine
+
     let sttModel     = ""
     let intentEngine = ""
     let llmModel     = ""
@@ -40,15 +40,11 @@
 
     onMount(async () => {
         try {
-            const [wake, stt, vosk, intent, llm] = await Promise.all([
-                dbRead(DB_KEYS.wakeWordEngine),
-                dbRead(DB_KEYS.sttEngine),
+            const [vosk, intent, llm] = await Promise.all([
                 dbRead(DB_KEYS.voskModel),
                 dbRead(DB_KEYS.intentEngine),
                 dbRead(DB_KEYS.ollamaModel),
             ])
-            wakeEngine   = wake   || DEFAULT_WAKE_ENGINE
-            sttEngine    = stt    || DEFAULT_STT_ENGINE
             sttModel     = vosk   || DEFAULT_STT_MODEL
             intentEngine = intent || DEFAULT_INTENT_ENGINE
             llmModel     = llm    || ""
@@ -63,8 +59,9 @@
     <div class="system-content">
 
         <div class="sys-section sys-section--primary">
-            <span class="sys-section-label">OVERVIEW</span>
+            <span class="sys-section-label">{t('system-overview', 'OVERVIEW')}</span>
             <SysOverview
+                {t}
                 {wakeStatus}
                 {sttStatus}
                 {ttsStatus}
@@ -74,23 +71,24 @@
         </div>
 
         <div class="sys-section">
-            <span class="sys-section-label">VOICE PIPELINE</span>
+            <span class="sys-section-label">{t('system-pipeline', 'VOICE PIPELINE')}</span>
             <SysPipeline />
         </div>
 
         <div class="sys-section">
-            <span class="sys-section-label">TELEMETRY</span>
+            <span class="sys-section-label">{t('system-telemetry', 'TELEMETRY')}</span>
             <SysTelemetry />
         </div>
 
         <div class="sys-section">
-            <span class="sys-section-label">EVENTS</span>
+            <span class="sys-section-label">{t('system-events', 'EVENTS')}</span>
             <SysEvents />
         </div>
 
         <div class="sys-section">
-            <span class="sys-section-label">MODELS</span>
+            <span class="sys-section-label">{t('system-models', 'MODELS')}</span>
             <SysModels
+                {t}
                 {wakeEngine}
                 {sttEngine}
                 {sttModel}

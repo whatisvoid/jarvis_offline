@@ -1,14 +1,8 @@
 <script lang="ts">
-    import { jarvisRamUsage, jarvisCpuUsage } from "@/stores"
+    import { isJarvisRunning, jarvisRamUsage, jarvisCpuUsage } from "@/stores"
 
-    $: cpuDisplay = $jarvisCpuUsage ? `${Math.round($jarvisCpuUsage * 10) / 10}%` : null
-    $: ramDisplay = $jarvisRamUsage ? `${$jarvisRamUsage} MB` : null
-
-    const STATIC_METRICS = [
-        { key: 'WAKE LAT'  },
-        { key: 'STT LAT'   },
-        { key: 'MODEL RESP' },
-    ]
+    $: cpuDisplay = $isJarvisRunning ? `${Math.round($jarvisCpuUsage * 10) / 10}%` : null
+    $: ramDisplay = $isJarvisRunning ? `${$jarvisRamUsage} MB` : null
 </script>
 
 <div class="telemetry-grid">
@@ -28,18 +22,12 @@
             <span class="telemetry-val unavailable">—</span>
         {/if}
     </div>
-    {#each STATIC_METRICS as m}
-        <div class="telemetry-card" title="Not yet available">
-            <span class="telemetry-key">{m.key}</span>
-            <span class="telemetry-val unavailable">N/A</span>
-        </div>
-    {/each}
 </div>
 
 <style lang="scss">
 .telemetry-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(2, 1fr);
     gap: 8px;
 }
 
@@ -48,7 +36,7 @@
     flex-direction: column;
     gap: 8px;
     padding: 14px 16px;
-    border-radius: 8px;
+    border-radius: var(--r-lg);
     background: rgba(255,255,255,0.022);
     border: 1px solid rgba(255,255,255,0.048);
 }

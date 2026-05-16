@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { onMount, onDestroy } from "svelte"
+    import { onDestroy } from "svelte"
     import { runJarvisApp } from "@/lib/api"
     import { addToast } from "@/lib/toast"
 
@@ -10,10 +10,6 @@
     import {
         isJarvisRunning,
         updateJarvisStats,
-        startStatsPolling,
-        stopStatsPolling,
-        enableIpc,
-        disableIpc,
         tStore
     } from "@/stores"
 
@@ -21,29 +17,13 @@
 
     let processRunning = false
     let launching = false
-    let wasRunning = false
 
     const unsubRunning = isJarvisRunning.subscribe((value) => {
         processRunning = value
-        if (value) {
-            enableIpc()
-            wasRunning = true
-        } else if (wasRunning) {
-            disableIpc()
-            wasRunning = false
-        }
-    })
-
-    onMount(() => {
-        startStatsPolling(5000)
     })
 
     onDestroy(() => {
-        stopStatsPolling()
         unsubRunning()
-        // disableIpc already called via unsubRunning → isJarvisRunning handler when process stops.
-        // Call unconditionally here only if we never got a "stopped" event (e.g. user navigates away while running).
-        if (wasRunning) disableIpc()
     })
 
     async function runAssistant() {
@@ -158,11 +138,11 @@
 
 .offline-icon {
     font-size: 1rem;
-    color: rgba(255,190,90,0.92);
+    color: var(--color-warning);
 }
 
 .offline-text {
-    color: rgba(255,190,90,0.92);
+    color: var(--color-warning);
     font-size: 0.72rem;
     font-weight: 700;
     text-transform: uppercase;

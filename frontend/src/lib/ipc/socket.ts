@@ -38,7 +38,7 @@ export function disableIpc() {
 }
 
 export function connectIpc(port: number = IPC_PORT) {
-    if (ws?.readyState === WebSocket.OPEN) return
+    if (ws && (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING)) return
     manualDisconnect = false
 
     ws = new WebSocket(`ws://127.0.0.1:${port}`)

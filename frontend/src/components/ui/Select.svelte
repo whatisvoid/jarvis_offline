@@ -147,11 +147,13 @@
             bind:this={listEl}
             role="listbox"
             tabindex="-1"
+            aria-activedescendant={focusedIndex >= 0 ? `${_id}-opt-${focusedIndex}` : undefined}
             on:keydown={handleListKeydown}
         >
             {#each visibleData as item, i}
                 <!-- svelte-ignore a11y-click-events-have-key-events -->
                 <li
+                    id="{_id}-opt-{i}"
                     class="select-item"
                     class:focused={i === focusedIndex}
                     class:selected={item.value === value}
